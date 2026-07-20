@@ -141,5 +141,8 @@ react/cjs/react-jsx-runtime.production.js:
 <script>
 addEventListener("load",()=>{const s=document.getElementById("splash");setTimeout(()=>{s.style.opacity=0;setTimeout(()=>s.remove(),450)},250)});
 </script>
+<script>
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
 </body>
 </html>
