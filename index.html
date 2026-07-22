@@ -4,13 +4,24 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Arise — من الصفر إلى أرامكو</title>
+<meta name="description" content="لعبة تفاعلية للتحضير لاختبار القدرات — عالم حر، أيام تعيشها، شخصيات تتذكرك، وسلاحك عقلك. من الصفر إلى أرامكو." />
 <meta name="theme-color" content="#0F5147" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Arise" />
+<link rel="icon" href="./favicon.ico" sizes="any" />
 <link rel="icon" href="./icon-511.png" sizes="512x512" type="image/png" />
 <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
 <link rel="manifest" href="./manifest.json" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Arise — من الصفر إلى أرامكو" />
+<meta property="og:description" content="لعبة تفاعلية للتحضير لاختبار القدرات — عالم حر، أيام تعيشها، شخصيات تتذكرك، وسلاحك عقلك." />
+<meta property="og:image" content="./og-image.png" />
+<meta property="og:locale" content="ar_AR" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Arise — من الصفر إلى أرامكو" />
+<meta name="twitter:description" content="لعبة تفاعلية للتحضير لاختبار القدرات — عالم حر، أيام تعيشها، شخصيات تتذكرك، وسلاحك عقلك." />
+<meta name="twitter:image" content="./og-image.png" />
 <style>
 html,body{margin:0;background:#0F5147}
 #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0F5147;color:#fff;font-family:Tahoma,system-ui;z-index:99;transition:opacity .4s}
@@ -146,6 +157,26 @@ react/cjs/react-jsx-runtime.production.min.js:
 <script>
 addEventListener("load",()=>{const s=document.getElementById("splash");setTimeout(()=>{s.style.opacity=0;setTimeout(()=>s.remove(),450)},250)});
 if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+(() => {
+  const root = document.getElementById("root");
+  let mounted = root.children.length > 0, shown = false;
+  new MutationObserver(() => { if (root.children.length) mounted = true; }).observe(root, { childList: true });
+  function showRecovery() {
+    if (shown || root.children.length) return;
+    shown = true;
+    const d = document.createElement("div");
+    d.dir = "rtl";
+    d.style.cssText = "position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0F5147;color:#fff;font-family:Tahoma,system-ui;text-align:center;padding:24px";
+    d.innerHTML = '<div style="font-size:40px">😔</div><div style="font-weight:800;font-size:17px">حدث خطأ غير متوقع</div><div style="font-size:13px;opacity:.8;max-width:280px;line-height:1.7">جرّب إعادة تحميل الصفحة — تقدمك محفوظ تلقائيًا</div><button style="margin-top:8px;padding:12px 26px;border:none;border-radius:10px;background:#fff;color:#0F5147;font-weight:800;font-size:15px">إعادة المحاولة</button>';
+    d.querySelector("button").onclick = () => location.reload();
+    document.body.appendChild(d);
+  }
+  function onFailure() { if (mounted) requestAnimationFrame(showRecovery); }
+  addEventListener("error", onFailure);
+  addEventListener("unhandledrejection", onFailure);
+  addEventListener("load", () => setTimeout(() => { if (!mounted) showRecovery(); }, 6000));
+})();
 </script>
 </body>
 </html>
