@@ -1,0 +1,17 @@
+{
+  "name": "arise",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Arise — لعبة تفاعلية للتحضير لاختبار القدرات (من الصفر إلى أرامكو)",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}

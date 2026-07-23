@@ -3851,6 +3851,33 @@ function App() {
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 2800);
   };
   const mut = (fn) => setG(prev => { const n = JSON.parse(JSON.stringify(prev)); fn(n); return n; });
+
+  /* 💾 نسخة احتياطية: تصدير/استيراد كل التقدّم (التخزين محلي فقط) */
+  const doExport = () => {
+    try {
+      const data = JSON.stringify(g);
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `arise-backup-${(g.name || "لاعب")}-يوم${g.day}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      if (navigator.clipboard) navigator.clipboard.writeText(data).catch(() => {});
+      toast("💾 تم حفظ نسختك — احتفظ بالملف في مكان آمن");
+    } catch (e) { toast("تعذّر التصدير"); }
+  };
+  const doImport = (text) => {
+    try {
+      const obj = JSON.parse(text);
+      if (!obj || typeof obj !== "object" || obj.v == null || !obj.stats) { toast("⚠️ الرمز غير صالح"); return false; }
+      setG({ ...newSave(), ...obj });
+      setPanel(null);
+      toast("✅ تم استعادة تقدّمك بنجاح");
+      return true;
+    } catch (e) { toast("⚠️ تعذّرت الاستعادة — تأكد من الرمز/الملف"); return false; }
+  };
+
   const FX = { toast, play, later: (f) => setTimeout(f, 600) };
   const grant = (n, id) => grantP(n, id, FX);
   const addRewards = (n, xp, coins) => addRewardsP(n, xp, coins, FX);
@@ -4032,7 +4059,8 @@ function App() {
         buySkill={(sk) => mut(n => { n.skills.push(sk.id); if (n.skills.length >= 3) grant(n, "skills3"); })}
         buyItem={(it) => mut(n => { n.coins -= (n.dayFlags?.sale ? Math.ceil(it.price / 2) : it.price); n.items[it.id]++; })}
         buyAvatar={(av) => mut(n => { n.coins -= av.price; n.owned.push(av.id); n.avatar = av.id; })}
-        wearAvatar={(av) => mut(n => { n.avatar = av.id; })} toast={toast} />}
+        wearAvatar={(av) => mut(n => { n.avatar = av.id; })} toast={toast}
+        onExport={doExport} onImport={doImport} />}
     </div>
   );
 }
@@ -4600,7 +4628,43 @@ function Ending({ g, theme, onReplay, onFree }) {
 
 /* ═══════════════ 🗂 PANELS ═══════════════ */
 
-function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, wearAvatar, toast }) {
+function BackupBox({ theme, onExport, onImport }) {
+  const [code, setCode] = useState("");
+  const [open, setOpen] = useState(false);
+  const fileRef = useRef(null);
+  const readFile = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => onImport(String(r.result || ""));
+    r.readAsText(f);
+  };
+  return (
+    <div className="card" style={{ marginTop: 14 }}>
+      <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 4 }}>💾 نسخة احتياطية ونقل التقدّم</div>
+      <div style={{ fontSize: 12, color: theme.sub, lineHeight: 1.8, marginBottom: 10 }}>
+        صدّر تقدّمك واحتفظ فيه، أو استعِده على جهاز ثاني. تقدّمك محفوظ على هذا المتصفح فقط — خذ نسخة بين فترة وأخرى حتى لا تفقده.
+      </div>
+      <button className="btn" style={{ width: "100%", padding: 11, marginBottom: 8 }} onClick={onExport}>⬇️ تصدير نسخة احتياطية</button>
+      {!open ? (
+        <button className="btn ghost" style={{ width: "100%", padding: 11 }} onClick={() => setOpen(true)}>⬆️ استعادة نسخة</button>
+      ) : (
+        <>
+          <textarea value={code} onChange={e => setCode(e.target.value)} dir="ltr" placeholder="الصق رمز النسخة الاحتياطية هنا…"
+            style={{ width: "100%", boxSizing: "border-box", minHeight: 70, borderRadius: 10, border: `1px solid ${theme.line}`, padding: 10, fontSize: 12, fontFamily: "monospace", background: theme.bg, color: theme.text, marginBottom: 8, resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn" style={{ flex: 1, padding: 10, opacity: code.trim() ? 1 : .45 }} disabled={!code.trim()} onClick={() => onImport(code.trim())}>استعد من الرمز</button>
+            <button className="btn ghost" style={{ flex: 1, padding: 10 }} onClick={() => fileRef.current && fileRef.current.click()}>📁 من ملف</button>
+          </div>
+          <input ref={fileRef} type="file" accept="application/json,.json,.txt" style={{ display: "none" }} onChange={readFile} />
+          <div style={{ fontSize: 11, color: "#B3402F", marginTop: 8, textAlign: "center" }}>⚠️ الاستعادة تستبدل تقدّمك الحالي بالكامل</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, wearAvatar, toast, onExport, onImport }) {
   const priceOf = (p) => (g.dayFlags?.sale ? Math.ceil(p / 2) : p);
   return (
     <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -4677,6 +4741,7 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
         </div>}
 
         {panel === "stats" && <StatsPanel g={g} theme={theme} />}
+        {panel === "stats" && <BackupBox theme={theme} onExport={onExport} onImport={onImport} />}
       </div>
     </div>
   );
