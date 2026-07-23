@@ -3488,7 +3488,108 @@ function RoadPanel({ g, theme, close, goAcad }) {
 }
 
 /* ---------- 📔 سجل الرحلة ---------- */
-function Journal({ g, theme, close }) {
+function MistakesTab({ g, theme, clearMistake }) {
+  const mistakes = g.mistakes || [];
+  const [mode, setMode] = useState("list");   // list | test | done
+  const [queue, setQueue] = useState([]);
+  const [qi, setQi] = useState(0);
+  const [picked, setPicked] = useState(null);
+  const [cleared, setCleared] = useState(0);
+
+  if (mistakes.length === 0 && mode === "list") {
+    return (
+      <div className="card" style={{ textAlign: "center", color: theme.sub, fontSize: 13, lineHeight: 2 }}>
+        📕 دفتر أخطائك فاضٍ.<br />كل سؤال تخطئ فيه بالمعارك يُحفظ هنا تلقائيًا — راجعه، أعِد اختبار نفسك فيه، وأتقنه.
+      </div>
+    );
+  }
+
+  const startTest = () => { setQueue([...mistakes]); setQi(0); setPicked(null); setCleared(0); setMode("test"); play("click"); };
+  const grade = (m, correct) => { if (correct) { clearMistake(m.id); setCleared(c => c + 1); play("correct"); } else play("wrong"); };
+
+  if (mode === "done") {
+    return (
+      <div className="card" style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 40 }}>🎯</div>
+        <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 4 }}>خلّصت مراجعة أخطائك</div>
+        <div style={{ fontSize: 13, color: theme.sub, marginBottom: 14 }}>أتقنت {cleared} من {queue.length} — بقي {mistakes.length} في الدفتر</div>
+        <button className="btn" style={{ width: "100%", padding: 11 }} onClick={() => { setMode("list"); play("click"); }}>رجوع للدفتر</button>
+      </div>
+    );
+  }
+
+  if (mode === "test") {
+    const m = queue[qi];
+    const isLast = qi >= queue.length - 1;
+    const advance = () => { if (isLast) setMode("done"); else { setQi(qi + 1); setPicked(null); } };
+    const showNext = picked !== null && picked !== "rev";
+    return (
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: theme.sub, marginBottom: 8, fontWeight: 800 }}>
+          <span>سؤال {qi + 1}/{queue.length}</span><span>{SEC_AR[m.sec] || m.sec}</span>
+        </div>
+        <div dir="auto" className="card" style={{ fontWeight: 800, fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.8 }}>{m.q}</div>
+        {m.kind === "mcq" ? (
+          <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+            {m.options.map((opt, idx) => {
+              let bg; if (picked !== null) { if (idx === m.a) bg = "#1F7A5C"; else if (idx === picked) bg = "#B3402F"; }
+              return (
+                <button key={idx} className="opt" disabled={picked !== null}
+                  style={{ background: bg, color: bg ? "#fff" : undefined, textAlign: "start" }}
+                  onClick={() => { if (picked !== null) return; setPicked(idx); grade(m, idx === m.a); }}>{opt}</button>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ marginTop: 8 }}>
+            {picked === null ? (
+              <button className="btn ghost" style={{ width: "100%", padding: 11 }} onClick={() => setPicked("rev")}>أظهر الإجابة</button>
+            ) : (
+              <>
+                <div className="card" style={{ textAlign: "center", fontWeight: 900 }}>الإجابة الصحيحة: <span style={{ color: "#1F7A5C" }}>{m.a}</span></div>
+                {picked === "rev" && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button className="btn" style={{ flex: 1, padding: 10 }} onClick={() => { grade(m, true); setPicked("marked"); }}>✓ عرفتها</button>
+                    <button className="btn ghost" style={{ flex: 1, padding: 10 }} onClick={() => { grade(m, false); setPicked("marked"); }}>✗ راجعها</button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {showNext && (
+          <>
+            {m.ex && <div style={{ fontSize: 12.5, color: theme.sub, marginTop: 8, lineHeight: 1.8 }}>💡 {m.ex}</div>}
+            <button className="btn" style={{ width: "100%", padding: 11, marginTop: 10 }} onClick={advance}>{isLast ? "إنهاء ✓" : "التالي ←"}</button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // mode === "list"
+  return (
+    <>
+      <button className="btn" style={{ width: "100%", padding: 12, marginBottom: 10 }} onClick={startTest}>🎯 اختبرني في أخطائي ({mistakes.length})</button>
+      {mistakes.map((m, i) => (
+        <div key={m.id + "_" + i} className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+            <span style={{ fontSize: 11, fontWeight: 900, background: theme.line + "88", borderRadius: 6, padding: "2px 8px" }}>{SEC_AR[m.sec] || m.sec}</span>
+            <span style={{ fontSize: 10.5, color: theme.sub }}>📅 يوم {m.ts}</span>
+          </div>
+          <div dir="auto" style={{ fontWeight: 800, fontSize: 13.5, whiteSpace: "pre-wrap", lineHeight: 1.7 }}>{m.q}</div>
+          <div style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.9 }}>
+            <span style={{ color: "#B3402F" }}>إجابتك: {m.picked === -1 ? "انتهى الوقت ⏰" : m.kind === "mcq" ? m.options[m.picked] : m.picked} ❌</span><br />
+            <span style={{ color: "#1F7A5C" }}>الصحيحة: {m.kind === "mcq" ? m.options[m.a] : m.a} ✓</span>
+          </div>
+          {m.ex && <div style={{ fontSize: 12, color: theme.sub, marginTop: 5, lineHeight: 1.8 }}>💡 {m.ex}</div>}
+        </div>
+      ))}
+    </>
+  );
+}
+
+function Journal({ g, theme, close, clearMistake }) {
   const [tab, setTab] = useState("tl");
   const col = COLLECT.map(c => ({ ...c, got: c.cond(g) }));
   const gotN = col.filter(c => c.got).length;
@@ -3501,7 +3602,7 @@ function Journal({ g, theme, close }) {
           <button onClick={close} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: theme.text }}>✕</button>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {[["tl", "📖 يومياتي"], ["col", `🎒 المقتنيات ${gotN}/${col.length}`]].map(([id, l]) => (
+          {[["tl", "📖 يومياتي"], ["col", `🎒 المقتنيات ${gotN}/${col.length}`], ["mis", `📕 أخطائي ${(g.mistakes || []).length}`]].map(([id, l]) => (
             <button key={id} onClick={() => setTab(id)} style={{ flex: 1, border: "none", borderRadius: 10, padding: "8px 0", fontWeight: 900, fontSize: 13, cursor: "pointer", fontFamily: "inherit", background: tab === id ? "#0F5147" : theme.line + "66", color: tab === id ? "#fff" : theme.text }}>{l}</button>
           ))}
         </div>
@@ -3538,6 +3639,8 @@ function Journal({ g, theme, close }) {
           ))}
         </>}
 
+        {tab === "mis" && <MistakesTab g={g} theme={theme} clearMistake={clearMistake} />}
+
         {tab === "col" && <>
           <div style={{ background: theme.line, borderRadius: 99, height: 8, overflow: "hidden", marginBottom: 10 }}>
             <div style={{ width: `${(gotN / col.length) * 100}%`, height: "100%", background: "linear-gradient(90deg,#F0C560,#C89235)", borderRadius: 99 }} />
@@ -3572,8 +3675,23 @@ const newSave = () => ({
   daily: null, weekly: null, season: null, history: [], timeline: [], coachN: 0,
   acad: { units: {}, placed: null, simBest: null, opened: {} },
   srs: {},
+  mistakes: [],
   mem: { study: 0, work: 0, rest: 0, perfects: 0, lost: {}, comeback: {}, gatFirst: null, gatImproved: null, lastComeback: null },
 });
+
+/* 📕 دفتر الأخطاء: يلتقط السؤال الذي أخطأ فيه اللاعب كاملًا ليعيد مراجعته لاحقًا */
+function mistakeRec(q, picked, kind) {
+  return {
+    id: sigOf(q.q), sec: q.sec, kind,
+    q: q.q, options: q.options || null, a: q.a, picked,
+    ex: q.ex || "", steps: q.steps || null,
+  };
+}
+function addMistake(n, rec, day) {
+  n.mistakes = (n.mistakes || []).filter(m => m.id !== rec.id);
+  n.mistakes.unshift({ ...rec, ts: day });
+  if (n.mistakes.length > 60) n.mistakes.length = 60;
+}
 
 
 
@@ -3739,11 +3857,12 @@ function applySpendSlot(n, energyCost) {
 function applyBattleOutcome(n, res, fx = FX_NULL) {
   let tip = null;
 
-      res.answered.forEach(({ sec, ok, t, to }) => {
+      res.answered.forEach(({ sec, ok, t, to, wrong }) => {
         n.stats.answered++; if (ok) n.stats.correct++;
         n.stats.bySec[sec] ||= { a: 0, c: 0, t: 0, to: 0 };
         const v = n.stats.bySec[sec];
         v.a++; if (ok) v.c++; v.t = (v.t || 0) + (t || 0); if (to) v.to = (v.to || 0) + 1;
+        if (wrong) addMistake(n, wrong, n.day);   // 📕 احفظ السؤال في دفتر الأخطاء
       });
       n.stats.bestCombo = Math.max(n.stats.bestCombo, res.bestCombo);
       n.lastBattle = { won: res.won, boss: res.isBoss };
@@ -4054,7 +4173,8 @@ function App() {
       </div>
 
       {panel === "road" && <RoadPanel g={g} theme={theme} close={() => setPanel(null)} goAcad={() => setView({ s: "acad" })} />}
-      {panel === "journal" && <Journal g={g} theme={theme} close={() => setPanel(null)} />}
+      {panel === "journal" && <Journal g={g} theme={theme} close={() => setPanel(null)}
+        clearMistake={(id) => mut(n => { n.mistakes = (n.mistakes || []).filter(m => m.id !== id); })} />}
       {panel && panel !== "journal" && <Panel g={g} theme={theme} panel={panel} spFree={spFree} close={() => setPanel(null)}
         buySkill={(sk) => mut(n => { n.skills.push(sk.id); if (n.skills.length >= 3) grant(n, "skills3"); })}
         buyItem={(it) => mut(n => { n.coins -= (n.dayFlags?.sale ? Math.ceil(it.price / 2) : it.price); n.items[it.id]++; })}
@@ -4329,7 +4449,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || over) return;
     setPicked(idx);
     const ok = idx === q.a;
-    const newLog = [...log, { sec: q.sec, ok, t: took() }];
+    const newLog = [...log, { sec: q.sec, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, idx, "mcq") }) }];
     setLog(newLog);
     if (ok) {
       const newCombo = combo + 1;
@@ -4342,7 +4462,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
 
   const miss = (idx) => {
     setPicked(-1);
-    const newLog = [...log, { sec: q.sec, ok: false, t: TIME, to: true }];
+    const newLog = [...log, { sec: q.sec, ok: false, t: TIME, to: true, ...((q.kind === "mcq" || q.kind === "num") ? { wrong: mistakeRec(q, -1, q.kind) } : {}) }];
     setLog(newLog);
     takeHit(newLog);
   };
@@ -4352,7 +4472,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || numVal === "") return;
     const ok = parseInt(numVal, 10) === q.a;
     setPicked(ok ? "done" : "wrongnum");
-    const newLog = [...log, { sec: q.sec, ok, t: took() }];
+    const newLog = [...log, { sec: q.sec, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, numVal, "num") }) }];
     setLog(newLog);
     if (ok) {
       const newCombo = combo + 1;
