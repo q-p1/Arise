@@ -473,6 +473,10 @@ QQ.registerUnitGen({
 
 
 /* ═══ content/generators-quant.js ═══ */
+const gcd2 = (a, b) => b ? gcd2(b, a % b) : Math.abs(a);
+const fact = (n) => { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; };
+const nCr = (n, k) => fact(n) / (fact(k) * fact(n - k));
+const frac = (num, den) => { const g = gcd2(num, den) || 1; return `${num / g}/${den / g}`; };
 /* ═══════════════════════════════════════════════════════════
    ♾️ مولّدات الرياضيات — أسئلة لا تنتهي، تعمل أوفلاين بلا أي AI
    كل مولّد يُرجع: { q, correct, wrongs:[{v,why}], ex, steps, hints, alt? }
@@ -681,6 +685,119 @@ QQ.registerGenerators([
       ex: `${n} = ${d}×${q} + ${r}، فالباقي ${r}.`,
       steps: [`أكبر مضاعف لـ${d} أقل من ${n} هو ${d * q}`, `${n} − ${d * q} = ${r}`],
       hints: ["اطرح أكبر مضاعف للقاسم لا يتجاوز العدد"] }; } },
+
+/* ── الاحتمالات ── */
+{ id: "prob-simple", topic: "data", diff: 2, skill: "الاحتمالات", est: 45,
+  gen: (R) => { const kind = R.pick(["red", "blue"]); const red = R.i(2, 6), blue = R.i(2, 6); const tot = red + blue;
+    const pick = kind === "red" ? red : blue, col = kind === "red" ? "حمراء" : "زرقاء", colE = kind === "red" ? "red" : "blue";
+    const correct = frac(pick, tot);
+    const w1 = frac(pick, tot - pick), w2 = frac(tot - pick, tot), w3 = frac(tot, pick);
+    if (new Set([correct, w1, w2, w3]).size < 4) return null;
+    return { q: `A bag has ${red} red and ${blue} blue balls. One ball is drawn at random. The probability that it is ${colE} is:`, correct,
+      wrongs: [{ v: w1, why: "قسمت على عدد الكرات الأخرى بدل الإجمالي." },
+               { v: w2, why: "حسبت احتمال اللون الآخر." },
+               { v: w3, why: "قلبت الكسر — الاحتمال = المطلوب ÷ الكل." }],
+      ex: `الاحتمال = عدد الـ${col} ÷ الإجمالي = ${pick}/${tot} = ${correct}.`,
+      steps: [`الإجمالي = ${red} + ${blue} = ${tot}`, `الاحتمال = ${pick} ÷ ${tot} = ${correct}`],
+      hints: ["الاحتمال = عدد الحالات المطلوبة ÷ عدد كل الحالات", "اجمع كل الكرات أولًا"] }; } },
+
+/* ── العدّ: التباديل والتوافيق ── */
+{ id: "count-perm", topic: "data", diff: 3, skill: "التباديل (الترتيب)", est: 50, type: "num",
+  gen: (R) => { const n = R.pick([3, 4, 5, 6]);
+    return { q: `In how many different ways can ${n} distinct books be arranged in a row?`, a: fact(n),
+      ex: `الترتيب مهم → ${n}! = ${Array.from({ length: n }, (_, i) => n - i).join("×")} = ${fact(n)}.`,
+      steps: [`عدد الترتيبات = ${n}!`, `= ${fact(n)}`],
+      hints: ["حين يهم الترتيب استخدم المضروب !n", `${n}! = ${n}×${n - 1}×…×1`] }; } },
+{ id: "count-comb", topic: "data", diff: 3, skill: "التوافيق (الاختيار)", est: 55,
+  gen: (R) => { const n = R.pick([4, 5, 6, 7]), k = R.pick([2, 3]); if (k >= n) return null;
+    const correct = nCr(n, k), wPerm = fact(n) / fact(n - k), wMul = n * k, wSum = n + k;
+    if (new Set([correct, wPerm, wMul, wSum]).size < 4) return null;
+    return { q: `From ${n} students, how many ways can a committee of ${k} be chosen (order does not matter)?`, correct,
+      wrongs: [{ v: wPerm, why: "هذا عدد التباديل (يهتم بالترتيب)؛ اللجنة لا يهمها الترتيب فاقسم على !k." },
+               { v: wMul, why: "ضربت العددين فقط." },
+               { v: wSum, why: "جمعت العددين." }],
+      ex: `الترتيب لا يهم → C(${n},${k}) = ${n}! ÷ (${k}!×${n - k}!) = ${correct}.`,
+      steps: [`لأن الترتيب لا يهم نستخدم التوافيق`, `C(${n},${k}) = ${correct}`],
+      hints: ["إذا لم يهم الترتيب استخدم التوافيق C(n,k)", "التوافيق = التباديل ÷ !k"] }; } },
+
+/* ── المتباينات ── */
+{ id: "inequality", topic: "algebra", diff: 2, skill: "حل المتباينات", est: 50,
+  gen: (R) => { const a = R.pick([2, 3, 4, 5]), x = R.i(2, 9), b = R.i(1, 12), lt = R.bool();
+    const c = a * x + b;   // a·x + b, threshold so solution is x < x  (strict)
+    return { q: `If ${a}x + ${b} ${lt ? "<" : ">"} ${c}, then:`, correct: `x ${lt ? "<" : ">"} ${x}`,
+      wrongs: [{ v: `x ${lt ? ">" : "<"} ${x}`, why: "عكست إشارة المتباينة بلا سبب — لم نقسم على عدد سالب." },
+               { v: `x ${lt ? "<" : ">"} ${c - b}`, why: `توقفت عند ${c} − ${b} ونسيت القسمة على ${a}.` },
+               { v: `x = ${x}`, why: "المتباينة تعطي مدى قيم لا قيمة واحدة." }],
+      ex: `${a}x ${lt ? "<" : ">"} ${c} − ${b} = ${c - b} → x ${lt ? "<" : ">"} ${x}.`,
+      steps: [`اطرح ${b}: ${a}x ${lt ? "<" : ">"} ${c - b}`, `اقسم على ${a} (موجب فلا تنقلب الإشارة): x ${lt ? "<" : ">"} ${x}`],
+      hints: ["عامل المتباينة كالمعادلة", "الإشارة تنقلب فقط عند الضرب/القسمة على سالب"] }; } },
+
+/* ── الجذور ── */
+{ id: "sqrt", topic: "arithmetic", diff: 2, skill: "الجذور التربيعية", est: 40, type: "num",
+  gen: (R) => { const r = R.i(4, 20); const kind = R.pick(["root", "eq"]);
+    if (kind === "root") return { q: `√${r * r} = ?`, a: r,
+      ex: `${r} × ${r} = ${r * r}، فالجذر ${r}.`, steps: [`ابحث عن عدد ضربه في نفسه = ${r * r}`, `= ${r}`], hints: ["أي عدد × نفسه يعطي هذا العدد؟"] };
+    return { q: `If x² = ${r * r} and x > 0, then x = ?`, a: r,
+      ex: `x = √${r * r} = ${r}.`, steps: [`خذ الجذر التربيعي للطرفين`, `x = ${r}`], hints: ["الجذر التربيعي يعكس التربيع"] }; } },
+
+/* ── عمليات الكسور والأعداد العشرية ── */
+{ id: "frac-add", topic: "arithmetic", diff: 2, skill: "جمع/طرح الكسور", est: 50,
+  gen: (R) => { const d1 = R.pick([2, 3, 4, 6]), d2 = R.pick([2, 3, 4, 6]); const n1 = R.i(1, d1 - 1), n2 = R.i(1, d2 - 1);
+    const sub = R.bool(); const L = d1 * d2 / gcd2(d1, d2);
+    let num = sub ? n1 * (L / d1) - n2 * (L / d2) : n1 * (L / d1) + n2 * (L / d2); if (num <= 0) return null;
+    const correct = frac(num, L);
+    const w1 = sub ? `${n1 - n2}/${d1 - d2 || 1}` : `${n1 + n2}/${d1 + d2}`, w2 = frac(sub ? Math.abs(n1 - n2) : n1 + n2, L), w3 = `${n1}/${d2}`;
+    if (new Set([correct, w1, w2, w3]).size < 4) return null;
+    return { q: `${n1}/${d1} ${sub ? "−" : "+"} ${n2}/${d2} = ?`, correct,
+      wrongs: [{ v: w1, why: "جمعت/طرحت البسوط والمقامات مباشرة — لا بد من مقام موحّد." },
+               { v: w2, why: "خطأ في التوحيد أو الجمع." },
+               { v: w3, why: "خلطت بين البسط والمقام." }],
+      ex: `وحّد المقام إلى ${L}: ${n1 * (L / d1)}/${L} ${sub ? "−" : "+"} ${n2 * (L / d2)}/${L} = ${num}/${L} = ${correct}.`,
+      steps: [`المقام الموحّد = ${L}`, `${n1 * (L / d1)} ${sub ? "−" : "+"} ${n2 * (L / d2)} = ${num}`, `= ${correct}`],
+      hints: ["وحّد المقامات قبل الجمع أو الطرح", "لا تجمع المقامات"] }; } },
+{ id: "decimal-op", topic: "arithmetic", diff: 1, skill: "الأعداد العشرية", est: 35, type: "num",
+  gen: (R) => { const a = R.i(2, 40) / 10, b = R.i(2, 40) / 10, mul = R.bool();
+    const ans = mul ? Math.round(a * b * 100) / 100 : Math.round((a + b) * 10) / 10;
+    return { q: `${a} ${mul ? "×" : "+"} ${b} = ?`, a: ans,
+      ex: mul ? `${a} × ${b} = ${ans}.` : `${a} + ${b} = ${ans}.`,
+      steps: mul ? [`اضرب متجاهلًا الفاصلة ثم عدّ المنازل العشرية`, `= ${ans}`] : [`حاذِ الفواصل واجمع`, `= ${ans}`],
+      hints: [mul ? "عدد المنازل العشرية في الناتج = مجموع منازل العددين" : "حاذِ الفاصلة العشرية"] }; } },
+
+/* ── الإحصاء: الوسيط والمنوال والمدى ── */
+{ id: "stat-measures", topic: "data", diff: 2, skill: "الوسيط/المنوال/المدى", est: 50, type: "num",
+  gen: (R) => { const arr = Array.from({ length: 5 }, () => R.i(2, 20)); const measure = R.pick(["median", "range", "mode"]);
+    if (measure === "mode") { const withDup = [...arr]; const v = R.pick(arr); withDup.push(v); // ensure a mode exists
+      const counts = {}; withDup.forEach(x => counts[x] = (counts[x] || 0) + 1); const maxC = Math.max(...Object.values(counts));
+      const modes = Object.keys(counts).filter(k => counts[k] === maxC); if (modes.length !== 1) return null;
+      return { q: `Find the mode: ${R.shuffle(withDup).join(", ")}`, a: Number(modes[0]),
+        ex: `المنوال = القيمة الأكثر تكرارًا = ${modes[0]}.`, steps: [`عُدّ تكرار كل قيمة`, `الأكثر تكرارًا = ${modes[0]}`], hints: ["المنوال = الأكثر ظهورًا"] }; }
+    const sorted = [...arr].sort((x, y) => x - y);
+    if (measure === "median") return { q: `Find the median: ${arr.join(", ")}`, a: sorted[2],
+      ex: `رتّب تصاعديًا: ${sorted.join(", ")} → الوسيط (الأوسط) = ${sorted[2]}.`, steps: [`رتّب: ${sorted.join(", ")}`, `القيمة الوسطى = ${sorted[2]}`], hints: ["رتّب الأرقام ثم خذ الأوسط"] };
+    return { q: `Find the range: ${arr.join(", ")}`, a: sorted[4] - sorted[0],
+      ex: `المدى = الأكبر − الأصغر = ${sorted[4]} − ${sorted[0]} = ${sorted[4] - sorted[0]}.`, steps: [`الأكبر = ${sorted[4]}، الأصغر = ${sorted[0]}`, `المدى = ${sorted[4] - sorted[0]}`], hints: ["المدى = أكبر قيمة − أصغر قيمة"] }; } },
+
+/* ── تحليل البيانات: قراءة جدول ── */
+{ id: "data-table", topic: "data", diff: 2, skill: "قراءة جدول بيانات", est: 55,
+  gen: (R) => { const items = [["Sat", R.i(20, 60)], ["Sun", R.i(20, 60)], ["Mon", R.i(20, 60)], ["Tue", R.i(20, 60)]];
+    const tot = items.reduce((s, x) => s + x[1], 0); const kind = R.pick(["total", "most", "diff"]);
+    const table = items.map(([d, v]) => `${d}: ${v}`).join(" | ");
+    if (kind === "total") { const correct = tot, w1 = Math.round(tot / items.length), w2 = Math.max(...items.map(x => x[1])), w3 = tot - items[0][1];
+      if (new Set([correct, w1, w2, w3]).size < 4) return null;
+      return { q: `Sales per day — ${table}\nWhat is the total for the four days?`, correct,
+        wrongs: [{ v: w1, why: "حسبت المتوسط لا المجموع." }, { v: w2, why: "أخذت أعلى يوم فقط." }, { v: w3, why: "نسيت إضافة أحد الأيام." }],
+        ex: `المجموع = ${items.map(x => x[1]).join(" + ")} = ${tot}.`, steps: [`اجمع كل الأيام`, `= ${tot}`], hints: ["اجمع قيم كل الصفوف"] }; }
+    if (kind === "most") { const top = items.reduce((a, b) => b[1] > a[1] ? b : a); const correct = top[1];
+      const others = items.filter(x => x[0] !== top[0]).map(x => x[1]); if (new Set(items.map(x => x[1])).size < items.length) return null;
+      return { q: `Sales per day — ${table}\nWhat were the sales on the best day?`, correct,
+        wrongs: others.map(v => ({ v, why: "ليست أعلى قيمة في الجدول." })),
+        ex: `أعلى قيمة = ${top[1]} (${top[0]}).`, steps: [`قارن القيم`, `الأعلى = ${top[1]}`], hints: ["ابحث عن أكبر رقم في الجدول"] }; }
+    const mx = Math.max(...items.map(x => x[1])), mn = Math.min(...items.map(x => x[1])); const correct = mx - mn;
+    const w1 = mx + mn, w2 = Math.round(tot / items.length), w3 = mx;
+    if (new Set([correct, w1, w2, w3]).size < 4) return null;
+    return { q: `Sales per day — ${table}\nWhat is the difference between the highest and lowest day?`, correct,
+      wrongs: [{ v: w1, why: "جمعت بدل الطرح." }, { v: w2, why: "هذا المتوسط لا الفرق." }, { v: w3, why: "هذي أعلى قيمة فقط." }],
+      ex: `الفرق = ${mx} − ${mn} = ${correct}.`, steps: [`الأعلى = ${mx}، الأدنى = ${mn}`, `الفرق = ${correct}`], hints: ["اطرح الأصغر من الأكبر"] }; } },
 
 /* ── الهندسة ── */
 { id: "geo-rect", topic: "geometry", diff: 1, skill: "محيط ومساحة", est: 35,
@@ -1042,6 +1159,68 @@ const CTX = [
   { q: "The honest judge ruled fairly, wisely, and dishonestly in the case.", options: ["honest", "fairly", "wisely", "dishonestly"], bad: 3, ex: "«dishonestly» يناقض النزاهة والعدل والحكمة." },
 ];
 
+/* الترادف: كلمة + مرادفها + مشتّتات (مع معانيها) */
+const SYN = [
+  { w: "abundant", a: "plentiful", ar: "وفير", w3: [["scarce", "نادر — عكسها"], ["fragile", "هشّ"], ["distant", "بعيد"]] },
+  { w: "brave", a: "courageous", ar: "شجاع", w3: [["timid", "خجول — عكسها"], ["clever", "ذكي"], ["polite", "مؤدّب"]] },
+  { w: "rapid", a: "swift", ar: "سريع", w3: [["slow", "بطيء — عكسها"], ["heavy", "ثقيل"], ["silent", "صامت"]] },
+  { w: "difficult", a: "challenging", ar: "صعب", w3: [["simple", "بسيط — عكسها"], ["cheap", "رخيص"], ["bright", "مشرق"]] },
+  { w: "happy", a: "joyful", ar: "سعيد", w3: [["sad", "حزين — عكسها"], ["tired", "متعب"], ["hungry", "جائع"]] },
+  { w: "wealthy", a: "affluent", ar: "ثري", w3: [["poor", "فقير — عكسها"], ["famous", "مشهور"], ["honest", "أمين"]] },
+  { w: "essential", a: "crucial", ar: "أساسي", w3: [["optional", "اختياري — عكسها"], ["obvious", "واضح"], ["temporary", "مؤقّت"]] },
+  { w: "enormous", a: "immense", ar: "ضخم", w3: [["tiny", "ضئيل — عكسها"], ["empty", "فارغ"], ["gentle", "لطيف"]] },
+  { w: "accurate", a: "precise", ar: "دقيق", w3: [["vague", "غامض — عكسها"], ["ancient", "قديم"], ["loud", "عالٍ"]] },
+  { w: "generous", a: "giving", ar: "كريم", w3: [["stingy", "بخيل — عكسها"], ["quiet", "هادئ"], ["curious", "فضولي"]] },
+];
+
+/* التضاد: كلمة + ضدّها + مشتّتات */
+const ANT = [
+  { w: "ancient", a: "modern", ar: "قديم ↔ حديث", w3: [["old", "قديم — مرادف لا ضد"], ["historic", "تاريخي"], ["fragile", "هشّ"]] },
+  { w: "expand", a: "shrink", ar: "يتمدّد ↔ ينكمش", w3: [["grow", "ينمو — مرادف"], ["build", "يبني"], ["move", "يتحرّك"]] },
+  { w: "victory", a: "defeat", ar: "نصر ↔ هزيمة", w3: [["success", "نجاح — مرادف"], ["battle", "معركة"], ["reward", "مكافأة"]] },
+  { w: "generous", a: "stingy", ar: "كريم ↔ بخيل", w3: [["kind", "لطيف — مرادف"], ["wealthy", "ثري"], ["polite", "مؤدّب"]] },
+  { w: "increase", a: "decrease", ar: "يزيد ↔ ينقص", w3: [["rise", "يرتفع — مرادف"], ["change", "يتغيّر"], ["repeat", "يكرّر"]] },
+  { w: "accept", a: "reject", ar: "يقبل ↔ يرفض", w3: [["agree", "يوافق — مرادف"], ["receive", "يستلم"], ["decide", "يقرّر"]] },
+  { w: "artificial", a: "natural", ar: "اصطناعي ↔ طبيعي", w3: [["fake", "زائف — مرادف"], ["modern", "حديث"], ["cheap", "رخيص"]] },
+  { w: "temporary", a: "permanent", ar: "مؤقّت ↔ دائم", w3: [["brief", "وجيز — مرادف"], ["urgent", "عاجل"], ["hidden", "مخفي"]] },
+  { w: "praise", a: "criticize", ar: "يمدح ↔ ينتقد", w3: [["admire", "يُعجب — مرادف"], ["notice", "يلاحظ"], ["explain", "يشرح"]] },
+  { w: "brighten", a: "darken", ar: "يُضيء ↔ يُعتم", w3: [["shine", "يلمع — مرادف"], ["reflect", "يعكس"], ["cover", "يغطّي"]] },
+];
+
+/* القواعد (Grammar): إكمال بالخيار الصحيح نحويًا */
+const GRAMMAR = [
+  { q: "She ___ to school every day.", a: "goes", w3: [["go", "الفاعل مفرد غائب يتطلّب goes."], ["going", "يحتاج فعل مساعد قبل going."], ["gone", "gone تصريف ثالث يحتاج have/has."]], ex: "مع he/she/it نضيف s للفعل: goes." },
+  { q: "They have ___ their homework already.", a: "finished", w3: [["finish", "بعد have نستخدم التصريف الثالث."], ["finishing", "يحتاج is/are لا have."], ["finishes", "have + p.p لا s."]], ex: "have + تصريف ثالث (finished)." },
+  { q: "There ___ many books on the table.", a: "are", w3: [["is", "many books جمع فيتطلّب are."], ["was", "الزمن مضارع لا ماضٍ."], ["be", "be مجرّدة لا تصلح خبرًا هنا."]], ex: "جمع (many books) → are." },
+  { q: "He is taller ___ his brother.", a: "than", w3: [["then", "then للزمن لا للمقارنة."], ["that", "that لا تُستخدم بعد صفة تفضيل."], ["from", "المقارنة بـtaller than."]], ex: "صيغة المقارنة: -er + than." },
+  { q: "If it rains, we ___ stay home.", a: "will", w3: [["would", "الجملة شرط أول → will."], ["are", "يحتاج فعل بعده."], ["did", "did للماضي لا للشرط المستقبلي."]], ex: "الشرط الأول: If + مضارع, will + مصدر." },
+  { q: "I have lived here ___ 2019.", a: "since", w3: [["for", "for مع مدة لا مع نقطة زمنية."], ["from", "مع الحاضر التام نستخدم since لنقطة البداية."], ["at", "at للأوقات المحددة القصيرة."]], ex: "since + نقطة زمنية (2019)." },
+  { q: "Each of the students ___ a book.", a: "has", w3: [["have", "each يُعامل معاملة المفرد."], ["having", "يحتاج فعل مساعد."], ["are", "each مفرد لا جمع."]], ex: "each + فعل مفرد: has." },
+  { q: "The movie was ___ than I expected.", a: "better", w3: [["good", "المقارنة تتطلّب better."], ["best", "best تفضيل مطلق لا مقارنة بين اثنين."], ["well", "well ظرف لا صفة مقارنة."]], ex: "good → better (مقارنة)." },
+];
+
+/* تحديد الخطأ النحوي (Error Identification): أي جزء تحته خط خطأ */
+const ERRID = [
+  { q: "She (don't) (like) (to) (swim).", options: ["don't", "like", "to", "swim"], bad: 0, ex: "مع she نستخدم doesn't لا don't." },
+  { q: "The children (is) (playing) (in) (the park).", options: ["is", "playing", "in", "the park"], bad: 0, ex: "children جمع → are لا is." },
+  { q: "He (have) (finished) (his) (work).", options: ["have", "finished", "his", "work"], bad: 0, ex: "مع he نستخدم has لا have." },
+  { q: "They (was) (very) (happy) (yesterday).", options: ["was", "very", "happy", "yesterday"], bad: 0, ex: "they → were لا was." },
+  { q: "I (enjoy) (to read) (books) (daily).", options: ["enjoy", "to read", "books", "daily"], bad: 1, ex: "بعد enjoy نستخدم reading لا to read." },
+  { q: "She is (more) (taller) (than) (him).", options: ["more", "taller", "than", "him"], bad: 0, ex: "لا نجمع more مع taller؛ taller وحدها تكفي." },
+  { q: "We (didn't) (went) (to) (the mall).", options: ["didn't", "went", "to", "the mall"], bad: 1, ex: "بعد didn't نستخدم المصدر go لا went." },
+  { q: "There (are) (a) (book) (on the desk).", options: ["are", "a", "book", "on the desk"], bad: 0, ex: "a book مفرد → is لا are." },
+];
+
+/* الاستدلال اللغوي/المنطقي (Verbal Reasoning): استنتاج من مقدّمة */
+const VREASON = [
+  { q: "All engineers can code. Sara is an engineer. Therefore:", a: "Sara can code.", w3: [["Sara cannot code.", "يناقض المقدّمة."], ["All coders are engineers.", "عكس غير صحيح منطقيًا."], ["Sara is a coder by profession.", "المقدّمة تقول تستطيع، لا أن مهنتها كذلك."]], ex: "قياس مباشر: كل مهندس يبرمج، وسارة مهندسة ← تستطيع البرمجة." },
+  { q: "No reptiles are warm-blooded. A snake is a reptile. Therefore a snake is:", a: "not warm-blooded", w3: [["warm-blooded", "يناقض المقدّمة."], ["a mammal", "لا يلزم من المعطى."], ["cold to touch always", "استنتاج زائد غير مذكور."]], ex: "لا زواحف حارّة الدم، والثعبان زاحف ← ليس حارّ الدم." },
+  { q: "If it rains, the match is cancelled. The match was NOT cancelled. Therefore:", a: "It did not rain.", w3: [["It rained.", "يناقض المنطق (نفي اللازم)."], ["The match was postponed.", "غير مذكور."], ["It will rain later.", "لا يلزم من المعطى."]], ex: "نفي النتيجة يستلزم نفي السبب: لم يُلغَ ← لم تمطر." },
+  { q: "Some students are athletes. All athletes are fit. Therefore:", a: "Some students are fit.", w3: [["All students are fit.", "«بعض» لا تعني «كل»."], ["All fit people are students.", "عكس غير صحيح."], ["No students are fit.", "يناقض المعطى."]], ex: "بعض الطلاب رياضيون، وكل رياضي لائق ← بعض الطلاب لائقون." },
+  { q: "Ali is older than Sara. Sara is older than Huda. Therefore:", a: "Ali is older than Huda.", w3: [["Huda is older than Ali.", "يناقض الترتيب."], ["Sara is the youngest.", "هدى الأصغر."], ["Ali and Huda are the same age.", "غير صحيح."]], ex: "ترتيب متعدٍّ: علي > سارة > هدى ← علي > هدى." },
+  { q: "Every book in the shop is on sale. This item is NOT on sale. Therefore:", a: "This item is not a book from the shop.", w3: [["This item is a book.", "يناقض المنطق."], ["The shop has no books.", "لا يلزم."], ["All items are on sale.", "يناقض المعطى."]], ex: "نفي النتيجة (ليس مخفّضًا) ينفي كونه كتابًا من المتجر." },
+];
+
 QQ.registerGenerators([
 
 /* ── التناظر اللفظي من قاعدة العلاقات ── */
@@ -1102,6 +1281,51 @@ QQ.registerGenerators([
       ex: e.ex,
       steps: [`اقرأ الجملة كاملة وتحسّس الكلمة التي تناقض بقيتها`, `الكلمة الخاطئة سياقيًا: «${bad}»`],
       hints: ["الكلمة الخاطئة تناقض المعنى العام للجملة", "بقية الكلمات منسجمة مع بعضها"] }; } },
+
+/* ── الترادف ── */
+{ id: "v-syn", topic: "vocab", diff: 2, skill: "الترادف", est: 35,
+  gen: (R) => { const e = R.pick(SYN);
+    return { q: `Choose the word closest in meaning to «${e.w}»:`, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: `${e.w} = ${e.ar}، وأقرب مرادف: ${e.a}.`,
+      steps: [`معنى «${e.w}» = ${e.ar}`, `المرادف الأقرب: ${e.a}`],
+      hints: ["ابحث عن الكلمة الأقرب في المعنى، لا الضد", `معنى الكلمة: ${e.ar}`] }; } },
+
+/* ── التضاد ── */
+{ id: "v-ant", topic: "vocab", diff: 2, skill: "التضاد", est: 35,
+  gen: (R) => { const e = R.pick(ANT);
+    return { q: `Choose the OPPOSITE of «${e.w}»:`, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: `${e.ar}. الضد الصحيح: ${e.a}.`,
+      steps: [`المطلوب عكس «${e.w}»`, `الضد: ${e.a}`],
+      hints: ["انتبه: المطلوب الضد لا المرادف", "أحد المشتّتات مرادف لتضليلك"] }; } },
+
+/* ── القواعد (Grammar) ── */
+{ id: "v-grammar", topic: "sentence", diff: 2, skill: "القواعد", est: 40,
+  gen: (R) => { const e = R.pick(GRAMMAR);
+    return { q: `Complete correctly:\n«${e.q}»`, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: e.ex,
+      steps: [`حدّد القاعدة المطلوبة (زمن/عدد/مقارنة)`, `الصحيح نحويًا: ${e.a}`],
+      hints: ["طابق الفعل مع الفاعل والزمن", "اقرأ الجملة كاملة قبل الاختيار"] }; } },
+
+/* ── تحديد الخطأ النحوي (Error Identification) ── */
+{ id: "v-errid", topic: "sentence", diff: 3, skill: "تحديد الخطأ النحوي", est: 45,
+  gen: (R) => { const e = R.pick(ERRID); const bad = e.options[e.bad];
+    return { q: `أي جزء يحوي خطأً نحويًا؟\n«${e.q}»`, correct: bad,
+      wrongs: e.options.filter((_, i) => i !== e.bad).map(w => ({ v: w, why: `«${w}» سليم نحويًا في الجملة.` })),
+      ex: e.ex,
+      steps: [`افحص تطابق الفعل والزمن والعدد في كل جزء`, `الخطأ في: «${bad}»`],
+      hints: ["ابحث عن عدم تطابق الفاعل مع الفعل أو الزمن"] }; } },
+
+/* ── الاستدلال اللغوي/المنطقي ── */
+{ id: "v-reason", topic: "reading", diff: 3, skill: "الاستدلال المنطقي", est: 55,
+  gen: (R) => { const e = R.pick(VREASON);
+    return { q: e.q, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: e.ex,
+      steps: [`اعتمد على المقدّمات المذكورة فقط`, `الاستنتاج الصحيح: ${e.a}`],
+      hints: ["لا تُدخل معلومات من خارج النص", "«بعض» لا تساوي «كل»، ونفي النتيجة ينفي السبب"] }; } },
 
 /* ── إكمال الجمل من كلمات AWL التي تعلّمها اللاعب ── */
 { id: "v-awl-blank", topic: "sentence", diff: 2, skill: "AWL في سياق", est: 40,
