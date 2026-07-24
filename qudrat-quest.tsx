@@ -473,6 +473,10 @@ QQ.registerUnitGen({
 
 
 /* ═══ content/generators-quant.js ═══ */
+const gcd2 = (a, b) => b ? gcd2(b, a % b) : Math.abs(a);
+const fact = (n) => { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; };
+const nCr = (n, k) => fact(n) / (fact(k) * fact(n - k));
+const frac = (num, den) => { const g = gcd2(num, den) || 1; return `${num / g}/${den / g}`; };
 /* ═══════════════════════════════════════════════════════════
    ♾️ مولّدات الرياضيات — أسئلة لا تنتهي، تعمل أوفلاين بلا أي AI
    كل مولّد يُرجع: { q, correct, wrongs:[{v,why}], ex, steps, hints, alt? }
@@ -621,6 +625,179 @@ QQ.registerGenerators([
       ex: `المعدل = ${rate*t1} ÷ ${t1} = ${rate} وحدة/ساعة → ${rate} × ${t2} = ${rate*t2}.`,
       steps: [`المعدل في الساعة = ${rate*t1} ÷ ${t1} = ${rate}`, `× ${t2} ساعات = ${rate*t2}`],
       hints: ["أوجد إنتاج الساعة الواحدة أولًا"] }; } },
+
+/* ── أنماط كمية إضافية على غرار القدرات ── */
+{ id: "pct-of-pct", topic: "arithmetic", diff: 3, skill: "نسبة من نسبة", est: 55,
+  gen: (R) => { const p1 = R.pick([10,20,25,50]), p2 = R.pick([20,40,50,60,80]), base = R.pick([200,300,400,500,600,800]);
+    const ans = base * p1 / 100 * p2 / 100; if (!Number.isInteger(ans)) return null;
+    const w1 = base * (p1 + p2) / 100, w2 = base * p1 / 100, w3 = R.fmt(base * (p1 * p2 / 100) / 100 * 2);
+    if (new Set([ans, w1, w2, w3].map(String)).size < 4) return null;
+    return { q: `${p1}% of ${p2}% of ${base} =`, correct: ans,
+      wrongs: [{ v: w1, why: "جمعت النسبتين بدل ضربهما على التوالي." },
+               { v: w2, why: `حسبت ${p1}% من ${base} فقط ونسيت الـ${p2}%.` },
+               { v: w3, why: "ضاعفت الناتج بلا سبب." }],
+      ex: `${p2}% من ${base} = ${base * p2 / 100}، ثم ${p1}% منها = ${ans}.`,
+      steps: [`${p2}% × ${base} = ${base * p2 / 100}`, `${p1}% × ${base * p2 / 100} = ${ans}`],
+      hints: ["طبّق النسبة الأولى ثم الثانية بالتتابع، لا بالجمع"] }; } },
+
+{ id: "ratio-3part", topic: "arithmetic", diff: 2, skill: "تقسيم بنسبة ثلاثية", est: 50,
+  gen: (R) => { const [a, b, c] = R.pick([[1,2,3],[2,3,5],[1,3,4],[2,4,5],[1,2,4],[3,4,5],[1,4,6],[2,3,4],[1,2,5]]);
+    const unit = R.pick([10,12,15,20,25]), tot = (a + b + c) * unit, big = Math.max(a, b, c) * unit;
+    const w1 = R.fmt(tot / 3), w2 = Math.min(a, b, c) * unit, w3 = tot - big;
+    if (new Set([big, w1, w2, w3].map(String)).size < 4) return null;
+    return { q: `${tot} is divided in the ratio ${a}:${b}:${c}. The largest share is:`, correct: big,
+      wrongs: [{ v: w1, why: "قسمت بالتساوي على 3 وتجاهلت النسبة." },
+               { v: w2, why: "هذي الحصة الأصغر لا الأكبر." },
+               { v: w3, why: "هذا مجموع الحصتين الأخريين." }],
+      ex: `الأجزاء = ${a}+${b}+${c} = ${a + b + c}، والجزء = ${tot} ÷ ${a + b + c} = ${unit} → الأكبر = ${Math.max(a, b, c)} × ${unit} = ${big}.`,
+      steps: [`مجموع الأجزاء = ${a + b + c}`, `قيمة الجزء = ${tot} ÷ ${a + b + c} = ${unit}`, `الأكبر = ${Math.max(a, b, c)} × ${unit} = ${big}`],
+      hints: ["اجمع أجزاء النسبة ثم اقسم الإجمالي عليها"] }; } },
+
+{ id: "avg-combine", topic: "arithmetic", diff: 3, skill: "المتوسط المرجّح", est: 55,
+  gen: (R) => { const [n1, a1, n2, a2, ans] = R.pick([[20,10,10,25,15],[15,10,5,18,12],[10,15,20,30,25],[20,15,10,30,20],[10,18,20,12,14],[30,10,10,30,15],[10,10,30,18,16],[5,20,15,12,14]]);
+    const w1 = (a1 + a2) / 2, w2 = a2, w3 = a1;
+    if (new Set([ans, w1, w2, w3].map(String)).size < 4) return null;
+    return { q: `A group of ${n1} has average ${a1}; another of ${n2} has average ${a2}. The combined average is:`, correct: ans,
+      wrongs: [{ v: w1, why: "أخذت متوسط المتوسطين وتجاهلت أحجام المجموعتين." },
+               { v: w2, why: "هذا متوسط المجموعة الثانية فقط." },
+               { v: w3, why: "هذا متوسط المجموعة الأولى فقط." }],
+      ex: `المجموع الكلي = ${n1}×${a1} + ${n2}×${a2} = ${n1 * a1 + n2 * a2}، ÷ العدد الكلي ${n1 + n2} = ${ans}.`,
+      steps: [`مجموع الأولى = ${n1 * a1}`, `مجموع الثانية = ${n2 * a2}`, `الكل ÷ ${n1 + n2} = ${ans}`],
+      hints: ["المتوسط المرجّح: اجمع القيم الكلية ثم اقسم على العدد الكلي، لا تتوسط المتوسطات"] }; } },
+
+{ id: "work-rate", topic: "arithmetic", diff: 3, skill: "معدل العمل المشترك", est: 55,
+  gen: (R) => { const pairs = [[6,3,2],[4,4,2],[6,12,4],[10,15,6],[12,4,3],[8,8,4],[3,6,2],[20,5,4]];
+    const [x, y, ans] = R.pick(pairs);
+    const w1 = x + y, w2 = R.fmt((x + y) / 2), w3 = Math.abs(x - y);
+    if (new Set([ans, w1, w2, w3].map(String)).size < 4) return null;
+    return { q: `A finishes a job in ${x} hours, B in ${y} hours. Working together, they finish in:`, correct: ans + " hours",
+      wrongs: [{ v: w1 + " hours", why: "جمعت الزمنين — العمل المشترك أسرع من كليهما." },
+               { v: w2 + " hours", why: "أخذت متوسط الزمنين، وهذا غير صحيح لمعدلات العمل." },
+               { v: w3 + " hours", why: "طرحت الزمنين بلا معنى." }],
+      ex: `معدل مشترك = 1/${x} + 1/${y}؛ الزمن = 1 ÷ المعدل = ${ans} ساعة.`,
+      steps: [`في الساعة: A ينجز 1/${x}، B ينجز 1/${y}`, `معًا = 1/${x} + 1/${y}`, `الزمن = مقلوب المعدل = ${ans} ساعة`],
+      hints: ["اجمع معدلات الإنجاز في الساعة، لا الأزمنة", "الزمن المشترك = 1 ÷ مجموع المعدلات"] }; } },
+
+{ id: "remainder", topic: "arithmetic", diff: 2, skill: "باقي القسمة", est: 40, type: "num",
+  gen: (R) => { const d = R.pick([3,4,5,6,7,9]), q = R.i(4,20), r = R.i(1, d - 1);
+    const n = d * q + r;
+    return { q: `What is the remainder when ${n} is divided by ${d}?`, a: r,
+      ex: `${n} = ${d}×${q} + ${r}، فالباقي ${r}.`,
+      steps: [`أكبر مضاعف لـ${d} أقل من ${n} هو ${d * q}`, `${n} − ${d * q} = ${r}`],
+      hints: ["اطرح أكبر مضاعف للقاسم لا يتجاوز العدد"] }; } },
+
+/* ── الاحتمالات ── */
+{ id: "prob-simple", topic: "data", diff: 2, skill: "الاحتمالات", est: 45,
+  gen: (R) => { const kind = R.pick(["red", "blue"]); const red = R.i(2, 6), blue = R.i(2, 6); const tot = red + blue;
+    const pick = kind === "red" ? red : blue, col = kind === "red" ? "حمراء" : "زرقاء", colE = kind === "red" ? "red" : "blue";
+    const correct = frac(pick, tot);
+    const w1 = frac(pick, tot - pick), w2 = frac(tot - pick, tot), w3 = frac(tot, pick);
+    if (new Set([correct, w1, w2, w3]).size < 4) return null;
+    return { q: `A bag has ${red} red and ${blue} blue balls. One ball is drawn at random. The probability that it is ${colE} is:`, correct,
+      wrongs: [{ v: w1, why: "قسمت على عدد الكرات الأخرى بدل الإجمالي." },
+               { v: w2, why: "حسبت احتمال اللون الآخر." },
+               { v: w3, why: "قلبت الكسر — الاحتمال = المطلوب ÷ الكل." }],
+      ex: `الاحتمال = عدد الـ${col} ÷ الإجمالي = ${pick}/${tot} = ${correct}.`,
+      steps: [`الإجمالي = ${red} + ${blue} = ${tot}`, `الاحتمال = ${pick} ÷ ${tot} = ${correct}`],
+      hints: ["الاحتمال = عدد الحالات المطلوبة ÷ عدد كل الحالات", "اجمع كل الكرات أولًا"] }; } },
+
+/* ── العدّ: التباديل والتوافيق ── */
+{ id: "count-perm", topic: "data", diff: 3, skill: "التباديل (الترتيب)", est: 50, type: "num",
+  gen: (R) => { const n = R.pick([3, 4, 5, 6]);
+    return { q: `In how many different ways can ${n} distinct books be arranged in a row?`, a: fact(n),
+      ex: `الترتيب مهم → ${n}! = ${Array.from({ length: n }, (_, i) => n - i).join("×")} = ${fact(n)}.`,
+      steps: [`عدد الترتيبات = ${n}!`, `= ${fact(n)}`],
+      hints: ["حين يهم الترتيب استخدم المضروب !n", `${n}! = ${n}×${n - 1}×…×1`] }; } },
+{ id: "count-comb", topic: "data", diff: 3, skill: "التوافيق (الاختيار)", est: 55,
+  gen: (R) => { const n = R.pick([4, 5, 6, 7]), k = R.pick([2, 3]); if (k >= n) return null;
+    const correct = nCr(n, k), wPerm = fact(n) / fact(n - k), wMul = n * k, wSum = n + k;
+    if (new Set([correct, wPerm, wMul, wSum]).size < 4) return null;
+    return { q: `From ${n} students, how many ways can a committee of ${k} be chosen (order does not matter)?`, correct,
+      wrongs: [{ v: wPerm, why: "هذا عدد التباديل (يهتم بالترتيب)؛ اللجنة لا يهمها الترتيب فاقسم على !k." },
+               { v: wMul, why: "ضربت العددين فقط." },
+               { v: wSum, why: "جمعت العددين." }],
+      ex: `الترتيب لا يهم → C(${n},${k}) = ${n}! ÷ (${k}!×${n - k}!) = ${correct}.`,
+      steps: [`لأن الترتيب لا يهم نستخدم التوافيق`, `C(${n},${k}) = ${correct}`],
+      hints: ["إذا لم يهم الترتيب استخدم التوافيق C(n,k)", "التوافيق = التباديل ÷ !k"] }; } },
+
+/* ── المتباينات ── */
+{ id: "inequality", topic: "algebra", diff: 2, skill: "حل المتباينات", est: 50,
+  gen: (R) => { const a = R.pick([2, 3, 4, 5]), x = R.i(2, 9), b = R.i(1, 12), lt = R.bool();
+    const c = a * x + b;   // a·x + b, threshold so solution is x < x  (strict)
+    return { q: `If ${a}x + ${b} ${lt ? "<" : ">"} ${c}, then:`, correct: `x ${lt ? "<" : ">"} ${x}`,
+      wrongs: [{ v: `x ${lt ? ">" : "<"} ${x}`, why: "عكست إشارة المتباينة بلا سبب — لم نقسم على عدد سالب." },
+               { v: `x ${lt ? "<" : ">"} ${c - b}`, why: `توقفت عند ${c} − ${b} ونسيت القسمة على ${a}.` },
+               { v: `x = ${x}`, why: "المتباينة تعطي مدى قيم لا قيمة واحدة." }],
+      ex: `${a}x ${lt ? "<" : ">"} ${c} − ${b} = ${c - b} → x ${lt ? "<" : ">"} ${x}.`,
+      steps: [`اطرح ${b}: ${a}x ${lt ? "<" : ">"} ${c - b}`, `اقسم على ${a} (موجب فلا تنقلب الإشارة): x ${lt ? "<" : ">"} ${x}`],
+      hints: ["عامل المتباينة كالمعادلة", "الإشارة تنقلب فقط عند الضرب/القسمة على سالب"] }; } },
+
+/* ── الجذور ── */
+{ id: "sqrt", topic: "arithmetic", diff: 2, skill: "الجذور التربيعية", est: 40, type: "num",
+  gen: (R) => { const r = R.i(4, 20); const kind = R.pick(["root", "eq"]);
+    if (kind === "root") return { q: `√${r * r} = ?`, a: r,
+      ex: `${r} × ${r} = ${r * r}، فالجذر ${r}.`, steps: [`ابحث عن عدد ضربه في نفسه = ${r * r}`, `= ${r}`], hints: ["أي عدد × نفسه يعطي هذا العدد؟"] };
+    return { q: `If x² = ${r * r} and x > 0, then x = ?`, a: r,
+      ex: `x = √${r * r} = ${r}.`, steps: [`خذ الجذر التربيعي للطرفين`, `x = ${r}`], hints: ["الجذر التربيعي يعكس التربيع"] }; } },
+
+/* ── عمليات الكسور والأعداد العشرية ── */
+{ id: "frac-add", topic: "arithmetic", diff: 2, skill: "جمع/طرح الكسور", est: 50,
+  gen: (R) => { const d1 = R.pick([2, 3, 4, 6]), d2 = R.pick([2, 3, 4, 6]); const n1 = R.i(1, d1 - 1), n2 = R.i(1, d2 - 1);
+    const sub = R.bool(); const L = d1 * d2 / gcd2(d1, d2);
+    let num = sub ? n1 * (L / d1) - n2 * (L / d2) : n1 * (L / d1) + n2 * (L / d2); if (num <= 0) return null;
+    const correct = frac(num, L);
+    const w1 = sub ? `${n1 - n2}/${d1 - d2 || 1}` : `${n1 + n2}/${d1 + d2}`, w2 = frac(sub ? Math.abs(n1 - n2) : n1 + n2, L), w3 = `${n1}/${d2}`;
+    if (new Set([correct, w1, w2, w3]).size < 4) return null;
+    return { q: `${n1}/${d1} ${sub ? "−" : "+"} ${n2}/${d2} = ?`, correct,
+      wrongs: [{ v: w1, why: "جمعت/طرحت البسوط والمقامات مباشرة — لا بد من مقام موحّد." },
+               { v: w2, why: "خطأ في التوحيد أو الجمع." },
+               { v: w3, why: "خلطت بين البسط والمقام." }],
+      ex: `وحّد المقام إلى ${L}: ${n1 * (L / d1)}/${L} ${sub ? "−" : "+"} ${n2 * (L / d2)}/${L} = ${num}/${L} = ${correct}.`,
+      steps: [`المقام الموحّد = ${L}`, `${n1 * (L / d1)} ${sub ? "−" : "+"} ${n2 * (L / d2)} = ${num}`, `= ${correct}`],
+      hints: ["وحّد المقامات قبل الجمع أو الطرح", "لا تجمع المقامات"] }; } },
+{ id: "decimal-op", topic: "arithmetic", diff: 1, skill: "الأعداد العشرية", est: 35, type: "num",
+  gen: (R) => { const a = R.i(2, 40) / 10, b = R.i(2, 40) / 10, mul = R.bool();
+    const ans = mul ? Math.round(a * b * 100) / 100 : Math.round((a + b) * 10) / 10;
+    return { q: `${a} ${mul ? "×" : "+"} ${b} = ?`, a: ans,
+      ex: mul ? `${a} × ${b} = ${ans}.` : `${a} + ${b} = ${ans}.`,
+      steps: mul ? [`اضرب متجاهلًا الفاصلة ثم عدّ المنازل العشرية`, `= ${ans}`] : [`حاذِ الفواصل واجمع`, `= ${ans}`],
+      hints: [mul ? "عدد المنازل العشرية في الناتج = مجموع منازل العددين" : "حاذِ الفاصلة العشرية"] }; } },
+
+/* ── الإحصاء: الوسيط والمنوال والمدى ── */
+{ id: "stat-measures", topic: "data", diff: 2, skill: "الوسيط/المنوال/المدى", est: 50, type: "num",
+  gen: (R) => { const arr = Array.from({ length: 5 }, () => R.i(2, 20)); const measure = R.pick(["median", "range", "mode"]);
+    if (measure === "mode") { const withDup = [...arr]; const v = R.pick(arr); withDup.push(v); // ensure a mode exists
+      const counts = {}; withDup.forEach(x => counts[x] = (counts[x] || 0) + 1); const maxC = Math.max(...Object.values(counts));
+      const modes = Object.keys(counts).filter(k => counts[k] === maxC); if (modes.length !== 1) return null;
+      return { q: `Find the mode: ${R.shuffle(withDup).join(", ")}`, a: Number(modes[0]),
+        ex: `المنوال = القيمة الأكثر تكرارًا = ${modes[0]}.`, steps: [`عُدّ تكرار كل قيمة`, `الأكثر تكرارًا = ${modes[0]}`], hints: ["المنوال = الأكثر ظهورًا"] }; }
+    const sorted = [...arr].sort((x, y) => x - y);
+    if (measure === "median") return { q: `Find the median: ${arr.join(", ")}`, a: sorted[2],
+      ex: `رتّب تصاعديًا: ${sorted.join(", ")} → الوسيط (الأوسط) = ${sorted[2]}.`, steps: [`رتّب: ${sorted.join(", ")}`, `القيمة الوسطى = ${sorted[2]}`], hints: ["رتّب الأرقام ثم خذ الأوسط"] };
+    return { q: `Find the range: ${arr.join(", ")}`, a: sorted[4] - sorted[0],
+      ex: `المدى = الأكبر − الأصغر = ${sorted[4]} − ${sorted[0]} = ${sorted[4] - sorted[0]}.`, steps: [`الأكبر = ${sorted[4]}، الأصغر = ${sorted[0]}`, `المدى = ${sorted[4] - sorted[0]}`], hints: ["المدى = أكبر قيمة − أصغر قيمة"] }; } },
+
+/* ── تحليل البيانات: قراءة جدول ── */
+{ id: "data-table", topic: "data", diff: 2, skill: "قراءة جدول بيانات", est: 55,
+  gen: (R) => { const items = [["Sat", R.i(20, 60)], ["Sun", R.i(20, 60)], ["Mon", R.i(20, 60)], ["Tue", R.i(20, 60)]];
+    const tot = items.reduce((s, x) => s + x[1], 0); const kind = R.pick(["total", "most", "diff"]);
+    const table = items.map(([d, v]) => `${d}: ${v}`).join(" | ");
+    if (kind === "total") { const correct = tot, w1 = Math.round(tot / items.length), w2 = Math.max(...items.map(x => x[1])), w3 = tot - items[0][1];
+      if (new Set([correct, w1, w2, w3]).size < 4) return null;
+      return { q: `Sales per day — ${table}\nWhat is the total for the four days?`, correct,
+        wrongs: [{ v: w1, why: "حسبت المتوسط لا المجموع." }, { v: w2, why: "أخذت أعلى يوم فقط." }, { v: w3, why: "نسيت إضافة أحد الأيام." }],
+        ex: `المجموع = ${items.map(x => x[1]).join(" + ")} = ${tot}.`, steps: [`اجمع كل الأيام`, `= ${tot}`], hints: ["اجمع قيم كل الصفوف"] }; }
+    if (kind === "most") { const top = items.reduce((a, b) => b[1] > a[1] ? b : a); const correct = top[1];
+      const others = items.filter(x => x[0] !== top[0]).map(x => x[1]); if (new Set(items.map(x => x[1])).size < items.length) return null;
+      return { q: `Sales per day — ${table}\nWhat were the sales on the best day?`, correct,
+        wrongs: others.map(v => ({ v, why: "ليست أعلى قيمة في الجدول." })),
+        ex: `أعلى قيمة = ${top[1]} (${top[0]}).`, steps: [`قارن القيم`, `الأعلى = ${top[1]}`], hints: ["ابحث عن أكبر رقم في الجدول"] }; }
+    const mx = Math.max(...items.map(x => x[1])), mn = Math.min(...items.map(x => x[1])); const correct = mx - mn;
+    const w1 = mx + mn, w2 = Math.round(tot / items.length), w3 = mx;
+    if (new Set([correct, w1, w2, w3]).size < 4) return null;
+    return { q: `Sales per day — ${table}\nWhat is the difference between the highest and lowest day?`, correct,
+      wrongs: [{ v: w1, why: "جمعت بدل الطرح." }, { v: w2, why: "هذا المتوسط لا الفرق." }, { v: w3, why: "هذي أعلى قيمة فقط." }],
+      ex: `الفرق = ${mx} − ${mn} = ${correct}.`, steps: [`الأعلى = ${mx}، الأدنى = ${mn}`, `الفرق = ${correct}`], hints: ["اطرح الأصغر من الأكبر"] }; } },
 
 /* ── الهندسة ── */
 { id: "geo-rect", topic: "geometry", diff: 1, skill: "محيط ومساحة", est: 35,
@@ -954,6 +1131,96 @@ const FRAMES = [
   { q: "The company reduced prices in order to ___ more customers.", a: "attract", w: [["avoid","التخفيض لا يهدف للتجنب."],["ignore","يناقض الغاية التجارية."],["charge","التخفيض عكس زيادة الرسوم."]], sig: "in order to", ex: "in order to = غاية: التخفيض يجذب." },
 ];
 
+/* الكلمة الشاذة (الارتباط والاختلاف): ثلاث كلمات من فئة + كلمة دخيلة */
+const ODD = [
+  { grp: ["rose", "tulip", "lily"], odd: "oak", cat: "أزهار", oddCat: "شجرة", ex: "الثلاثة أزهار، بينما oak شجرة." },
+  { grp: ["copper", "silver", "iron"], odd: "marble", cat: "معادن", oddCat: "حجر", ex: "الثلاثة معادن، وmarble حجر." },
+  { grp: ["mango", "apple", "grape"], odd: "carrot", cat: "فواكه", oddCat: "خضار", ex: "الثلاثة فواكه، وcarrot خضار." },
+  { grp: ["eagle", "sparrow", "owl"], odd: "bat", cat: "طيور", oddCat: "ثديي", ex: "الثلاثة طيور، وbat ثديي يطير." },
+  { grp: ["hammer", "drill", "saw"], odd: "timber", cat: "أدوات", oddCat: "مادة خام", ex: "الثلاثة أدوات، وtimber خشب (مادة)." },
+  { grp: ["doctor", "teacher", "engineer"], odd: "hospital", cat: "مهن", oddCat: "مكان", ex: "الثلاثة مهن، وhospital مكان." },
+  { grp: ["water", "oil", "milk"], odd: "oxygen", cat: "سوائل", oddCat: "غاز", ex: "الثلاثة سوائل، وoxygen غاز." },
+  { grp: ["square", "circle", "triangle"], odd: "cube", cat: "أشكال مستوية", oddCat: "مجسم", ex: "الثلاثة أشكال ثنائية، وcube مجسم." },
+  { grp: ["hour", "minute", "second"], odd: "meter", cat: "وحدات زمن", oddCat: "وحدة طول", ex: "الثلاثة وحدات زمن، وmeter وحدة طول." },
+  { grp: ["Mars", "Venus", "Jupiter"], odd: "Moon", cat: "كواكب", oddCat: "قمر", ex: "الثلاثة كواكب، وMoon قمر تابع." },
+  { grp: ["anger", "joy", "fear"], odd: "running", cat: "مشاعر", oddCat: "فعل حركي", ex: "الثلاثة مشاعر، وrunning فعل حركي." },
+  { grp: ["cotton", "wool", "silk"], odd: "plastic", cat: "أقمشة طبيعية", oddCat: "مادة صناعية", ex: "الثلاثة أقمشة طبيعية، وplastic صناعي." },
+];
+
+/* الخطأ السياقي: جملة فيها كلمة واحدة تكسر المعنى — bad هو موضعها */
+const CTX = [
+  { q: "The loyal dog protected its owner but attacked him with great affection.", options: ["loyal", "protected", "attacked", "affection"], bad: 2, ex: "«attacked» يناقض الولاء والحماية والمودة في الجملة." },
+  { q: "She studied hard, prepared well, and carelessly passed the difficult exam.", options: ["studied", "prepared", "carelessly", "passed"], bad: 2, ex: "«carelessly» يناقض الاجتهاد والاستعداد." },
+  { q: "The fresh fruit tasted sweet, juicy, and rotten at the same time.", options: ["fresh", "sweet", "juicy", "rotten"], bad: 3, ex: "«rotten» يناقض «fresh» وبقية الأوصاف." },
+  { q: "The generous man donated money, helped the poor, and stole from the charity.", options: ["generous", "donated", "helped", "stole"], bad: 3, ex: "«stole» يناقض الكرم والعطاء والمساعدة." },
+  { q: "The bright sun gave us warmth, light, and darkness throughout the day.", options: ["bright", "warmth", "light", "darkness"], bad: 3, ex: "«darkness» يناقض سطوع الشمس والضوء." },
+  { q: "The skilled surgeon worked calmly, precisely, and clumsily during the operation.", options: ["skilled", "calmly", "precisely", "clumsily"], bad: 3, ex: "«clumsily» يناقض المهارة والدقة." },
+  { q: "The ancient castle looked old, historic, and newly-built to the visitors.", options: ["ancient", "old", "historic", "newly-built"], bad: 3, ex: "«newly-built» يناقض «ancient» و«old»." },
+  { q: "The honest judge ruled fairly, wisely, and dishonestly in the case.", options: ["honest", "fairly", "wisely", "dishonestly"], bad: 3, ex: "«dishonestly» يناقض النزاهة والعدل والحكمة." },
+];
+
+/* الترادف: كلمة + مرادفها + مشتّتات (مع معانيها) */
+const SYN = [
+  { w: "abundant", a: "plentiful", ar: "وفير", w3: [["scarce", "نادر — عكسها"], ["fragile", "هشّ"], ["distant", "بعيد"]] },
+  { w: "brave", a: "courageous", ar: "شجاع", w3: [["timid", "خجول — عكسها"], ["clever", "ذكي"], ["polite", "مؤدّب"]] },
+  { w: "rapid", a: "swift", ar: "سريع", w3: [["slow", "بطيء — عكسها"], ["heavy", "ثقيل"], ["silent", "صامت"]] },
+  { w: "difficult", a: "challenging", ar: "صعب", w3: [["simple", "بسيط — عكسها"], ["cheap", "رخيص"], ["bright", "مشرق"]] },
+  { w: "happy", a: "joyful", ar: "سعيد", w3: [["sad", "حزين — عكسها"], ["tired", "متعب"], ["hungry", "جائع"]] },
+  { w: "wealthy", a: "affluent", ar: "ثري", w3: [["poor", "فقير — عكسها"], ["famous", "مشهور"], ["honest", "أمين"]] },
+  { w: "essential", a: "crucial", ar: "أساسي", w3: [["optional", "اختياري — عكسها"], ["obvious", "واضح"], ["temporary", "مؤقّت"]] },
+  { w: "enormous", a: "immense", ar: "ضخم", w3: [["tiny", "ضئيل — عكسها"], ["empty", "فارغ"], ["gentle", "لطيف"]] },
+  { w: "accurate", a: "precise", ar: "دقيق", w3: [["vague", "غامض — عكسها"], ["ancient", "قديم"], ["loud", "عالٍ"]] },
+  { w: "generous", a: "giving", ar: "كريم", w3: [["stingy", "بخيل — عكسها"], ["quiet", "هادئ"], ["curious", "فضولي"]] },
+];
+
+/* التضاد: كلمة + ضدّها + مشتّتات */
+const ANT = [
+  { w: "ancient", a: "modern", ar: "قديم ↔ حديث", w3: [["old", "قديم — مرادف لا ضد"], ["historic", "تاريخي"], ["fragile", "هشّ"]] },
+  { w: "expand", a: "shrink", ar: "يتمدّد ↔ ينكمش", w3: [["grow", "ينمو — مرادف"], ["build", "يبني"], ["move", "يتحرّك"]] },
+  { w: "victory", a: "defeat", ar: "نصر ↔ هزيمة", w3: [["success", "نجاح — مرادف"], ["battle", "معركة"], ["reward", "مكافأة"]] },
+  { w: "generous", a: "stingy", ar: "كريم ↔ بخيل", w3: [["kind", "لطيف — مرادف"], ["wealthy", "ثري"], ["polite", "مؤدّب"]] },
+  { w: "increase", a: "decrease", ar: "يزيد ↔ ينقص", w3: [["rise", "يرتفع — مرادف"], ["change", "يتغيّر"], ["repeat", "يكرّر"]] },
+  { w: "accept", a: "reject", ar: "يقبل ↔ يرفض", w3: [["agree", "يوافق — مرادف"], ["receive", "يستلم"], ["decide", "يقرّر"]] },
+  { w: "artificial", a: "natural", ar: "اصطناعي ↔ طبيعي", w3: [["fake", "زائف — مرادف"], ["modern", "حديث"], ["cheap", "رخيص"]] },
+  { w: "temporary", a: "permanent", ar: "مؤقّت ↔ دائم", w3: [["brief", "وجيز — مرادف"], ["urgent", "عاجل"], ["hidden", "مخفي"]] },
+  { w: "praise", a: "criticize", ar: "يمدح ↔ ينتقد", w3: [["admire", "يُعجب — مرادف"], ["notice", "يلاحظ"], ["explain", "يشرح"]] },
+  { w: "brighten", a: "darken", ar: "يُضيء ↔ يُعتم", w3: [["shine", "يلمع — مرادف"], ["reflect", "يعكس"], ["cover", "يغطّي"]] },
+];
+
+/* القواعد (Grammar): إكمال بالخيار الصحيح نحويًا */
+const GRAMMAR = [
+  { q: "She ___ to school every day.", a: "goes", w3: [["go", "الفاعل مفرد غائب يتطلّب goes."], ["going", "يحتاج فعل مساعد قبل going."], ["gone", "gone تصريف ثالث يحتاج have/has."]], ex: "مع he/she/it نضيف s للفعل: goes." },
+  { q: "They have ___ their homework already.", a: "finished", w3: [["finish", "بعد have نستخدم التصريف الثالث."], ["finishing", "يحتاج is/are لا have."], ["finishes", "have + p.p لا s."]], ex: "have + تصريف ثالث (finished)." },
+  { q: "There ___ many books on the table.", a: "are", w3: [["is", "many books جمع فيتطلّب are."], ["was", "الزمن مضارع لا ماضٍ."], ["be", "be مجرّدة لا تصلح خبرًا هنا."]], ex: "جمع (many books) → are." },
+  { q: "He is taller ___ his brother.", a: "than", w3: [["then", "then للزمن لا للمقارنة."], ["that", "that لا تُستخدم بعد صفة تفضيل."], ["from", "المقارنة بـtaller than."]], ex: "صيغة المقارنة: -er + than." },
+  { q: "If it rains, we ___ stay home.", a: "will", w3: [["would", "الجملة شرط أول → will."], ["are", "يحتاج فعل بعده."], ["did", "did للماضي لا للشرط المستقبلي."]], ex: "الشرط الأول: If + مضارع, will + مصدر." },
+  { q: "I have lived here ___ 2019.", a: "since", w3: [["for", "for مع مدة لا مع نقطة زمنية."], ["from", "مع الحاضر التام نستخدم since لنقطة البداية."], ["at", "at للأوقات المحددة القصيرة."]], ex: "since + نقطة زمنية (2019)." },
+  { q: "Each of the students ___ a book.", a: "has", w3: [["have", "each يُعامل معاملة المفرد."], ["having", "يحتاج فعل مساعد."], ["are", "each مفرد لا جمع."]], ex: "each + فعل مفرد: has." },
+  { q: "The movie was ___ than I expected.", a: "better", w3: [["good", "المقارنة تتطلّب better."], ["best", "best تفضيل مطلق لا مقارنة بين اثنين."], ["well", "well ظرف لا صفة مقارنة."]], ex: "good → better (مقارنة)." },
+];
+
+/* تحديد الخطأ النحوي (Error Identification): أي جزء تحته خط خطأ */
+const ERRID = [
+  { q: "She (don't) (like) (to) (swim).", options: ["don't", "like", "to", "swim"], bad: 0, ex: "مع she نستخدم doesn't لا don't." },
+  { q: "The children (is) (playing) (in) (the park).", options: ["is", "playing", "in", "the park"], bad: 0, ex: "children جمع → are لا is." },
+  { q: "He (have) (finished) (his) (work).", options: ["have", "finished", "his", "work"], bad: 0, ex: "مع he نستخدم has لا have." },
+  { q: "They (was) (very) (happy) (yesterday).", options: ["was", "very", "happy", "yesterday"], bad: 0, ex: "they → were لا was." },
+  { q: "I (enjoy) (to read) (books) (daily).", options: ["enjoy", "to read", "books", "daily"], bad: 1, ex: "بعد enjoy نستخدم reading لا to read." },
+  { q: "She is (more) (taller) (than) (him).", options: ["more", "taller", "than", "him"], bad: 0, ex: "لا نجمع more مع taller؛ taller وحدها تكفي." },
+  { q: "We (didn't) (went) (to) (the mall).", options: ["didn't", "went", "to", "the mall"], bad: 1, ex: "بعد didn't نستخدم المصدر go لا went." },
+  { q: "There (are) (a) (book) (on the desk).", options: ["are", "a", "book", "on the desk"], bad: 0, ex: "a book مفرد → is لا are." },
+];
+
+/* الاستدلال اللغوي/المنطقي (Verbal Reasoning): استنتاج من مقدّمة */
+const VREASON = [
+  { q: "All engineers can code. Sara is an engineer. Therefore:", a: "Sara can code.", w3: [["Sara cannot code.", "يناقض المقدّمة."], ["All coders are engineers.", "عكس غير صحيح منطقيًا."], ["Sara is a coder by profession.", "المقدّمة تقول تستطيع، لا أن مهنتها كذلك."]], ex: "قياس مباشر: كل مهندس يبرمج، وسارة مهندسة ← تستطيع البرمجة." },
+  { q: "No reptiles are warm-blooded. A snake is a reptile. Therefore a snake is:", a: "not warm-blooded", w3: [["warm-blooded", "يناقض المقدّمة."], ["a mammal", "لا يلزم من المعطى."], ["cold to touch always", "استنتاج زائد غير مذكور."]], ex: "لا زواحف حارّة الدم، والثعبان زاحف ← ليس حارّ الدم." },
+  { q: "If it rains, the match is cancelled. The match was NOT cancelled. Therefore:", a: "It did not rain.", w3: [["It rained.", "يناقض المنطق (نفي اللازم)."], ["The match was postponed.", "غير مذكور."], ["It will rain later.", "لا يلزم من المعطى."]], ex: "نفي النتيجة يستلزم نفي السبب: لم يُلغَ ← لم تمطر." },
+  { q: "Some students are athletes. All athletes are fit. Therefore:", a: "Some students are fit.", w3: [["All students are fit.", "«بعض» لا تعني «كل»."], ["All fit people are students.", "عكس غير صحيح."], ["No students are fit.", "يناقض المعطى."]], ex: "بعض الطلاب رياضيون، وكل رياضي لائق ← بعض الطلاب لائقون." },
+  { q: "Ali is older than Sara. Sara is older than Huda. Therefore:", a: "Ali is older than Huda.", w3: [["Huda is older than Ali.", "يناقض الترتيب."], ["Sara is the youngest.", "هدى الأصغر."], ["Ali and Huda are the same age.", "غير صحيح."]], ex: "ترتيب متعدٍّ: علي > سارة > هدى ← علي > هدى." },
+  { q: "Every book in the shop is on sale. This item is NOT on sale. Therefore:", a: "This item is not a book from the shop.", w3: [["This item is a book.", "يناقض المنطق."], ["The shop has no books.", "لا يلزم."], ["All items are on sale.", "يناقض المعطى."]], ex: "نفي النتيجة (ليس مخفّضًا) ينفي كونه كتابًا من المتجر." },
+];
+
 QQ.registerGenerators([
 
 /* ── التناظر اللفظي من قاعدة العلاقات ── */
@@ -996,6 +1263,69 @@ QQ.registerGenerators([
     return { q: f.q, correct: f.a, wrongs: f.w.map(([v, why]) => ({ v, why })), ex: f.ex,
       steps: [`حدّد كلمة الإشارة: «${f.sig}»`, `هل تطلب تضادًا أم سببًا أم نتيجة؟`, `اختر ما يوافقها: ${f.a}`],
       hints: [`ركّز على كلمة «${f.sig}»`, "الإشارة تحدد اتجاه المعنى"] }; } },
+
+/* ── الكلمة الشاذة (الارتباط والاختلاف) ── */
+{ id: "v-odd", topic: "vocab", diff: 2, skill: "الكلمة الشاذة", est: 35,
+  gen: (R) => { const e = R.pick(ODD);
+    return { q: "اختر الكلمة الشاذّة (التي لا تنتمي للمجموعة):", correct: e.odd,
+      wrongs: e.grp.map(w => ({ v: w, why: `${w} تنتمي لفئة «${e.cat}» مثل الكلمتين الأخريين.` })),
+      ex: e.ex,
+      steps: [`ابحث عن الرابط المشترك بين ثلاث كلمات: «${e.cat}»`, `الكلمة التي تخرج عن الفئة: ${e.odd} (${e.oddCat})`],
+      hints: ["حدّد الفئة التي تجمع ثلاث كلمات", "الكلمة الرابعة هي الشاذّة"] }; } },
+
+/* ── الخطأ السياقي ── */
+{ id: "v-ctxerr", topic: "sentence", diff: 3, skill: "الخطأ السياقي", est: 45,
+  gen: (R) => { const e = R.pick(CTX); const bad = e.options[e.bad];
+    return { q: `أي كلمة تكسر معنى الجملة؟\n«${e.q}»`, correct: bad,
+      wrongs: e.options.filter((_, i) => i !== e.bad).map(w => ({ v: w, why: `«${w}» تناسب سياق الجملة، فهي ليست الخطأ.` })),
+      ex: e.ex,
+      steps: [`اقرأ الجملة كاملة وتحسّس الكلمة التي تناقض بقيتها`, `الكلمة الخاطئة سياقيًا: «${bad}»`],
+      hints: ["الكلمة الخاطئة تناقض المعنى العام للجملة", "بقية الكلمات منسجمة مع بعضها"] }; } },
+
+/* ── الترادف ── */
+{ id: "v-syn", topic: "vocab", diff: 2, skill: "الترادف", est: 35,
+  gen: (R) => { const e = R.pick(SYN);
+    return { q: `Choose the word closest in meaning to «${e.w}»:`, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: `${e.w} = ${e.ar}، وأقرب مرادف: ${e.a}.`,
+      steps: [`معنى «${e.w}» = ${e.ar}`, `المرادف الأقرب: ${e.a}`],
+      hints: ["ابحث عن الكلمة الأقرب في المعنى، لا الضد", `معنى الكلمة: ${e.ar}`] }; } },
+
+/* ── التضاد ── */
+{ id: "v-ant", topic: "vocab", diff: 2, skill: "التضاد", est: 35,
+  gen: (R) => { const e = R.pick(ANT);
+    return { q: `Choose the OPPOSITE of «${e.w}»:`, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: `${e.ar}. الضد الصحيح: ${e.a}.`,
+      steps: [`المطلوب عكس «${e.w}»`, `الضد: ${e.a}`],
+      hints: ["انتبه: المطلوب الضد لا المرادف", "أحد المشتّتات مرادف لتضليلك"] }; } },
+
+/* ── القواعد (Grammar) ── */
+{ id: "v-grammar", topic: "sentence", diff: 2, skill: "القواعد", est: 40,
+  gen: (R) => { const e = R.pick(GRAMMAR);
+    return { q: `Complete correctly:\n«${e.q}»`, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: e.ex,
+      steps: [`حدّد القاعدة المطلوبة (زمن/عدد/مقارنة)`, `الصحيح نحويًا: ${e.a}`],
+      hints: ["طابق الفعل مع الفاعل والزمن", "اقرأ الجملة كاملة قبل الاختيار"] }; } },
+
+/* ── تحديد الخطأ النحوي (Error Identification) ── */
+{ id: "v-errid", topic: "sentence", diff: 3, skill: "تحديد الخطأ النحوي", est: 45,
+  gen: (R) => { const e = R.pick(ERRID); const bad = e.options[e.bad];
+    return { q: `أي جزء يحوي خطأً نحويًا؟\n«${e.q}»`, correct: bad,
+      wrongs: e.options.filter((_, i) => i !== e.bad).map(w => ({ v: w, why: `«${w}» سليم نحويًا في الجملة.` })),
+      ex: e.ex,
+      steps: [`افحص تطابق الفعل والزمن والعدد في كل جزء`, `الخطأ في: «${bad}»`],
+      hints: ["ابحث عن عدم تطابق الفاعل مع الفعل أو الزمن"] }; } },
+
+/* ── الاستدلال اللغوي/المنطقي ── */
+{ id: "v-reason", topic: "reading", diff: 3, skill: "الاستدلال المنطقي", est: 55,
+  gen: (R) => { const e = R.pick(VREASON);
+    return { q: e.q, correct: e.a,
+      wrongs: e.w3.map(([v, why]) => ({ v, why })),
+      ex: e.ex,
+      steps: [`اعتمد على المقدّمات المذكورة فقط`, `الاستنتاج الصحيح: ${e.a}`],
+      hints: ["لا تُدخل معلومات من خارج النص", "«بعض» لا تساوي «كل»، ونفي النتيجة ينفي السبب"] }; } },
 
 /* ── إكمال الجمل من كلمات AWL التي تعلّمها اللاعب ── */
 { id: "v-awl-blank", topic: "sentence", diff: 2, skill: "AWL في سياق", est: 40,
@@ -2941,6 +3271,174 @@ function SimFlow({ g, theme, unit, onDone, onBack }) {
   );
 }
 
+/* ═══════════════ 🎯 محاكاة اختبار كاملة بأقسام مؤقتة ═══════════════ */
+const MOCK_SECS = [
+  { key: "verbal", name: "القسم اللفظي", icon: "📖", topics: ["analogy", "sentence", "reading", "vocab"], n: 10, time: 480 },
+  { key: "quant", name: "القسم الكمي", icon: "🔢", topics: ["arithmetic", "algebra", "geometry", "comparison", "data"], n: 10, time: 540 },
+];
+const fmtClock = (s) => { s = Math.max(0, s); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+
+function MockExam({ g, theme, close, onDone }) {
+  const [phase, setPhase] = useState("intro");   // intro | run | brk | report
+  const [secIdx, setSecIdx] = useState(0);
+  const [qs, setQs] = useState([]);
+  const [qi, setQi] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(MOCK_SECS[0].time);
+  const [logs, setLogs] = useState([]);
+  const sec = MOCK_SECS[secIdx];
+
+  const loadSection = (idx) => {
+    const s = MOCK_SECS[idx];
+    const picked = bankPick({ topics: s.topics, n: s.n, diffs: [1, 2, 3] }).filter(x => x.type === "mcq").map(x => ({ ...x, sec: x.topic }));
+    setQs(picked); setQi(0); setTimeLeft(s.time);
+  };
+  const startSection = (idx) => { loadSection(idx); setSecIdx(idx); setPhase("run"); play("boss"); };
+
+  const goNext = () => { if (secIdx + 1 < MOCK_SECS.length) setPhase("brk"); else { setPhase("report"); play("win"); } };
+
+  useEffect(() => {
+    if (phase !== "run") return;
+    const t = setInterval(() => setTimeLeft(x => x - 1), 1000);
+    return () => clearInterval(t);
+  }, [phase, secIdx]);
+  useEffect(() => {
+    if (phase === "run" && timeLeft <= 0) {
+      setLogs(prev => [...prev, ...qs.slice(qi).map(q => ({ sec: q.sec, section: sec.key, ok: false, wrong: mistakeRec(q, -1, "mcq") }))]);
+      goNext();
+    }
+  }, [timeLeft]);
+
+  const answer = (idx) => {
+    const q = qs[qi];
+    const ok = idx === q.a;
+    play("click");
+    const entry = { sec: q.sec, section: sec.key, ok, ...(ok ? {} : { wrong: mistakeRec(q, idx, "mcq") }) };
+    setLogs(prev => [...prev, entry]);
+    if (qi + 1 >= qs.length) goNext(); else setQi(qi + 1);
+  };
+
+  if (phase === "intro") return (
+    <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: theme.bg, color: theme.text, width: "min(100%,560px)", borderRadius: 18, padding: 20, animation: "pop .3s ease" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 44 }}>🎯</div>
+          <div style={{ fontWeight: 900, fontSize: 18, margin: "4px 0" }}>محاكاة اختبار كاملة</div>
+          <div style={{ fontSize: 13, color: theme.sub, lineHeight: 1.9, margin: "6px 0 12px" }}>
+            قسمان كما في القدرات الحقيقي: <b>لفظي</b> ثم <b>كمي</b>. لكل قسم <b>مؤقّت واحد للقسم كامله</b> — وزّع وقتك بنفسك. لن تظهر الإجابات إلا في التقرير النهائي، والأسئلة التي تخطئها تُحفظ في 📕 دفتر أخطائك.
+          </div>
+          {MOCK_SECS.map(s => (
+            <div key={s.key} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "6px 0", padding: "9px 12px" }}>
+              <span style={{ fontWeight: 800, fontSize: 13.5 }}>{s.icon} {s.name}</span>
+              <span style={{ fontSize: 12.5, color: theme.sub }}>{s.n} سؤال • ⏱ {fmtClock(s.time)}</span>
+            </div>
+          ))}
+          <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, marginTop: 8, background: "#B3402F" }} onClick={() => startSection(0)}>🎬 ابدأ المحاكاة</button>
+          <button className="btn ghost" style={{ width: "100%", padding: 10, marginTop: 8 }} onClick={close}>إغلاق</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (phase === "brk") return (
+    <div style={{ position: "fixed", inset: 0, background: "#0F5147", color: "#fff", zIndex: 60, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center", animation: "pop .3s ease" }}>
+      <div style={{ fontSize: 44 }}>✅</div>
+      <div style={{ fontWeight: 900, fontSize: 18, margin: "8px 0" }}>انتهى {MOCK_SECS[secIdx].name}</div>
+      <div style={{ fontSize: 14, opacity: .85, marginBottom: 20, lineHeight: 1.9 }}>خذ نفسًا… القسم التالي: <b>{MOCK_SECS[secIdx + 1].name}</b><br />{MOCK_SECS[secIdx + 1].n} سؤال • ⏱ {fmtClock(MOCK_SECS[secIdx + 1].time)}</div>
+      <button className="btn" style={{ padding: "13px 30px", fontSize: 16, background: "#fff", color: "#0F5147" }} onClick={() => startSection(secIdx + 1)}>ابدأ {MOCK_SECS[secIdx + 1].name} ←</button>
+    </div>
+  );
+
+  if (phase === "report") {
+    const correct = logs.filter(x => x.ok).length;
+    const acc = logs.length ? correct / logs.length : 0;
+    const score = Math.min(100, Math.round(55 + acc * 45));
+    const secScore = (key) => { const L = logs.filter(x => x.section === key); const c = L.filter(x => x.ok).length; return L.length ? Math.round((c / L.length) * 100) : 0; };
+    const bySec = {};
+    logs.forEach(({ sec, ok }) => { bySec[sec] ||= { a: 0, c: 0 }; bySec[sec].a++; if (ok) bySec[sec].c++; });
+    const rows = Object.entries(bySec).sort((a, b) => (a[1].c / a[1].a) - (b[1].c / b[1].a));
+    const weak = rows.filter(([, v]) => v.c / v.a < 0.7).slice(0, 2);
+    return (
+      <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+        <div onClick={e => e.stopPropagation()} style={{ background: theme.bg, color: theme.text, width: "min(100%,620px)", maxHeight: "88vh", overflowY: "auto", borderRadius: "22px 22px 0 0", padding: "18px 16px 30px", animation: "drop .3s ease" }}>
+          <div className="card" style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: theme.sub }}>📋 تقرير المحاكاة الكاملة</div>
+            <div style={{ fontSize: 46, fontWeight: 900, color: score >= 90 ? "#C89235" : "#0F5147", margin: "2px 0" }}>{score}</div>
+            <div style={{ fontSize: 13, color: theme.sub }}>درجة تقديرية • {correct}/{logs.length} صحيحة</div>
+            {g.mockBest && <div style={{ fontSize: 11.5, color: theme.sub, marginTop: 3 }}>أفضل نتيجة سابقة: {g.mockBest.score}</div>}
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {MOCK_SECS.map(s => (
+              <div key={s.key} className="card" style={{ flex: 1, textAlign: "center", margin: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: theme.sub }}>{s.icon} {s.name}</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: secScore(s.key) >= 70 ? "#1F7A5C" : "#B3402F" }}>{secScore(s.key)}%</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{ fontWeight: 900, fontSize: 13.5, marginBottom: 8 }}>أداؤك حسب القسم:</div>
+            {rows.map(([s, v]) => {
+              const p = Math.round((v.c / v.a) * 100);
+              return (
+                <div key={s} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, minWidth: 96 }}>{SEC_AR[s] || s}</span>
+                  <div style={{ flex: 1, background: theme.line, borderRadius: 99, height: 8, overflow: "hidden" }}>
+                    <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "#1F7A5C" : p >= 60 ? "#C89235" : "#B3402F" }} />
+                  </div>
+                  <span style={{ fontSize: 11.5, fontWeight: 900, minWidth: 34, textAlign: "left" }}>{p}%</span>
+                </div>
+              );
+            })}
+          </div>
+          {weak.length > 0 && <div className="card" style={{ background: "#B3402F0d", borderColor: "#B3402F33" }}>
+            <div style={{ fontWeight: 900, fontSize: 13.5, marginBottom: 6 }}>🦉 ركّز على:</div>
+            {weak.map(([s]) => <div key={s} style={{ fontSize: 13, lineHeight: 1.9, marginBottom: 6 }}><b>{SEC_AR[s]}:</b> {TIP_FIX[s]}</div>)}
+          </div>}
+          <div style={{ fontSize: 12, color: theme.sub, textAlign: "center", margin: "4px 0 10px" }}>📕 أسئلتك الخاطئة حُفظت في دفتر الأخطاء للمراجعة</div>
+          <button className="btn gold" style={{ width: "100%", padding: 13 }} onClick={() => { onDone({ score, verbal: secScore("verbal"), quant: secScore("quant"), acc, log: logs }); close(); }}>اعتمد النتيجة وأغلق ←</button>
+        </div>
+      </div>
+    );
+  }
+
+  // phase === "run"
+  const q = qs[qi];
+  if (!q) return null;
+  const low = timeLeft <= 30;
+  return (
+    <div style={{ position: "fixed", inset: 0, background: theme.bg, color: theme.text, zIndex: 60, overflowY: "auto", padding: "16px 16px 30px" }}>
+      <div style={{ maxWidth: 620, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 900 }}>{sec.icon} {sec.name}</span>
+          <span className={low ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 16, color: low ? "#B3402F" : theme.text, direction: "ltr" }}>⏱ {fmtClock(timeLeft)}</span>
+        </div>
+        <div style={{ background: theme.line, borderRadius: 99, height: 6, marginBottom: 4, overflow: "hidden" }}>
+          <div style={{ width: `${(timeLeft / sec.time) * 100}%`, height: "100%", background: low ? "#B3402F" : "#C89235", borderRadius: 99, transition: "width 1s linear" }} />
+        </div>
+        <div style={{ fontSize: 12, color: theme.sub, marginBottom: 10, fontWeight: 800 }}>سؤال {qi + 1} من {qs.length} • القسم {secIdx + 1}/{MOCK_SECS.length}</div>
+        <div className="card">
+          <div style={{ fontSize: 11, fontWeight: 900, color: "#C89235", marginBottom: 8 }}>{SEC_AR[q.sec] || q.sec}</div>
+          <div dir="auto" style={{ fontSize: 15.5, fontWeight: 600, lineHeight: 1.8, marginBottom: 12, whiteSpace: "pre-line" }}>{q.q}</div>
+          {q.options.map((o, idx) => (
+            <button key={idx} className="opt" style={{ textAlign: "start" }} onClick={() => answer(idx)}>{String.fromCharCode(65 + idx)}. {o}</button>
+          ))}
+        </div>
+        <button className="btn ghost" style={{ width: "100%", padding: 10, marginTop: 4 }} onClick={() => answer(-1)}>تخطّي هذا السؤال ←</button>
+      </div>
+    </div>
+  );
+}
+
+function applyMockDone(n, res, fx = FX_NULL) {
+  if (!n.mockBest || res.score > n.mockBest.score) n.mockBest = { score: res.score, verbal: res.verbal, quant: res.quant };
+  res.log.forEach(({ sec, ok, wrong }) => {
+    n.stats.answered++; if (ok) n.stats.correct++;
+    n.stats.bySec[sec] ||= { a: 0, c: 0, t: 0, to: 0 };
+    const v = n.stats.bySec[sec]; v.a++; if (ok) v.c++;
+    if (wrong) addMistake(n, wrong, n.day);
+  });
+  fx.toast(`🎯 محاكاة كاملة: ${res.score}`);
+}
+
 
 
 /* ═══════════════════════════════════════════════════════════
@@ -3488,7 +3986,108 @@ function RoadPanel({ g, theme, close, goAcad }) {
 }
 
 /* ---------- 📔 سجل الرحلة ---------- */
-function Journal({ g, theme, close }) {
+function MistakesTab({ g, theme, clearMistake }) {
+  const mistakes = g.mistakes || [];
+  const [mode, setMode] = useState("list");   // list | test | done
+  const [queue, setQueue] = useState([]);
+  const [qi, setQi] = useState(0);
+  const [picked, setPicked] = useState(null);
+  const [cleared, setCleared] = useState(0);
+
+  if (mistakes.length === 0 && mode === "list") {
+    return (
+      <div className="card" style={{ textAlign: "center", color: theme.sub, fontSize: 13, lineHeight: 2 }}>
+        📕 دفتر أخطائك فاضٍ.<br />كل سؤال تخطئ فيه بالمعارك يُحفظ هنا تلقائيًا — راجعه، أعِد اختبار نفسك فيه، وأتقنه.
+      </div>
+    );
+  }
+
+  const startTest = () => { setQueue([...mistakes]); setQi(0); setPicked(null); setCleared(0); setMode("test"); play("click"); };
+  const grade = (m, correct) => { if (correct) { clearMistake(m.id); setCleared(c => c + 1); play("correct"); } else play("wrong"); };
+
+  if (mode === "done") {
+    return (
+      <div className="card" style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 40 }}>🎯</div>
+        <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 4 }}>خلّصت مراجعة أخطائك</div>
+        <div style={{ fontSize: 13, color: theme.sub, marginBottom: 14 }}>أتقنت {cleared} من {queue.length} — بقي {mistakes.length} في الدفتر</div>
+        <button className="btn" style={{ width: "100%", padding: 11 }} onClick={() => { setMode("list"); play("click"); }}>رجوع للدفتر</button>
+      </div>
+    );
+  }
+
+  if (mode === "test") {
+    const m = queue[qi];
+    const isLast = qi >= queue.length - 1;
+    const advance = () => { if (isLast) setMode("done"); else { setQi(qi + 1); setPicked(null); } };
+    const showNext = picked !== null && picked !== "rev";
+    return (
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: theme.sub, marginBottom: 8, fontWeight: 800 }}>
+          <span>سؤال {qi + 1}/{queue.length}</span><span>{SEC_AR[m.sec] || m.sec}</span>
+        </div>
+        <div dir="auto" className="card" style={{ fontWeight: 800, fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.8 }}>{m.q}</div>
+        {m.kind === "mcq" ? (
+          <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+            {m.options.map((opt, idx) => {
+              let bg; if (picked !== null) { if (idx === m.a) bg = "#1F7A5C"; else if (idx === picked) bg = "#B3402F"; }
+              return (
+                <button key={idx} className="opt" disabled={picked !== null}
+                  style={{ background: bg, color: bg ? "#fff" : undefined, textAlign: "start" }}
+                  onClick={() => { if (picked !== null) return; setPicked(idx); grade(m, idx === m.a); }}>{opt}</button>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ marginTop: 8 }}>
+            {picked === null ? (
+              <button className="btn ghost" style={{ width: "100%", padding: 11 }} onClick={() => setPicked("rev")}>أظهر الإجابة</button>
+            ) : (
+              <>
+                <div className="card" style={{ textAlign: "center", fontWeight: 900 }}>الإجابة الصحيحة: <span style={{ color: "#1F7A5C" }}>{m.a}</span></div>
+                {picked === "rev" && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button className="btn" style={{ flex: 1, padding: 10 }} onClick={() => { grade(m, true); setPicked("marked"); }}>✓ عرفتها</button>
+                    <button className="btn ghost" style={{ flex: 1, padding: 10 }} onClick={() => { grade(m, false); setPicked("marked"); }}>✗ راجعها</button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {showNext && (
+          <>
+            {m.ex && <div style={{ fontSize: 12.5, color: theme.sub, marginTop: 8, lineHeight: 1.8 }}>💡 {m.ex}</div>}
+            <button className="btn" style={{ width: "100%", padding: 11, marginTop: 10 }} onClick={advance}>{isLast ? "إنهاء ✓" : "التالي ←"}</button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // mode === "list"
+  return (
+    <>
+      <button className="btn" style={{ width: "100%", padding: 12, marginBottom: 10 }} onClick={startTest}>🎯 اختبرني في أخطائي ({mistakes.length})</button>
+      {mistakes.map((m, i) => (
+        <div key={m.id + "_" + i} className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+            <span style={{ fontSize: 11, fontWeight: 900, background: theme.line + "88", borderRadius: 6, padding: "2px 8px" }}>{SEC_AR[m.sec] || m.sec}</span>
+            <span style={{ fontSize: 10.5, color: theme.sub }}>📅 يوم {m.ts}</span>
+          </div>
+          <div dir="auto" style={{ fontWeight: 800, fontSize: 13.5, whiteSpace: "pre-wrap", lineHeight: 1.7 }}>{m.q}</div>
+          <div style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.9 }}>
+            <span style={{ color: "#B3402F" }}>إجابتك: {m.picked === -1 ? "انتهى الوقت ⏰" : m.kind === "mcq" ? m.options[m.picked] : m.picked} ❌</span><br />
+            <span style={{ color: "#1F7A5C" }}>الصحيحة: {m.kind === "mcq" ? m.options[m.a] : m.a} ✓</span>
+          </div>
+          {m.ex && <div style={{ fontSize: 12, color: theme.sub, marginTop: 5, lineHeight: 1.8 }}>💡 {m.ex}</div>}
+        </div>
+      ))}
+    </>
+  );
+}
+
+function Journal({ g, theme, close, clearMistake }) {
   const [tab, setTab] = useState("tl");
   const col = COLLECT.map(c => ({ ...c, got: c.cond(g) }));
   const gotN = col.filter(c => c.got).length;
@@ -3501,7 +4100,7 @@ function Journal({ g, theme, close }) {
           <button onClick={close} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: theme.text }}>✕</button>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {[["tl", "📖 يومياتي"], ["col", `🎒 المقتنيات ${gotN}/${col.length}`]].map(([id, l]) => (
+          {[["tl", "📖 يومياتي"], ["col", `🎒 المقتنيات ${gotN}/${col.length}`], ["mis", `📕 أخطائي ${(g.mistakes || []).length}`]].map(([id, l]) => (
             <button key={id} onClick={() => setTab(id)} style={{ flex: 1, border: "none", borderRadius: 10, padding: "8px 0", fontWeight: 900, fontSize: 13, cursor: "pointer", fontFamily: "inherit", background: tab === id ? "#0F5147" : theme.line + "66", color: tab === id ? "#fff" : theme.text }}>{l}</button>
           ))}
         </div>
@@ -3538,6 +4137,8 @@ function Journal({ g, theme, close }) {
           ))}
         </>}
 
+        {tab === "mis" && <MistakesTab g={g} theme={theme} clearMistake={clearMistake} />}
+
         {tab === "col" && <>
           <div style={{ background: theme.line, borderRadius: 99, height: 8, overflow: "hidden", marginBottom: 10 }}>
             <div style={{ width: `${(gotN / col.length) * 100}%`, height: "100%", background: "linear-gradient(90deg,#F0C560,#C89235)", borderRadius: 99 }} />
@@ -3572,8 +4173,25 @@ const newSave = () => ({
   daily: null, weekly: null, season: null, history: [], timeline: [], coachN: 0,
   acad: { units: {}, placed: null, simBest: null, opened: {} },
   srs: {},
+  mistakes: [],
+  mockBest: null,
+  examDate: null,
   mem: { study: 0, work: 0, rest: 0, perfects: 0, lost: {}, comeback: {}, gatFirst: null, gatImproved: null, lastComeback: null },
 });
+
+/* 📕 دفتر الأخطاء: يلتقط السؤال الذي أخطأ فيه اللاعب كاملًا ليعيد مراجعته لاحقًا */
+function mistakeRec(q, picked, kind) {
+  return {
+    id: sigOf(q.q), sec: q.sec, kind,
+    q: q.q, options: q.options || null, a: q.a, picked,
+    ex: q.ex || "", steps: q.steps || null,
+  };
+}
+function addMistake(n, rec, day) {
+  n.mistakes = (n.mistakes || []).filter(m => m.id !== rec.id);
+  n.mistakes.unshift({ ...rec, ts: day });
+  if (n.mistakes.length > 60) n.mistakes.length = 60;
+}
 
 
 
@@ -3739,11 +4357,12 @@ function applySpendSlot(n, energyCost) {
 function applyBattleOutcome(n, res, fx = FX_NULL) {
   let tip = null;
 
-      res.answered.forEach(({ sec, ok, t, to }) => {
+      res.answered.forEach(({ sec, ok, t, to, wrong }) => {
         n.stats.answered++; if (ok) n.stats.correct++;
         n.stats.bySec[sec] ||= { a: 0, c: 0, t: 0, to: 0 };
         const v = n.stats.bySec[sec];
         v.a++; if (ok) v.c++; v.t = (v.t || 0) + (t || 0); if (to) v.to = (v.to || 0) + 1;
+        if (wrong) addMistake(n, wrong, n.day);   // 📕 احفظ السؤال في دفتر الأخطاء
       });
       n.stats.bestCombo = Math.max(n.stats.bestCombo, res.bestCombo);
       n.lastBattle = { won: res.won, boss: res.isBoss };
@@ -3851,6 +4470,33 @@ function App() {
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 2800);
   };
   const mut = (fn) => setG(prev => { const n = JSON.parse(JSON.stringify(prev)); fn(n); return n; });
+
+  /* 💾 نسخة احتياطية: تصدير/استيراد كل التقدّم (التخزين محلي فقط) */
+  const doExport = () => {
+    try {
+      const data = JSON.stringify(g);
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `arise-backup-${(g.name || "لاعب")}-يوم${g.day}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      if (navigator.clipboard) navigator.clipboard.writeText(data).catch(() => {});
+      toast("💾 تم حفظ نسختك — احتفظ بالملف في مكان آمن");
+    } catch (e) { toast("تعذّر التصدير"); }
+  };
+  const doImport = (text) => {
+    try {
+      const obj = JSON.parse(text);
+      if (!obj || typeof obj !== "object" || obj.v == null || !obj.stats) { toast("⚠️ الرمز غير صالح"); return false; }
+      setG({ ...newSave(), ...obj });
+      setPanel(null);
+      toast("✅ تم استعادة تقدّمك بنجاح");
+      return true;
+    } catch (e) { toast("⚠️ تعذّرت الاستعادة — تأكد من الرمز/الملف"); return false; }
+  };
+
   const FX = { toast, play, later: (f) => setTimeout(f, 600) };
   const grant = (n, id) => grantP(n, id, FX);
   const addRewards = (n, xp, coins) => addRewardsP(n, xp, coins, FX);
@@ -4027,12 +4673,17 @@ function App() {
       </div>
 
       {panel === "road" && <RoadPanel g={g} theme={theme} close={() => setPanel(null)} goAcad={() => setView({ s: "acad" })} />}
-      {panel === "journal" && <Journal g={g} theme={theme} close={() => setPanel(null)} />}
-      {panel && panel !== "journal" && <Panel g={g} theme={theme} panel={panel} spFree={spFree} close={() => setPanel(null)}
+      {panel === "journal" && <Journal g={g} theme={theme} close={() => setPanel(null)}
+        clearMistake={(id) => mut(n => { n.mistakes = (n.mistakes || []).filter(m => m.id !== id); })} />}
+      {panel === "mock" && <MockExam g={g} theme={theme} close={() => setPanel(null)}
+        onDone={(res) => mut(n => applyMockDone(n, res, FX))} />}
+      {panel && panel !== "journal" && panel !== "mock" && <Panel g={g} theme={theme} panel={panel} spFree={spFree} close={() => setPanel(null)}
         buySkill={(sk) => mut(n => { n.skills.push(sk.id); if (n.skills.length >= 3) grant(n, "skills3"); })}
         buyItem={(it) => mut(n => { n.coins -= (n.dayFlags?.sale ? Math.ceil(it.price / 2) : it.price); n.items[it.id]++; })}
         buyAvatar={(av) => mut(n => { n.coins -= av.price; n.owned.push(av.id); n.avatar = av.id; })}
-        wearAvatar={(av) => mut(n => { n.avatar = av.id; })} toast={toast} />}
+        wearAvatar={(av) => mut(n => { n.avatar = av.id; })} toast={toast}
+        onExport={doExport} onImport={doImport} onOpenMock={() => setPanel("mock")}
+        onSetDate={(v) => mut(n => { n.examDate = v || null; })} />}
     </div>
   );
 }
@@ -4301,7 +4952,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || over) return;
     setPicked(idx);
     const ok = idx === q.a;
-    const newLog = [...log, { sec: q.sec, ok, t: took() }];
+    const newLog = [...log, { sec: q.sec, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, idx, "mcq") }) }];
     setLog(newLog);
     if (ok) {
       const newCombo = combo + 1;
@@ -4314,7 +4965,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
 
   const miss = (idx) => {
     setPicked(-1);
-    const newLog = [...log, { sec: q.sec, ok: false, t: TIME, to: true }];
+    const newLog = [...log, { sec: q.sec, ok: false, t: TIME, to: true, ...((q.kind === "mcq" || q.kind === "num") ? { wrong: mistakeRec(q, -1, q.kind) } : {}) }];
     setLog(newLog);
     takeHit(newLog);
   };
@@ -4324,7 +4975,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || numVal === "") return;
     const ok = parseInt(numVal, 10) === q.a;
     setPicked(ok ? "done" : "wrongnum");
-    const newLog = [...log, { sec: q.sec, ok, t: took() }];
+    const newLog = [...log, { sec: q.sec, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, numVal, "num") }) }];
     setLog(newLog);
     if (ok) {
       const newCombo = combo + 1;
@@ -4600,7 +5251,80 @@ function Ending({ g, theme, onReplay, onFree }) {
 
 /* ═══════════════ 🗂 PANELS ═══════════════ */
 
-function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, wearAvatar, toast }) {
+function StudyPlanCard({ g, theme, onSetDate }) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const exam = g.examDate ? new Date(g.examDate + "T00:00:00") : null;
+  const daysLeft = exam ? Math.max(0, Math.round((exam - today) / 86400000)) : null;
+  const secs = ALL_SECS.filter(s => secStat(g, s).a > 0);
+  const weak = [...secs].sort((a, b) => weightOf(g, b) - weightOf(g, a)).slice(0, 2);
+  const due = (dueList(g) || []).length;
+  return (
+    <div className="card" style={{ background: "#0F51470d", borderColor: "#0F514733" }}>
+      <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 6 }}>📅 خطة المذاكرة والعدّاد</div>
+      {!g.examDate ? (
+        <>
+          <div style={{ fontSize: 12.5, color: theme.sub, lineHeight: 1.9, marginBottom: 10 }}>حدّد تاريخ اختبارك، وسيبني لك التطبيق خطة يومية تركّز على أقسامك الأضعف مع عدّاد تنازلي محفّز.</div>
+          <input type="date" onChange={e => e.target.value && onSetDate(e.target.value)}
+            style={{ width: "100%", boxSizing: "border-box", padding: 11, borderRadius: 10, border: `1px solid ${theme.line}`, background: theme.bg, color: theme.text, fontSize: 14, fontFamily: "inherit" }} />
+        </>
+      ) : (
+        <>
+          <div style={{ textAlign: "center", margin: "2px 0 10px" }}>
+            <div style={{ fontSize: 42, fontWeight: 900, color: daysLeft <= 7 ? "#B3402F" : "#0F5147", lineHeight: 1.1 }}>{daysLeft}</div>
+            <div style={{ fontSize: 12.5, color: theme.sub }}>{daysLeft === 0 ? "اليوم اختبارك — بالتوفيق! 🍀" : daysLeft === 1 ? "باقٍ يوم واحد على اختبارك" : `باقٍ ${daysLeft} يوم على اختبارك`}</div>
+          </div>
+          <div style={{ fontWeight: 900, fontSize: 13, marginBottom: 5 }}>🎯 خطة اليوم:</div>
+          <ul style={{ margin: 0, paddingInlineStart: 20, fontSize: 12.5, lineHeight: 2 }}>
+            {weak.length ? weak.map(s => <li key={s}>ركّز على <b>{SEC_AR[s]}</b> — 10 أسئلة (من أضعف أقسامك)</li>)
+              : <li>خُض 3 معارك لنكتشف أقسامك الأضعف ونبني خطتك</li>}
+            {due > 0 && <li>أنجز <b>{due}</b> {due === 1 ? "مراجعة مستحقّة" : "مراجعات مستحقّة"} في الأكاديمية</li>}
+            <li>{daysLeft <= 14 ? "محاكاة كاملة كل يومين لضبط الإيقاع" : "محاكاة كاملة مرة كل أسبوع"}</li>
+            {(g.mistakes || []).length > 0 && <li>راجع <b>{g.mistakes.length}</b> من دفتر أخطائك 📕</li>}
+          </ul>
+          <button className="btn ghost" style={{ width: "100%", padding: 9, marginTop: 10, fontSize: 12.5 }} onClick={() => onSetDate("")}>تغيير/إزالة التاريخ</button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function BackupBox({ theme, onExport, onImport }) {
+  const [code, setCode] = useState("");
+  const [open, setOpen] = useState(false);
+  const fileRef = useRef(null);
+  const readFile = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => onImport(String(r.result || ""));
+    r.readAsText(f);
+  };
+  return (
+    <div className="card" style={{ marginTop: 14 }}>
+      <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 4 }}>💾 نسخة احتياطية ونقل التقدّم</div>
+      <div style={{ fontSize: 12, color: theme.sub, lineHeight: 1.8, marginBottom: 10 }}>
+        صدّر تقدّمك واحتفظ فيه، أو استعِده على جهاز ثاني. تقدّمك محفوظ على هذا المتصفح فقط — خذ نسخة بين فترة وأخرى حتى لا تفقده.
+      </div>
+      <button className="btn" style={{ width: "100%", padding: 11, marginBottom: 8 }} onClick={onExport}>⬇️ تصدير نسخة احتياطية</button>
+      {!open ? (
+        <button className="btn ghost" style={{ width: "100%", padding: 11 }} onClick={() => setOpen(true)}>⬆️ استعادة نسخة</button>
+      ) : (
+        <>
+          <textarea value={code} onChange={e => setCode(e.target.value)} dir="ltr" placeholder="الصق رمز النسخة الاحتياطية هنا…"
+            style={{ width: "100%", boxSizing: "border-box", minHeight: 70, borderRadius: 10, border: `1px solid ${theme.line}`, padding: 10, fontSize: 12, fontFamily: "monospace", background: theme.bg, color: theme.text, marginBottom: 8, resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn" style={{ flex: 1, padding: 10, opacity: code.trim() ? 1 : .45 }} disabled={!code.trim()} onClick={() => onImport(code.trim())}>استعد من الرمز</button>
+            <button className="btn ghost" style={{ flex: 1, padding: 10 }} onClick={() => fileRef.current && fileRef.current.click()}>📁 من ملف</button>
+          </div>
+          <input ref={fileRef} type="file" accept="application/json,.json,.txt" style={{ display: "none" }} onChange={readFile} />
+          <div style={{ fontSize: 11, color: "#B3402F", marginTop: 8, textAlign: "center" }}>⚠️ الاستعادة تستبدل تقدّمك الحالي بالكامل</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, wearAvatar, toast, onExport, onImport, onOpenMock, onSetDate }) {
   const priceOf = (p) => (g.dayFlags?.sale ? Math.ceil(p / 2) : p);
   return (
     <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -4677,6 +5401,15 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
         </div>}
 
         {panel === "stats" && <StatsPanel g={g} theme={theme} />}
+        {panel === "stats" && <StudyPlanCard g={g} theme={theme} onSetDate={onSetDate} />}
+        {panel === "stats" && (
+          <div className="card" style={{ textAlign: "center", background: "#B3402F0d", borderColor: "#B3402F33" }}>
+            <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 3 }}>🎯 محاكاة اختبار كاملة</div>
+            <div style={{ fontSize: 12, color: theme.sub, lineHeight: 1.8, marginBottom: 10 }}>قسمان مؤقّتان (لفظي + كمي) كما في القدرات الحقيقي، مع تقرير مفصّل.{g.mockBest ? ` أفضل نتيجة: ${g.mockBest.score}` : ""}</div>
+            <button className="btn" style={{ width: "100%", padding: 12, background: "#B3402F" }} onClick={() => { play("click"); onOpenMock(); }}>ابدأ المحاكاة الكاملة</button>
+          </div>
+        )}
+        {panel === "stats" && <BackupBox theme={theme} onExport={onExport} onImport={onImport} />}
       </div>
     </div>
   );
