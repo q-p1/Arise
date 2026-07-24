@@ -455,24 +455,22 @@ QQ.registerBlueprint("placement", [
 /* خريطة الوحدة ← ما يقابلها في المولّدات (للمراجعة واختبار التجاوز)
    الوحدات غير المذكورة تبقى على تدريباتها المؤلَّفة (مقصود: دروس مفاهيمية). */
 QQ.registerUnitGen({
-  f1: { topics: ["arithmetic"], diffs: [1] },
-  f2: { topics: ["arithmetic"], diffs: [1] },
-  f3: { topics: ["arithmetic"], diffs: [1, 2] },
-  f4: { topics: ["arithmetic", "algebra"], diffs: [1] },
-  f5: { topics: ["algebra"], diffs: [1] },
-  f6: { topics: ["sentence"], diffs: [1, 2] },
-  f7: { topics: ["sentence"], diffs: [1, 2] },
-  f8: { topics: ["vocab"], diffs: [1] },
-  s1: { topics: ["arithmetic"], diffs: [2] },
-  s2: { topics: ["algebra"], diffs: [1, 2] },
-  s3: { topics: ["geometry"], diffs: [1, 2] },
-  s4: { topics: ["data", "arithmetic"], diffs: [2] },
-  s5: { topics: ["analogy"], diffs: [1, 2] },
-  s6: { topics: ["sentence"], diffs: [2] },
-  q2: { topics: ["analogy", "sentence"], diffs: [2] },
-  q3: { topics: ["arithmetic", "analogy"], diffs: [2] },
-  c1: { topics: ["arithmetic"], diffs: [1, 2] },
-  c2: { topics: ["data"], diffs: [2, 3] },
+  // 🎯 كل وحدة مربوطة بمولّدها الدقيق ليكون تمرين الخطوة الأخيرة من صميم الدرس نفسه
+  //    لا سؤالًا عشوائيًا من الموضوع العام.
+  f1: { gens: ["mental-mult", "mental-trick"] },                 // جدول الضرب والحيل الذهنية
+  f2: { gens: ["frac-add", "fraction-simplify"] },               // الكسور من البداية
+  f7: { gens: ["v-grammar"] },                                   // الزمنان الأساسيان (قواعد)
+  s1: { gens: ["pct-of"] },                                      // النسبة المئوية
+  s2: { gens: ["eq-1step", "num-alg-mult"] },                    // معادلة من خطوة واحدة
+  s3: { gens: ["geo-rect", "geo-tri-area", "num-geo-square"] },  // الأشكال الأساسية
+  s4: { gens: ["average", "num-data-avg"] },                     // المتوسط
+  s5: { gens: ["v-analogy"] },                                   // التناظر التدريبي
+  s6: { gens: ["v-frame"] },                                     // إكمال الجمل بكلمات الإشارة
+  c1: { gens: ["mental-mult", "mental-trick", "mental-div", "mental-estimate"] }, // الرياضيات الذهنية
+  c2: { gens: ["seq-arith", "seq-geo", "seq-diff2", "v-reason"] },                // التفكير المنطقي
+  // الوحدات التي لا يطابقها مولّد بعد (f3 تحويلات، f4 ترتيب العمليات، f5 الأعداد السالبة،
+  // f6 أجزاء الكلام، f8 المفردات الأساسية، q2/q3 استراتيجيات) تُبقى بلا ربط فتعتمد
+  // تمارينها المكتوبة يدويًا — وهي الأدق لموضوع الدرس من أي مولّد عام.
 });
 
 
@@ -2100,11 +2098,14 @@ function unitGenQs(unitId, n, g) {
   if (!map) return [];
   const out = [];
   for (let t = 0; t < n * 6 && out.length < n; t++) {
-    const cands = GENS.filter(x => (x.type || "mcq") === "mcq"
-      && (map.gens ? map.gens.includes(x.id) : (map.topics.includes(x.topic) && map.diffs.includes(x.diff))));
+    // عند الاستهداف بالمعرّفات (gens) نسمح بمولّدات الإدخال الرقمي (num) أيضًا،
+    // أما وضع الموضوع/الصعوبة العام فيبقى على الاختياري (mcq) كما كان.
+    const cands = GENS.filter(x => map.gens
+      ? map.gens.includes(x.id)
+      : ((x.type || "mcq") === "mcq" && map.topics.includes(x.topic) && map.diffs.includes(x.diff)));
     if (!cands.length) break;
     const q = makeGen(GR.pick(cands), g);
-    if (q && !out.some(o => o.q === q.q)) { noteSeen(q.id); out.push(q); }
+    if (q && !out.some(o => o.q === q.q)) { if (q.type === "num") q.kind = "num"; noteSeen(q.id); out.push(q); }
   }
   return out;
 }
