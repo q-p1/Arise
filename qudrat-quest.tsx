@@ -1367,7 +1367,15 @@ QQ.registerLessons({
     id: "F", name: "المرحلة الأولى: التأسيس", icon: "🧱", color: "#7B5EA7",
     desc: "من الصفر تمامًا — حتى لو نسيت جدول الضرب",
     units: [
-      { id: "f1", icon: "✖️", name: "جدول الضرب والحيل الذهنية", cards: [
+      { id: "f1", icon: "✖️", name: "جدول الضرب والحيل الذهنية", genDrills: true,
+        steps: [
+          { k: "teach", h: "الضرب = جمع متكرر", t: "‏4 × 3 يعني أربع مجموعات، كل مجموعة فيها ثلاثة: 3+3+3+3. إذا رسّخت هذي الفكرة، فهمت الضرب كله — الباقي مجرد سرعة.", ex: "4 × 3 = 3+3+3+3 = 12" },
+          { k: "example", h: "حيلة الضرب في 9", q: "كيف نحسب 9 × 7 بسرعة بدون حفظ؟", steps: ["بدل الضرب في 9، اضرب في 10 (أسهل): 7 × 10 = 70", "ثم اطرح العدد مرة واحدة: 70 − 7", "الناتج = 63"], answer: "63" },
+          { k: "check", q: "جرّب بنفسك بنفس الحيلة: 9 × 6 = ؟", options: ["45", "54", "56", "63"], a: 1, ex: "‏6 × 10 = 60، ثم اطرح 6 → 54. لاحظ أن مجموع رقمي الناتج (5+4) يساوي 9 دائمًا في جدول التسعة." },
+          { k: "example", h: "حيلة الضرب في 5", q: "كيف نحسب 5 × 14 ذهنيًا؟", steps: ["خذ نصف العدد: نصف 14 = 7", "ثم اضرب في 10: 7 × 10", "الناتج = 70"], answer: "70" },
+          { k: "trap", h: "لا تخلط الحيلتين", t: "حيلة الـ9: اضرب في 10 ثم اطرح العدد. حيلة الـ5: خذ النصف ثم اضرب في 10. كثير يخلط بينهما تحت ضغط الوقت — ثبّت كل واحدة بمثالها." },
+        ],
+        cards: [
         { h: "الضرب = جمع متكرر", t: "4 × 3 يعني أربع مجموعات من ثلاثة: 3+3+3+3 = 12. إذا فهمت هذي، فهمت الضرب كله." },
         { h: "حيلة الضرب في 9", t: "اضرب في 10 ثم اطرح العدد مرة: 9×7 = 70 − 7 = 63. أسرع من الحفظ الأعمى.", ex: "9 × 8 = 80 − 8 = 72" },
         { h: "حيلة الضرب في 5", t: "خذ نصف العدد ثم اضرب في 10: 5×14 = 7×10 = 70.", ex: "5 × 18 = 9 × 10 = 90" },
@@ -1378,7 +1386,16 @@ QQ.registerLessons({
         { q: "8 × 4 =", options: ["28", "36", "24", "32"], a: 3, ex: "8×4 = 8×2×2 = 16×2 = 32." },
         { kind: "num", q: "6 × 7 =", a: 42, ex: "6×7 = 42 — من الأزواج اللي لازم تصير تلقائية." },
       ]},
-      { id: "f2", icon: "🍕", name: "الكسور من البداية", cards: [
+      { id: "f2", icon: "🍕", name: "الكسور من البداية", genDrills: true,
+        steps: [
+          { k: "teach", h: "الكسر = جزء من كل", t: "‏3/4 تعني: قسمنا البيتزا إلى 4 قطع متساوية (المقام، تحت)، وأخذنا 3 منها (البسط، فوق). المقام يقول «كم قطعة»، والبسط يقول «كم أخذنا»." },
+          { k: "example", h: "التبسيط: نفس الكسر بشكل أنظف", q: "بسّط 6/8 لأصغر صورة:", steps: ["ابحث عن عدد يقسم البسط والمقام معًا: 2 يقسم 6 و 8", "اقسم كليهما على 2: 6÷2 = 3 و 8÷2 = 4", "الناتج 3/4 — نفس القيمة تمامًا، شكل أبسط"], answer: "3/4" },
+          { k: "check", q: "بسّط 10/15 لأصغر صورة:", options: ["2/3", "5/3", "1/2", "3/5"], a: 0, ex: "‏5 يقسم الاثنين: 10÷5 = 2 و 15÷5 = 3 → 2/3." },
+          { k: "teach", h: "الجمع بمقام موحّد", t: "لا تجمع المقامات أبدًا! إذا اختلفت المقامات، وحّدها أولًا ثم اجمع البسوط فقط.", ex: "1/2 + 1/4 → 2/4 + 1/4 = 3/4" },
+          { k: "check", q: "‏1/3 + 1/6 = ؟ (المقام الموحّد 6)", options: ["2/9", "1/2", "2/6", "1/9"], a: 1, ex: "‏1/3 = 2/6، ثم 2/6 + 1/6 = 3/6 = 1/2." },
+          { k: "trap", h: "الفخ القاتل", t: "‏1/2 + 1/4 لا يساوي 2/6! جمع البسوط والمقامات مباشرة خطأ. القاعدة: وحّد المقام، ثم اجمع البسوط فقط، والمقام يبقى كما هو." },
+        ],
+        cards: [
         { h: "الكسر = جزء من كل", t: "3/4 تعني: قسمنا البيتزا 4 قطع (المقام) وأخذنا 3 (البسط)." },
         { h: "التبسيط", t: "اقسم البسط والمقام على نفس العدد: 6/8 ÷2 = 3/4. الكسر ما تغيّر، شكله بس صار أبسط.", ex: "10/15 ÷5 = 2/3" },
         { h: "جمع المقامات المتشابهة", t: "المقام واحد؟ اجمع البسوط فقط: 1/4 + 2/4 = 3/4." },
@@ -3038,6 +3055,81 @@ function Placement({ g, theme, onDone, onBack }) {
   );
 }
 
+/* ---------- 🎓 الدرس التفاعلي: يشرح ويسأل ويثبّت (لا مجرد "التالي") ---------- */
+/* أنواع الخطوات: teach (مفهوم) • example (مثال محلول يُكشف خطوة‑بخطوة) •
+   check (سؤال تثبيت فوري باستدعاء نشط) • trap (الفخ الشائع) */
+function LessonSteps({ theme, unit, onComplete }) {
+  const steps = unit.steps;
+  const [si, setSi] = useState(0);
+  const [revealed, setRevealed] = useState(1);   // للمثال المحلول
+  const [pick, setPick] = useState(null);        // لسؤال التثبيت
+  const s = steps[si];
+  const last = si >= steps.length - 1;
+  const go = () => { play("click"); setRevealed(1); setPick(null); if (last) onComplete(); else setSi(si + 1); };
+
+  const kindMeta = {
+    teach: { c: "#C89235", label: "💡 الفكرة" },
+    example: { c: "#2E7DA6", label: "📝 مثال محلول" },
+    check: { c: "#1F7A5C", label: "🧠 ثبّت المعلومة" },
+    trap: { c: "#B3402F", label: "⚠️ الفخ الشائع" },
+  }[s.k] || { c: "#C89235", label: "" };
+
+  return (
+    <div style={{ animation: "drop .25s ease" }}>
+      {/* مؤشر التقدّم */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+        {steps.map((_, i) => <div key={i} style={{ flex: 1, height: 5, borderRadius: 99, background: i <= si ? kindMeta.c : theme.line }} />)}
+      </div>
+      <div className="card" style={{ minHeight: 190, borderColor: kindMeta.c + "44" }}>
+        <div style={{ fontSize: 11.5, fontWeight: 900, color: kindMeta.c, marginBottom: 8 }}>{unit.icon} {unit.name} • {kindMeta.label} • {si + 1}/{steps.length}</div>
+
+        {s.k === "teach" && <>
+          {s.h && <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8 }}>{s.h}</div>}
+          <div style={{ fontSize: 14.5, lineHeight: 2 }}>{s.t}</div>
+          {s.ex && <div dir="ltr" style={{ textAlign: "left", background: "#1F7A5C18", border: "1.5px solid #1F7A5C44", borderRadius: 10, padding: "9px 12px", marginTop: 10, fontSize: 14, fontWeight: 800, fontFamily: "Menlo, Consolas, monospace" }}>{s.ex}</div>}
+        </>}
+
+        {s.k === "trap" && <>
+          {s.h && <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8, color: "#B3402F" }}>{s.h}</div>}
+          <div style={{ fontSize: 14.5, lineHeight: 2 }}>{s.t}</div>
+        </>}
+
+        {s.k === "example" && <>
+          {s.h && <div style={{ fontWeight: 900, fontSize: 15.5, marginBottom: 8 }}>{s.h}</div>}
+          <div dir="auto" style={{ fontSize: 14.5, fontWeight: 700, lineHeight: 1.8, marginBottom: 10 }}>{s.q}</div>
+          {s.steps.slice(0, revealed).map((line, i) => (
+            <div key={i} dir="auto" style={{ background: theme.line + "44", borderRadius: 10, padding: "8px 12px", marginBottom: 6, fontSize: 14, fontWeight: 700, lineHeight: 1.7, animation: "drop .2s ease" }}>
+              <span style={{ color: "#2E7DA6", fontWeight: 900 }}>{i + 1}) </span>{line}
+            </div>
+          ))}
+          {revealed < s.steps.length
+            ? <button className="btn ghost" style={{ width: "100%", padding: 10, marginTop: 4 }} onClick={() => { play("click"); setRevealed(revealed + 1); }}>اكشف الخطوة التالية ↓</button>
+            : s.answer != null && <div style={{ textAlign: "center", fontWeight: 900, fontSize: 15, color: "#1F7A5C", marginTop: 8 }}>✓ الإجابة: {s.answer}</div>}
+        </>}
+
+        {s.k === "check" && <>
+          <div dir="auto" style={{ fontSize: 14.5, fontWeight: 700, lineHeight: 1.8, marginBottom: 12 }}>{s.q}</div>
+          {s.options.map((o, idx) => {
+            let st = { textAlign: "start" };
+            if (pick !== null) { if (idx === s.a) st = { ...st, borderColor: "#1F7A5C", background: "#1F7A5C22", fontWeight: 700 }; else if (idx === pick) st = { ...st, borderColor: "#B3402F", background: "#B3402F18" }; else st = { ...st, opacity: .5 }; }
+            return <button key={idx} className="opt" style={st} disabled={pick !== null} onClick={() => { setPick(idx); play(idx === s.a ? "correct" : "wrong"); }}>{String.fromCharCode(65 + idx)}. {o}</button>;
+          })}
+          {pick !== null && <div style={{ marginTop: 8, background: (pick === s.a ? "#1F7A5C1d" : "#B3402F14"), border: `1.5px solid ${(pick === s.a ? "#1F7A5C44" : "#B3402F33")}`, borderRadius: 12, padding: "10px 13px", fontSize: 13.5, lineHeight: 1.9, fontWeight: 700 }}>
+            <b style={{ color: pick === s.a ? "#1F7A5C" : "#B3402F" }}>{pick === s.a ? "✓ أحسنت! " : "التقط الفكرة: "}</b>{s.ex}
+          </div>}
+        </>}
+      </div>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        {si > 0 && <button className="btn ghost" style={{ flex: 1, padding: 12 }} onClick={() => { play("click"); setRevealed(1); setPick(null); setSi(si - 1); }}>السابق</button>}
+        <button className="btn" style={{ flex: 2, padding: 12, opacity: (s.k === "check" && pick === null) ? .5 : 1 }}
+          disabled={s.k === "check" && pick === null}
+          onClick={go}>{last ? "✏️ طبّق اللي تعلّمته ←" : "التالي ←"}</button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 📖 مشغّل الدرس: بطاقات → تطبيق → إتقان ---------- */
 function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
   const [stage, setStage] = useState(test ? "drill" : "cards");
@@ -3052,7 +3144,7 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
   //    والمراجعة/اختبار التجاوز يسحبان أسئلة مولَّدة تخص نفس مهارة الوحدة
   const [drills] = useState(() => {
     const authored = unit.awl ? awlDrills(unit.awl) : (unit.drills || []);
-    const wantGen = test || (g && acadDone(g, unit.id));
+    const wantGen = test || (g && acadDone(g, unit.id)) || unit.genDrills;
     if (wantGen) {
       const want = unit.need || Math.min(3, authored.length || 3);
       const gen = unitGenQs(unit.id, Math.max(want + 2, 5), g);
@@ -3100,7 +3192,9 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
     <div style={{ animation: "drop .3s ease" }}>
       <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع للأكاديمية</button>
 
-      {stage === "cards" && <>
+      {stage === "cards" && unit.steps && <LessonSteps theme={theme} unit={unit} onComplete={() => { setStage(drills.length ? "drill" : "pass"); }} />}
+
+      {stage === "cards" && !unit.steps && <>
         {unit.awl ? (() => { const w = unit.awl[ci]; return (
           <div className="card" style={{ minHeight: 200, textAlign: "center" }}>
             <div style={{ fontSize: 11.5, fontWeight: 900, color: "#2E7DA6", marginBottom: 10 }}>{unit.icon} كلمة {ci + 1}/{unit.awl.length}</div>
