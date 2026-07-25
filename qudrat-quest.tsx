@@ -3148,24 +3148,26 @@ const UNIS = [
 const eraOf = (ch) => (ch <= 3 ? "sa" : ch <= 6 ? "us" : "sa2");
 const SLOTS = ["🌅 الصباح", "☀️ الظهر", "🌆 المساء"];
 
+/* الأماكن ترسم بلغة Arise لا بالإيموجي: عالم اللعبة أول ما تراه العين،
+   وهو أحقّ ما يكون بخطّ واحد يخصّنا. (ic = أيقونة Arise، e = احتياطي) */
 const LOCS = {
   sa: [
-    { id: "home", e: "🏠", name: "البيت" },
-    { id: "library", e: "📚", name: "الأكاديمية" },
-    { id: "school", e: "🏫", name: "المدرسة" },
-    { id: "kiosk", e: "🏪", name: "الكشك" },
-    { id: "qiyas", e: "🏛️", name: "مركز قياس", minCh: 2 },
+    { id: "home", ic: "home", e: "🏠", name: "البيت" },
+    { id: "library", ic: "library", e: "📚", name: "الأكاديمية" },
+    { id: "school", ic: "school", e: "🏫", name: "المدرسة" },
+    { id: "kiosk", ic: "shop", e: "🏪", name: "الكشك" },
+    { id: "qiyas", ic: "school", e: "🏛️", name: "مركز قياس", minCh: 2 },
   ],
   us: [
-    { id: "dorm", e: "🛏️", name: "السكن الجامعي" },
-    { id: "campus", e: "🎓", name: "الحرم الجامعي" },
-    { id: "cafe", e: "☕", name: "المقهى" },
-    { id: "airport", e: "🛫", name: "المطار", maxCh: 4 },
+    { id: "dorm", ic: "home", e: "🛏️", name: "السكن الجامعي" },
+    { id: "campus", ic: "school", e: "🎓", name: "الحرم الجامعي" },
+    { id: "cafe", ic: "shop", e: "☕", name: "المقهى" },
+    { id: "airport", ic: "world", e: "🛫", name: "المطار", maxCh: 4 },
   ],
   sa2: [
-    { id: "home2", e: "🏠", name: "بيت الأهل" },
-    { id: "library", e: "📚", name: "الأكاديمية" },
-    { id: "aramco", e: "🛢️", name: "برج أرامكو" },
+    { id: "home2", ic: "home", e: "🏠", name: "بيت الأهل" },
+    { id: "library", ic: "library", e: "📚", name: "الأكاديمية" },
+    { id: "aramco", ic: "school", e: "🛢️", name: "برج أرامكو" },
   ],
 };
 
@@ -3521,8 +3523,13 @@ function Street({ g, theme, night, pos, setPos, onEnter, dim }) {
       <div style={{ background: sky, transition: `background 1.2s ${DS.ease.inOut}, filter ${DS.dur.slow}ms ${DS.ease.inOut}`,
         padding: "22px 8px 0", position: "relative",
         filter: dim ? "brightness(.74) saturate(.82)" : "saturate(.72)" }}>
-        <div style={{ position: "absolute", top: 10, left: 14, fontSize: 22 }}>{night ? "🌙" : g.slot === 0 ? "🌅" : g.slot === 1 ? "☀️" : "🌆"}</div>
-        {era === "us" && <div style={{ position: "absolute", top: 10, right: 14, fontSize: 18, opacity: .8 }}>🗽</div>}
+        {/* دلالة الوقت: قرص يتحرّك ويخفت مع تقدّم اليوم — معلومة لا زينة،
+            ومرسومة بلغتنا بدل إيموجي يختلف شكله بين الأجهزة. */}
+        <div aria-hidden="true" style={{ position: "absolute", top: 12, insetInlineStart: 16,
+          width: 16, height: 16, borderRadius: "50%",
+          background: night ? "#DCE6F5" : "#FFF3D0",
+          boxShadow: night ? "0 0 0 4px rgba(220,230,245,.18)" : "0 0 0 6px rgba(255,243,208,.35)",
+          opacity: night ? .85 : 1, transition: `all ${DS.dur.slow}ms ${DS.ease.inOut}` }} />
         <nav aria-label="مباني الحي" style={{ display: "flex" }}>
           {locs.map((l, i) => {
             const active = i === pos;
@@ -3531,8 +3538,14 @@ function Street({ g, theme, night, pos, setPos, onEnter, dim }) {
                 aria-current={active ? "location" : undefined}
                 aria-label={active ? `${l.name} — أنت هنا، اضغط للدخول` : `امشِ إلى ${l.name}`}
                 style={{ flex: 1, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: "6px 2px 14px", textAlign: "center", filter: night ? "brightness(.65)" : "none" }}>
-                <div aria-hidden="true" style={{ fontSize: 42, transform: active ? "scale(1.12)" : "scale(1)", transition: "transform .3s" }}>{l.e}</div>
-                <div aria-hidden="true" style={{ fontSize: 11.5, fontWeight: 800, color: night ? "#cbd5e8" : "#3A3A3A", marginTop: 2, background: "rgba(255,255,255,.55)", borderRadius: 8, display: "inline-block", padding: "1px 7px" }}>{l.name}</div>
+                <div aria-hidden="true" style={{ display: "flex", justifyContent: "center",
+                  transform: active ? "translateY(-3px)" : "none",
+                  transition: `transform ${DS.dur.base}ms ${DS.ease.spring}` }}>
+                  <Ic n={l.ic} s={38} w={active ? 2.1 : 1.8} c={night ? "#DCE6F5" : "#2A3A33"} />
+                </div>
+                <div aria-hidden="true" style={{ fontSize: DS.text.micro, fontWeight: 900,
+                  color: night ? "#DCE6F5" : "#2A3A33", marginTop: DS.space[2],
+                  opacity: active ? 1 : .72 }}>{l.name}</div>
               </button>
             );
           })}
@@ -4314,7 +4327,59 @@ function AriseLogo({ size = 90, color = "currentColor" }) {
   );
 }
 
-/* ---------- 🎨 نظام الأيقونات الأصلية ---------- */
+/* ═══════════════════════════════════════════════════════════
+   ✒️ لغة أيقونات Arise — «القلم الواحد»
+
+   المشكلة: التطبيق مبنيّ من الإيموجي (١٢٢١ موضعًا، ١٩٥ رمزًا مختلفًا).
+   والإيموجي ترسمه آبل وجوجل وسامسونج — لا نحن. منتج مركّب من رسوم شركات
+   أخرى لا يمكن أن يُعرَف من لقطة واحدة، لأن لقطته تختلف من جهاز لآخر.
+
+   اللغة مشتقّة من طبيعة Arise نفسها لا من موضة:
+     • المحتوى عربي، والحرف العربي مبنيّ على «خطّ واحد» من قلم مقصوص
+       الطرف — لذلك كل أيقونة خطّ لا كتلة ممتلئة، فتجلس بجوار النصّ
+       كنِدّ لا كجسم غريب.
+     • نهايات مستديرة، لأن القلم يترك طرفًا مستديرًا.
+     • سُمك موحّد 1.9 على شبكة 24 — لا استثناءات.
+     • قطر صاعد 45° حيثما سمح الموضوع: إيماءة «Arise» المأخوذة من الشعار.
+     • currentColor فقط — فترث الرموز وتنقلب مع الثيم تلقائيًا. هذا ما
+       يجعلها نظامًا لا ستّ أيقونات متفرّقة.
+   ═══════════════════════════════════════════════════════════ */
+const AR_ICONS = {
+  /* التنقّل */
+  world: "M3 18c3.2 0 4-2.4 6.6-2.4S13 18 16 18M4 13.5 9 8.5l3.2 3.2L20 4M20 4h-4.6M20 4v4.6",
+  academy: "M12 7.6C10.2 6.2 7.9 5.6 5 5.9v11c2.9-.3 5.2.3 7 1.7 1.8-1.4 4.1-2 7-1.7v-11c-2.9-.3-5.2.3-7 1.7Zm0 0v10.9",
+  mistakes: "M6 3.2h8.5L19 7.7v13.1H6ZM14.2 3.3v4.6h4.6M9.6 12.4l4.8 4.8M14.4 12.4l-4.8 4.8",
+  progress: "M3.6 20.4h17M5.4 16.6l4.4-4.6 3.1 2.7 6-7.1M18.9 7.6h-3.6M18.9 7.6v3.6",
+  more: "M5.5 12h.01M12 12h.01M18.5 12h.01",
+  /* أماكن العالم */
+  home: "M4 10.6 12 4l8 6.6M6.3 9.2V20h11.4V9.2M10 20v-5.2h4V20",
+  school: "M3.4 20.4h17.2M5.4 20.4V11h13.2v9.4M3.4 11 12 5.4l8.6 5.6M10 20.4v-5h4v5M8.6 13.6h1.2M14.2 13.6h1.2",
+  library: "M4.4 20.2h15.2M5.8 20.2v-3.4h12.4v3.4M7.2 16.8v-3.4h12.4v3.4M5.8 13.4V10h12.4v3.4M8.6 10V6.6h9.6V10",
+  shop: "M4 9.4h16l-1.4 10.8H5.4ZM4 9.4 6 4.2h12l2 5.2M9 13.6c0 1.7 1.3 3 3 3s3-1.3 3-3",
+  /* دلالات */
+  flame: "M12 3.2c.9 3.4-1.4 4.6-2.7 6.4-1.6 2.2-.9 5.2 1.4 6.3-.5-2 .4-3.4 1.6-4.6 1.6 2 3.5 3 3.5 5.6 0 2.2-1.9 4-4.3 4-3.1 0-5.6-2.4-5.6-5.6C5.9 9.6 10.4 8.4 12 3.2Z",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7.2V12l3.4 2",
+  spark: "M12 3.4 13.9 9l5.7 1.6-4.4 4 .6 5.9-3.8-2.9-3.8 2.9.6-5.9-4.4-4L10.1 9Z",
+  bookmark: "M6.4 3.6h11.2v16.8L12 16.4l-5.6 4Z",
+  target: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 16.4a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8ZM12 12h.01",
+  day: "M4.4 6.6h15.2v13.8H4.4ZM4.4 10.4h15.2M8.6 4.2v4.2M15.4 4.2v4.2",
+  sun: "M12 16.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4ZM12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6 17 17M7 7 5.4 5.4",
+  moon: "M20.4 14.6A8.8 8.8 0 0 1 9.4 3.6a8.8 8.8 0 1 0 11 11Z",
+};
+/* غلاف واحد يفرض القواعد: لا أيقونة تخرج عن السُمك أو النهايات أو الشبكة */
+function Ic({ n, s = 22, c = "currentColor", w = 1.9, style = {} }) {
+  const d = AR_ICONS[n];
+  if (!d) return null;
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+      fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round"
+      style={{ display: "block", flex: "0 0 auto", ...style }}>
+      <path d={d} />
+    </svg>
+  );
+}
+
+/* ---------- 🎨 أيقونات قديمة (ممتلئة) — يجري استبدالها تدريجيًا ---------- */
 const IC_PATHS = {
   coin: <><circle cx="12" cy="12" r="9" fill="#F0C560" stroke="#B8860B" strokeWidth="1.6"/><circle cx="12" cy="12" r="5.5" fill="none" stroke="#B8860B" strokeWidth="1.3"/><path d="M12 8.8v6.4M9.6 10.4h4.8" stroke="#8A6508" strokeWidth="1.5" strokeLinecap="round"/></>,
   heart: <path d="M12 20.5S4.5 15.8 2.6 12C.9 8.6 3 5.2 6.2 5.2c2 0 3.6 1.1 5.8 3.3 2.2-2.2 3.8-3.3 5.8-3.3 3.2 0 5.3 3.4 3.6 6.8-1.9 3.8-9.4 8.5-9.4 8.5z"/>,
@@ -6151,8 +6216,12 @@ function HUD({ g }) {
       </div>
       {/* شريط اليوم والطاقة */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: 12, fontWeight: 800 }}>
-        <span style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "2px 8px" }}>📅 اليوم {g.day}</span>
-        <span style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "2px 8px" }}>{g.slot >= 3 ? "🌙 ليل" : SLOTS[g.slot]}</span>
+        <span style={{ background: "rgba(255,255,255,.15)", borderRadius: DS.radius.sm, padding: "3px 9px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <Ic n="day" s={13} w={2.1} c="#fff" /> اليوم {g.day}
+        </span>
+        <span style={{ background: "rgba(255,255,255,.15)", borderRadius: DS.radius.sm, padding: "3px 9px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <Ic n={g.slot >= 3 ? "moon" : "sun"} s={13} w={2.1} c="#fff" /> {g.slot >= 3 ? "ليل" : String(SLOTS[g.slot]).replace(/[^\u0600-\u06FF ]/g, "").trim()}
+        </span>
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 5 }}>
           <Ico n="battery" s={16} c="#fff" />
           <div style={{ flex: 1, background: "rgba(255,255,255,.18)", borderRadius: 99, height: 8, overflow: "hidden" }}>
@@ -6268,11 +6337,11 @@ function ColdOpen({ onDone }) {
    صار: أربع وجهات مسمّاة في متناول الإبهام + «المزيد» لما ليس يوميًّا.
    الطالب قبل اختباره بثلاثة أيام يصل مباشرة لأخطائه وخطته. */
 const TABS = [
-  { id: "world", e: "🗺️", n: "العالم" },
-  { id: "acad", e: "🎓", n: "الأكاديمية" },
-  { id: "mistakes", e: "📕", n: "أخطائي" },
-  { id: "stats", e: "📊", n: "تقدّمي" },
-  { id: "more", e: "⋯", n: "المزيد" },
+  { id: "world", ic: "world", n: "العالم" },
+  { id: "acad", ic: "academy", n: "الأكاديمية" },
+  { id: "mistakes", ic: "mistakes", n: "أخطائي" },
+  { id: "stats", ic: "progress", n: "تقدّمي" },
+  { id: "more", ic: "more", n: "المزيد" },
 ];
 function TabBar({ active, theme, badges, onGo }) {
   return (
@@ -6296,7 +6365,11 @@ function TabBar({ active, theme, badges, onGo }) {
                  والخط الذهبي فوقه يكفي للدلالة على التبويب النشط. */
               color: on ? T.text : T.sub, borderTop: `2.5px solid ${on ? "var(--gold)" : "transparent"}`,
             }}>
-            <div aria-hidden="true" style={{ fontSize: 21, lineHeight: 1.1, transform: on ? "scale(1.06)" : "none", transition: "transform .2s" }}>{t.e}</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 1 }}>
+              <Ic n={t.ic} s={23} w={on ? 2.15 : 1.75}
+                style={{ transition: `stroke-width ${DS.dur.quick}ms ${DS.ease.out}, transform ${DS.dur.base}ms ${DS.ease.spring}`,
+                  transform: on ? "translateY(-1px)" : "none" }} />
+            </div>
             <div aria-hidden="true" style={{ fontSize: 10.5, fontWeight: on ? 900 : 700, marginTop: 3 }}>{t.n}</div>
             {badge > 0 && <span aria-hidden="true" style={{ position: "absolute", top: 4, insetInlineEnd: "26%", background: "var(--badFill)", color: "var(--onBad)", borderRadius: 99, fontSize: 9.5, fontWeight: 900, padding: "1px 5px", minWidth: 16 }}>{badge > 99 ? "99+" : badge}</span>}
           </button>
