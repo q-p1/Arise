@@ -372,7 +372,7 @@ p6: [
  { w: "technology", ar: "تقنية / تكنولوجيا", ex: "Technology changes how we learn.", bl: "Modern _____ powers the oil industry.", syn: "tech" },
  { w: "valid", ar: "صالح / سليم منطقيًا", ex: "Your passport must be valid.", bl: "That is a _____ argument.", syn: "sound", ant: "invalid" },
  { w: "volume", ar: "حجم / مستوى صوت", ex: "The volume of trade doubled.", bl: "Lower the _____ during the exam.", syn: "amount" },
- { w: "sector", ar: "قطاع", ex: "The private sector creates jobs.", bl: "She joined the energy _____.", syn: "field" },
+ { w: "contribution", ar: "إسهام / مساهمة", ex: "Her contribution to the project was decisive.", bl: "Every _____, however small, helps the team.", syn: "input" },
 ],
 };
 QQ.registerAWL("s3", { title: "S3", packs: [
@@ -395,24 +395,261 @@ QQ.registerQuestions([
 
 
 /* ═══ content/awl-s4.js ═══ */
-/* ═══ AWL Sublist 4 — جاهز للتعبئة ═══
-   انسخ مخطط awl-s1.js: const __W = { p1:[{ w, ar, ex, bl, syn, ant? }, ...] };
-   ثم: QQ.registerAWL("s4", { title: "S4", packs: [ { id: "s4p1", icon: "📗", name: "...", words: __W.p1 }, ... ] });
-   المحرك سيبني الحزم والتدريبات والمراجعة المتباعدة والمعارك تلقائيًا. */
+/* ═══ AWL Sublist 4 — 60 كلمة كاملة التأليف ═══ */
+const __W4 = {
+p1: [
+ { w: "access", ar: "وصول / يصل إلى", ex: "Students have free access to the library.", bl: "You need a password to _____ the system.", syn: "entry", ant: "barrier" },
+ { w: "adequate", ar: "كافٍ / وافٍ", ex: "The room has adequate lighting for reading.", bl: "Her salary is _____ for a small family.", syn: "sufficient", ant: "insufficient" },
+ { w: "annual", ar: "سنوي", ex: "The company holds an annual meeting in May.", bl: "Our _____ report shows steady growth.", syn: "yearly", ant: "daily" },
+ { w: "apparent", ar: "ظاهر / واضح", ex: "It was apparent that he had not studied.", bl: "The reason for the delay is not _____.", syn: "obvious", ant: "hidden" },
+ { w: "approximate", ar: "تقريبي / يقارب", ex: "The approximate cost is two thousand riyals.", bl: "Give me an _____ number, not an exact one.", syn: "rough", ant: "exact" },
+ { w: "attitude", ar: "موقف / نظرة", ex: "A positive attitude helps you learn faster.", bl: "His _____ toward failure changed everything.", syn: "outlook" },
+ { w: "attribute", ar: "يعزو / ينسب إلى", ex: "She attributes her success to daily practice.", bl: "Scientists _____ the change to rising heat.", syn: "credit" },
+ { w: "civil", ar: "مدني", ex: "Civil engineers design roads and bridges.", bl: "He studied _____ law at university.", syn: "public", ant: "military" },
+ { w: "code", ar: "شيفرة / نظام قواعد", ex: "The school has a strict dress code.", bl: "Enter the security _____ to open the door.", syn: "rules" },
+ { w: "commitment", ar: "التزام", ex: "Learning a language requires real commitment.", bl: "Her _____ to the team never weakened.", syn: "dedication" },
+],
+p2: [
+ { w: "communication", ar: "تواصل", ex: "Good communication prevents most conflicts.", bl: "Clear _____ is the key to teamwork.", syn: "contact" },
+ { w: "concentration", ar: "تركيز", ex: "Noise destroys concentration while studying.", bl: "The test demands full _____ for two hours.", syn: "focus" },
+ { w: "conference", ar: "مؤتمر", ex: "He presented his research at a conference.", bl: "The medical _____ lasted three days.", syn: "convention" },
+ { w: "contrast", ar: "تباين / يقابل", ex: "The contrast between the two cities is sharp.", bl: "In _____ to her brother, she is very quiet.", syn: "difference", ant: "similarity" },
+ { w: "cycle", ar: "دورة", ex: "The water cycle repeats endlessly.", bl: "Sleep follows a natural _____ every night.", syn: "loop" },
+ { w: "debate", ar: "نقاش / يناقش", ex: "The debate about school hours continues.", bl: "Members will _____ the new law tomorrow.", syn: "discussion", ant: "agreement" },
+ { w: "despite", ar: "على الرغم من", ex: "Despite the rain, the match continued.", bl: "He passed _____ having little time to study.", syn: "notwithstanding" },
+ { w: "dimension", ar: "بُعد", ex: "Measure every dimension of the box.", bl: "Cost adds another _____ to the problem.", syn: "aspect" },
+ { w: "domestic", ar: "محلي / منزلي", ex: "Domestic flights are cheaper than international ones.", bl: "The company serves the _____ market only.", syn: "internal", ant: "foreign" },
+ { w: "emerge", ar: "يظهر / يبرز", ex: "New evidence emerged after the investigation.", bl: "A clear pattern began to _____ in the data.", syn: "appear", ant: "vanish" },
+],
+p3: [
+ { w: "error", ar: "خطأ", ex: "A small error changed the whole result.", bl: "Check your work for any _____ before submitting.", syn: "mistake", ant: "accuracy" },
+ { w: "ethnic", ar: "عِرقي / إثني", ex: "The city celebrates its ethnic diversity.", bl: "Many _____ groups live in this region.", syn: "cultural" },
+ { w: "goal", ar: "هدف", ex: "Write your goal down and review it daily.", bl: "Passing the exam is my main _____ this year.", syn: "aim" },
+ { w: "grant", ar: "يمنح / منحة", ex: "The university granted him a scholarship.", bl: "The board will _____ permission next week.", syn: "award", ant: "deny" },
+ { w: "hence", ar: "ومن ثَمّ / لذلك", ex: "He missed the deadline; hence the penalty.", bl: "Prices rose, _____ sales dropped.", syn: "therefore" },
+ { w: "hypothesis", ar: "فرضية", ex: "The experiment tested a simple hypothesis.", bl: "Her _____ was proven wrong by the data.", syn: "theory", ant: "fact" },
+ { w: "implement", ar: "ينفّذ / يطبّق", ex: "The school will implement the new plan in autumn.", bl: "It is easy to plan but hard to _____.", syn: "execute", ant: "abandon" },
+ { w: "implication", ar: "تبعة / مغزى ضمني", ex: "Consider the implications before you decide.", bl: "This decision has a serious financial _____.", syn: "consequence" },
+ { w: "impose", ar: "يفرض", ex: "The government imposed a new tax.", bl: "Do not _____ your opinion on others.", syn: "enforce", ant: "lift" },
+ { w: "integration", ar: "تكامل / اندماج", ex: "Integration of the two systems took months.", bl: "The _____ of new staff went smoothly.", syn: "merging", ant: "separation" },
+],
+p4: [
+ { w: "internal", ar: "داخلي", ex: "The company launched an internal review.", bl: "The problem was _____, not caused by outsiders.", syn: "inner", ant: "external" },
+ { w: "investigation", ar: "تحقيق / بحث", ex: "The investigation lasted six months.", bl: "Police opened an _____ into the accident.", syn: "inquiry" },
+ { w: "label", ar: "بطاقة / يصنّف", ex: "Read the label before taking the medicine.", bl: "Do not _____ a student as lazy too quickly.", syn: "tag" },
+ { w: "mechanism", ar: "آلية", ex: "Sweating is the body's cooling mechanism.", bl: "The clock's _____ needs cleaning.", syn: "system" },
+ { w: "obvious", ar: "بديهي / جليّ", ex: "The answer was obvious once she explained it.", bl: "It is _____ that he needs more rest.", syn: "clear", ant: "subtle" },
+ { w: "occupation", ar: "مهنة", ex: "Please state your occupation on the form.", bl: "Teaching is a demanding _____.", syn: "profession" },
+ { w: "option", ar: "خيار", ex: "You have three options to choose from.", bl: "Staying silent was not an _____ for her.", syn: "choice" },
+ { w: "output", ar: "مُخرَج / إنتاج", ex: "The factory doubled its output this year.", bl: "Higher energy means greater _____.", syn: "production", ant: "input" },
+ { w: "overall", ar: "إجمالي / بوجه عام", ex: "Overall, the results were encouraging.", bl: "Her _____ score improved by ten points.", syn: "total" },
+ { w: "parallel", ar: "مواز / تشابه", ex: "The two roads run parallel to each other.", bl: "There is a clear _____ between the two stories.", syn: "similar" },
+],
+p5: [
+ { w: "parameter", ar: "معيار / حدّ", ex: "The study set clear parameters from the start.", bl: "Time is an important _____ in this design.", syn: "limit" },
+ { w: "phase", ar: "مرحلة", ex: "The project entered its final phase.", bl: "The first _____ of training lasts a month.", syn: "stage" },
+ { w: "predict", ar: "يتنبّأ", ex: "Nobody can predict the market exactly.", bl: "Scientists _____ warmer summers ahead.", syn: "forecast" },
+ { w: "principal", ar: "رئيسي / مدير المدرسة", ex: "The principal reason for failure was poor planning.", bl: "Rice is the _____ crop of the region.", syn: "main", ant: "minor" },
+ { w: "prior", ar: "سابق / قبل", ex: "Prior experience is required for this job.", bl: "Read the notes _____ to the lecture.", syn: "previous", ant: "later" },
+ { w: "professional", ar: "محترف / مهني", ex: "She gave a professional presentation.", bl: "He decided to turn _____ after graduation.", syn: "expert", ant: "amateur" },
+ { w: "project", ar: "مشروع", ex: "Our team finished the project early.", bl: "The construction _____ will take two years.", syn: "scheme" },
+ { w: "promote", ar: "يعزّز / يرقّي", ex: "Exercise promotes better sleep.", bl: "The campaign aims to _____ healthy eating.", syn: "encourage", ant: "discourage" },
+ { w: "regime", ar: "نظام / نهج", ex: "He follows a strict training regime.", bl: "The new _____ changed many old rules.", syn: "system" },
+ { w: "resolution", ar: "قرار / حسم", ex: "The council passed a resolution to build a park.", bl: "They reached a peaceful _____ of the dispute.", syn: "settlement" },
+],
+p6: [
+ { w: "retain", ar: "يحتفظ بـ", ex: "Sleep helps you retain what you studied.", bl: "The company hopes to _____ its best workers.", syn: "keep", ant: "lose" },
+ { w: "series", ar: "سلسلة", ex: "A series of tests confirmed the result.", bl: "He wrote a _____ of articles on the topic.", syn: "sequence" },
+ { w: "statistic", ar: "إحصائية", ex: "One statistic surprised the whole room.", bl: "This _____ shows a sharp rise in demand.", syn: "figure" },
+ { w: "status", ar: "حالة / مكانة", ex: "Check the status of your application online.", bl: "Her _____ in the company rose quickly.", syn: "standing" },
+ { w: "stress", ar: "ضغط / يشدّد على", ex: "Exam stress affects sleep and appetite.", bl: "Teachers always _____ the value of practice.", syn: "pressure", ant: "calm" },
+ { w: "subsequent", ar: "لاحق / تالٍ", ex: "Subsequent studies confirmed the finding.", bl: "The error appeared in every _____ report.", syn: "following", ant: "previous" },
+ { w: "sum", ar: "مجموع / مبلغ", ex: "The sum of the two numbers is forty.", bl: "He paid a large _____ for the car.", syn: "total" },
+ { w: "summary", ar: "ملخّص", ex: "Write a short summary of the passage.", bl: "The _____ covers the main points only.", syn: "outline" },
+ { w: "undertake", ar: "يتولّى / يشرع في", ex: "The team undertook a difficult mission.", bl: "She will _____ the research next term.", syn: "attempt", ant: "abandon" },
+ { w: "job", ar: "وظيفة / عمل", ex: "He found a job right after graduating.", bl: "Finding a good _____ takes patience.", syn: "position" },
+],
+};
+QQ.registerAWL("s4", { title: "S4", packs: [
+  { id: "e1", icon: "🚪", name: "حزمة الوصول",   words: __W4.p1 },
+  { id: "e2", icon: "🔄", name: "حزمة الدورات",  words: __W4.p2 },
+  { id: "e3", icon: "🧪", name: "حزمة الفرضيات", words: __W4.p3 },
+  { id: "e4", icon: "⚙️", name: "حزمة الآليات",  words: __W4.p4 },
+  { id: "e5", icon: "📶", name: "حزمة المراحل",  words: __W4.p5 },
+  { id: "e6", icon: "📈", name: "حزمة النتائج",  words: __W4.p6 },
+]});
 
 
 /* ═══ content/awl-s5.js ═══ */
-/* ═══ AWL Sublist 5 — جاهز للتعبئة ═══
-   انسخ مخطط awl-s1.js: const __W = { p1:[{ w, ar, ex, bl, syn, ant? }, ...] };
-   ثم: QQ.registerAWL("s5", { title: "S5", packs: [ { id: "s5p1", icon: "📗", name: "...", words: __W.p1 }, ... ] });
-   المحرك سيبني الحزم والتدريبات والمراجعة المتباعدة والمعارك تلقائيًا. */
+/* ═══ AWL Sublist 5 — 60 كلمة كاملة التأليف ═══ */
+const __W5 = {
+p1: [
+ { w: "academy", ar: "أكاديمية", ex: "He trained at a football academy as a boy.", bl: "The _____ offers courses in three languages.", syn: "institute" },
+ { w: "adjust", ar: "يعدّل / يتأقلم", ex: "Adjust the mirror before you drive.", bl: "It takes time to _____ to a new city.", syn: "adapt" },
+ { w: "alter", ar: "يغيّر", ex: "Nothing can alter what already happened.", bl: "We may _____ the plan if costs rise.", syn: "change", ant: "preserve" },
+ { w: "amend", ar: "يعدّل (نصًّا أو قانونًا)", ex: "Parliament amended the law last year.", bl: "The committee voted to _____ the contract.", syn: "revise" },
+ { w: "aware", ar: "مدرك / واعٍ", ex: "Are you aware of the new deadline?", bl: "Drivers must be _____ of pedestrians.", syn: "conscious", ant: "ignorant" },
+ { w: "capacity", ar: "سعة / قدرة", ex: "The hall has a capacity of five hundred.", bl: "She has a great _____ for hard work.", syn: "ability" },
+ { w: "challenge", ar: "تحدٍّ / يتحدّى", ex: "Learning Arabic grammar is a real challenge.", bl: "He decided to _____ the referee's decision.", syn: "test" },
+ { w: "clause", ar: "بند / جملة فرعية", ex: "Read every clause of the agreement.", bl: "The final _____ protects the buyer.", syn: "provision" },
+ { w: "conflict", ar: "صراع / تعارض", ex: "The conflict between the two teams grew.", bl: "His schedule is in _____ with mine.", syn: "clash", ant: "harmony" },
+ { w: "consult", ar: "يستشير", ex: "Consult a doctor before taking the medicine.", bl: "Always _____ the manual when unsure.", syn: "ask" },
+],
+p2: [
+ { w: "contact", ar: "اتصال / يتواصل", ex: "Keep in contact with your teachers.", bl: "Please _____ us if the problem returns.", syn: "reach" },
+ { w: "decline", ar: "تراجع / يرفض بأدب", ex: "Sales declined sharply last winter.", bl: "She had to _____ the invitation politely.", syn: "decrease", ant: "increase" },
+ { w: "discretion", ar: "تقدير شخصي / تكتّم", ex: "The manager acted with great discretion.", bl: "Entry is granted at the guard's _____.", syn: "judgement" },
+ { w: "draft", ar: "مسودّة / يصوغ", ex: "This is only the first draft of the report.", bl: "He will _____ the letter tonight.", syn: "outline", ant: "final" },
+ { w: "enable", ar: "يمكّن", ex: "Scholarships enable poor students to study.", bl: "This tool will _____ you to work faster.", syn: "allow", ant: "prevent" },
+ { w: "energy", ar: "طاقة", ex: "Solar energy is clean and renewable.", bl: "After a good sleep she had more _____.", syn: "power" },
+ { w: "enforce", ar: "يُنفّذ بالقوة / يطبّق", ex: "Police enforce the traffic rules strictly.", bl: "It is hard to _____ a rule nobody accepts.", syn: "impose" },
+ { w: "entity", ar: "كيان", ex: "The two companies remain separate entities.", bl: "The charity is a legal _____ of its own.", syn: "body" },
+ { w: "equivalent", ar: "مكافئ / مساوٍ", ex: "One mile is equivalent to 1.6 kilometres.", bl: "There is no exact Arabic _____ for this word.", syn: "equal", ant: "different" },
+ { w: "evolution", ar: "تطوّر", ex: "The evolution of the phone took decades.", bl: "We studied the _____ of written language.", syn: "development" },
+],
+p3: [
+ { w: "expansion", ar: "توسّع", ex: "The expansion of the city never stopped.", bl: "Heat causes the _____ of metal.", syn: "growth", ant: "reduction" },
+ { w: "exposure", ar: "تعرّض / انكشاف", ex: "Long exposure to the sun damages skin.", bl: "Daily _____ to English improves listening.", syn: "contact" },
+ { w: "external", ar: "خارجي", ex: "The building needs external repairs.", bl: "An _____ examiner reviewed the papers.", syn: "outer", ant: "internal" },
+ { w: "facilitate", ar: "يسهّل", ex: "Good tools facilitate learning.", bl: "The bridge will _____ trade between the cities.", syn: "ease", ant: "obstruct" },
+ { w: "fundamental", ar: "أساسي / جوهري", ex: "Reading is a fundamental skill.", bl: "There is a _____ difference between the two.", syn: "basic", ant: "trivial" },
+ { w: "generate", ar: "يولّد", ex: "Wind turbines generate electricity.", bl: "The campaign will _____ new interest.", syn: "produce" },
+ { w: "generation", ar: "جيل", ex: "Each generation faces different challenges.", bl: "This phone belongs to an older _____.", syn: "age group" },
+ { w: "image", ar: "صورة / انطباع", ex: "The image on the screen was blurry.", bl: "The company worked to improve its _____.", syn: "picture" },
+ { w: "liberal", ar: "متحرّر / سخيّ", ex: "He holds fairly liberal views on education.", bl: "She was _____ with both praise and time.", syn: "open-minded", ant: "strict" },
+ { w: "licence", ar: "رخصة", ex: "You need a licence to drive here.", bl: "The restaurant lost its _____ last month.", syn: "permit" },
+],
+p4: [
+ { w: "logic", ar: "منطق", ex: "There is no logic in that argument.", bl: "Follow the _____ of the steps carefully.", syn: "reasoning" },
+ { w: "marginal", ar: "هامشي / طفيف", ex: "The change made only a marginal difference.", bl: "Profits showed a _____ increase this quarter.", syn: "slight", ant: "major" },
+ { w: "medical", ar: "طبّي", ex: "She needs immediate medical attention.", bl: "He kept his _____ records in one folder.", syn: "health-related" },
+ { w: "mental", ar: "ذهني / نفسي", ex: "Mental arithmetic saves time in the exam.", bl: "Sleep protects your _____ health.", syn: "cognitive", ant: "physical" },
+ { w: "modify", ar: "يعدّل", ex: "Engineers modified the design twice.", bl: "You may _____ your answer before submitting.", syn: "adapt" },
+ { w: "monitor", ar: "يراقب", ex: "Nurses monitor the patient every hour.", bl: "Teachers _____ progress throughout the term.", syn: "observe", ant: "ignore" },
+ { w: "network", ar: "شبكة", ex: "The railway network covers the whole country.", bl: "A strong professional _____ helps your career.", syn: "web" },
+ { w: "notion", ar: "فكرة / تصوّر", ex: "He rejected the notion that talent is fixed.", bl: "The _____ of a four-day week is spreading.", syn: "idea" },
+ { w: "objective", ar: "هدف / موضوعي", ex: "State the objective of your research clearly.", bl: "A judge must remain _____ at all times.", syn: "goal", ant: "biased" },
+ { w: "orientation", ar: "توجيه / اتجاه", ex: "New students attend an orientation week.", bl: "The building's _____ keeps rooms cool.", syn: "direction" },
+],
+p5: [
+ { w: "perspective", ar: "منظور", ex: "Travel gives you a wider perspective.", bl: "From a student's _____, the rule seems unfair.", syn: "viewpoint" },
+ { w: "precise", ar: "دقيق", ex: "Give me the precise time of the meeting.", bl: "Science demands _____ measurement.", syn: "exact", ant: "vague" },
+ { w: "prime", ar: "رئيسي / أوّلي", ex: "Safety is our prime concern.", bl: "This is a _____ example of good design.", syn: "chief", ant: "secondary" },
+ { w: "psychology", ar: "علم النفس", ex: "She studies the psychology of learning.", bl: "The _____ behind the decision was complex.", syn: "mindset" },
+ { w: "pursue", ar: "يسعى وراء", ex: "He decided to pursue a career in medicine.", bl: "She will _____ her studies abroad.", syn: "chase", ant: "abandon" },
+ { w: "ratio", ar: "نسبة", ex: "The ratio of teachers to students is one to twenty.", bl: "Mix the two liquids in a 3:1 _____.", syn: "proportion" },
+ { w: "reject", ar: "يرفض", ex: "The committee rejected the proposal.", bl: "Do not _____ advice before you hear it.", syn: "refuse", ant: "accept" },
+ { w: "revenue", ar: "إيراد", ex: "Revenue grew by twenty percent this year.", bl: "Tourism is the country's main _____ source.", syn: "income", ant: "expense" },
+ { w: "stability", ar: "استقرار", ex: "The region enjoyed years of stability.", bl: "Financial _____ allows long-term planning.", syn: "steadiness", ant: "instability" },
+ { w: "style", ar: "أسلوب", ex: "Her writing style is clear and direct.", bl: "Each author has a distinct _____.", syn: "manner" },
+],
+p6: [
+ { w: "substitute", ar: "بديل / يستبدل", ex: "Honey can substitute for sugar in this recipe.", bl: "There is no _____ for regular practice.", syn: "replacement" },
+ { w: "sustainable", ar: "مستدام", ex: "The farm uses sustainable methods.", bl: "This pace of spending is not _____.", syn: "lasting", ant: "wasteful" },
+ { w: "symbolic", ar: "رمزي", ex: "The handshake was purely symbolic.", bl: "The olive branch is _____ of peace.", syn: "representative", ant: "literal" },
+ { w: "target", ar: "هدف / يستهدف", ex: "The team reached its sales target early.", bl: "The campaign will _____ young readers.", syn: "aim" },
+ { w: "transition", ar: "انتقال", ex: "The transition from school to work is hard.", bl: "The country's _____ to clean energy began.", syn: "shift" },
+ { w: "trend", ar: "اتجاه / نزعة", ex: "The trend toward remote work continues.", bl: "Prices show an upward _____ this year.", syn: "tendency" },
+ { w: "version", ar: "نسخة / رواية", ex: "This is the latest version of the app.", bl: "Each witness gave a different _____ of events.", syn: "edition" },
+ { w: "welfare", ar: "رفاه / رعاية", ex: "The state protects the welfare of children.", bl: "Animal _____ laws became stricter.", syn: "wellbeing", ant: "neglect" },
+ { w: "whereas", ar: "بينما / في حين أن", ex: "He is patient, whereas his brother is quick-tempered.", bl: "Summers are dry, _____ winters are wet.", syn: "while" },
+ { w: "compound", ar: "مركّب / يفاقم", ex: "Water is a compound of hydrogen and oxygen.", bl: "Ignoring the issue will only _____ the problem.", syn: "mixture" },
+],
+};
+QQ.registerAWL("s5", { title: "S5", packs: [
+  { id: "g1", icon: "🎓", name: "حزمة الأكاديمية", words: __W5.p1 },
+  { id: "g2", icon: "🔌", name: "حزمة التمكين",   words: __W5.p2 },
+  { id: "g3", icon: "🌱", name: "حزمة التوسّع",    words: __W5.p3 },
+  { id: "g4", icon: "🧠", name: "حزمة الذهن",     words: __W5.p4 },
+  { id: "g5", icon: "🔭", name: "حزمة المنظور",   words: __W5.p5 },
+  { id: "g6", icon: "♻️", name: "حزمة الاستدامة", words: __W5.p6 },
+]});
 
 
 /* ═══ content/awl-s6.js ═══ */
-/* ═══ AWL Sublist 6 — جاهز للتعبئة ═══
-   انسخ مخطط awl-s1.js: const __W = { p1:[{ w, ar, ex, bl, syn, ant? }, ...] };
-   ثم: QQ.registerAWL("s6", { title: "S6", packs: [ { id: "s6p1", icon: "📗", name: "...", words: __W.p1 }, ... ] });
-   المحرك سيبني الحزم والتدريبات والمراجعة المتباعدة والمعارك تلقائيًا. */
+/* ═══ AWL Sublist 6 — 60 كلمة كاملة التأليف ═══ */
+const __W6 = {
+p1: [
+ { w: "abstract", ar: "مجرّد / ملخّص بحث", ex: "Justice is an abstract concept.", bl: "Read the _____ before the full paper.", syn: "theoretical", ant: "concrete" },
+ { w: "accurate", ar: "دقيق", ex: "The clock is accurate to the second.", bl: "We need an _____ count, not a guess.", syn: "exact", ant: "wrong" },
+ { w: "acknowledge", ar: "يقرّ / يعترف بـ", ex: "He acknowledged his mistake immediately.", bl: "The author must _____ every source used.", syn: "admit", ant: "deny" },
+ { w: "aggregate", ar: "إجمالي / يجمّع", ex: "The aggregate score decided the winner.", bl: "The site will _____ news from many papers.", syn: "combined" },
+ { w: "allocate", ar: "يخصّص", ex: "The school allocated funds for new labs.", bl: "Please _____ two hours for revision daily.", syn: "assign" },
+ { w: "assign", ar: "يكلّف / يسند", ex: "The teacher assigned three exercises.", bl: "They will _____ you a mentor next week.", syn: "allot" },
+ { w: "attach", ar: "يُرفق", ex: "Attach your certificate to the application.", bl: "Please _____ the file to your email.", syn: "append", ant: "detach" },
+ { w: "author", ar: "مؤلّف", ex: "The author signed copies after the talk.", bl: "Who is the _____ of this passage?", syn: "writer" },
+ { w: "bond", ar: "رابطة / سند", ex: "A strong bond formed between the two teams.", bl: "The _____ between mother and child is powerful.", syn: "tie" },
+ { w: "brief", ar: "موجز / قصير", ex: "He gave a brief summary of the results.", bl: "Keep your answer _____ and to the point.", syn: "short", ant: "lengthy" },
+],
+p2: [
+ { w: "capable", ar: "قادر", ex: "She is capable of solving harder problems.", bl: "This engine is _____ of great speed.", syn: "able", ant: "incapable" },
+ { w: "cite", ar: "يستشهد بـ", ex: "Always cite the studies you rely on.", bl: "The lawyer will _____ an earlier case.", syn: "quote" },
+ { w: "cooperative", ar: "تعاوني", ex: "The students were cooperative during the trip.", bl: "A _____ effort finished the work early.", syn: "helpful", ant: "hostile" },
+ { w: "discrimination", ar: "تمييز", ex: "The law forbids discrimination at work.", bl: "_____ based on age is illegal here.", syn: "bias", ant: "fairness" },
+ { w: "display", ar: "عرض / يعرض", ex: "The museum will display the new find.", bl: "The shop windows _____ winter clothes.", syn: "show", ant: "hide" },
+ { w: "diversity", ar: "تنوّع", ex: "The team's diversity made it stronger.", bl: "Biological _____ protects the whole system.", syn: "variety", ant: "uniformity" },
+ { w: "domain", ar: "مجال / نطاق", ex: "Physics is outside my domain.", bl: "This question falls in the _____ of law.", syn: "field" },
+ { w: "edition", ar: "طبعة", ex: "The second edition corrected many errors.", bl: "I bought the latest _____ of the textbook.", syn: "version" },
+ { w: "enhance", ar: "يعزّز / يحسّن", ex: "Good sleep enhances memory.", bl: "Pictures _____ the clarity of a report.", syn: "improve", ant: "weaken" },
+ { w: "estate", ar: "ملكية / عقار", ex: "He inherited a large estate.", bl: "Real _____ prices rose sharply.", syn: "property" },
+],
+p3: [
+ { w: "exceed", ar: "يتجاوز", ex: "Costs must not exceed the budget.", bl: "Her results _____ all expectations.", syn: "surpass", ant: "fall short" },
+ { w: "expert", ar: "خبير", ex: "An expert reviewed the design.", bl: "Ask an _____ before you decide.", syn: "specialist", ant: "novice" },
+ { w: "explicit", ar: "صريح / واضح", ex: "The instructions were explicit and short.", bl: "He gave _____ permission in writing.", syn: "clear", ant: "implicit" },
+ { w: "federal", ar: "اتحادي", ex: "Federal law applies to all states.", bl: "The case moved to a _____ court.", syn: "national", ant: "local" },
+ { w: "fee", ar: "رسم / أجر", ex: "The registration fee is due on Sunday.", bl: "The bank charges a small _____ per transfer.", syn: "charge" },
+ { w: "flexibility", ar: "مرونة", ex: "The job offers real flexibility in hours.", bl: "Her _____ made the schedule work.", syn: "adaptability", ant: "rigidity" },
+ { w: "furthermore", ar: "علاوة على ذلك", ex: "The plan is costly; furthermore, it is slow.", bl: "It saves money; _____, it saves time.", syn: "moreover" },
+ { w: "gender", ar: "الجنس / النوع", ex: "The survey recorded age and gender.", bl: "Pay should not depend on _____.", syn: "sex" },
+ { w: "ignore", ar: "يتجاهل", ex: "Do not ignore warning signs.", bl: "He chose to _____ the noise and keep reading.", syn: "overlook", ant: "notice" },
+ { w: "incentive", ar: "حافز", ex: "Bonuses are a strong incentive to work harder.", bl: "Lower taxes act as an _____ to invest.", syn: "motivation", ant: "deterrent" },
+],
+p4: [
+ { w: "incidence", ar: "معدّل حدوث", ex: "The incidence of the disease has fallen.", bl: "There is a high _____ of errors in this file.", syn: "occurrence" },
+ { w: "incorporate", ar: "يُدمج / يُضمّن", ex: "The design incorporates older ideas.", bl: "We will _____ your feedback in the next draft.", syn: "include", ant: "exclude" },
+ { w: "inhibit", ar: "يكبح / يعيق", ex: "Fear can inhibit clear thinking.", bl: "Cold weather may _____ plant growth.", syn: "restrain", ant: "encourage" },
+ { w: "initiative", ar: "مبادرة", ex: "She took the initiative and started early.", bl: "The government launched a reading _____.", syn: "scheme" },
+ { w: "input", ar: "مُدخَل / إسهام", ex: "We value your input on this decision.", bl: "The machine converts _____ into output.", syn: "contribution", ant: "output" },
+ { w: "instruction", ar: "تعليمة", ex: "Follow every instruction on the page.", bl: "Read the _____ before you begin.", syn: "direction" },
+ { w: "intelligence", ar: "ذكاء", ex: "Intelligence grows with effort and practice.", bl: "Artificial _____ is changing many jobs.", syn: "intellect" },
+ { w: "interval", ar: "فترة فاصلة", ex: "Take a short interval between sessions.", bl: "Buses arrive at a ten-minute _____.", syn: "gap" },
+ { w: "lecture", ar: "محاضرة", ex: "The lecture lasted ninety minutes.", bl: "He fell asleep during the long _____.", syn: "talk" },
+ { w: "migration", ar: "هجرة", ex: "Bird migration follows the seasons.", bl: "Rural _____ to cities continues to rise.", syn: "movement" },
+],
+p5: [
+ { w: "minimum", ar: "الحدّ الأدنى", ex: "You need a minimum of six hours' sleep.", bl: "The _____ score for entry is sixty.", syn: "least", ant: "maximum" },
+ { w: "ministry", ar: "وزارة", ex: "The Ministry of Education announced the dates.", bl: "The _____ published new guidelines.", syn: "department" },
+ { w: "motivation", ar: "دافع", ex: "Motivation matters more than talent.", bl: "Her _____ came from a promise to her father.", syn: "drive" },
+ { w: "neutral", ar: "محايد", ex: "The reporter kept a neutral tone.", bl: "Switzerland stayed _____ during the war.", syn: "impartial", ant: "biased" },
+ { w: "nevertheless", ar: "ومع ذلك", ex: "It was raining; nevertheless, they walked.", bl: "The task was hard; _____, she finished it.", syn: "however" },
+ { w: "overseas", ar: "في الخارج", ex: "He studied overseas for two years.", bl: "The company expanded into _____ markets.", syn: "abroad", ant: "domestic" },
+ { w: "precedent", ar: "سابقة", ex: "The ruling set an important precedent.", bl: "There is no _____ for such a decision.", syn: "example" },
+ { w: "rational", ar: "عقلاني", ex: "Make a rational choice, not an emotional one.", bl: "His argument was calm and _____.", syn: "logical", ant: "irrational" },
+ { w: "recovery", ar: "تعافٍ / استرداد", ex: "His recovery took three months.", bl: "The economy showed a slow _____.", syn: "healing", ant: "decline" },
+ { w: "reveal", ar: "يكشف", ex: "The study revealed a surprising pattern.", bl: "The results will _____ who worked hardest.", syn: "disclose", ant: "conceal" },
+],
+p6: [
+ { w: "scope", ar: "نطاق / مجال", ex: "The scope of the project is very wide.", bl: "That question is beyond the _____ of this lesson.", syn: "range" },
+ { w: "trace", ar: "أثر / يتتبّع", ex: "Police could not trace the missing car.", bl: "There was no _____ of an error in the file.", syn: "track" },
+ { w: "transform", ar: "يحوّل", ex: "Education transformed his whole life.", bl: "Heat will _____ the liquid into gas.", syn: "convert" },
+ { w: "transport", ar: "نقل / ينقل", ex: "Public transport is cheap in this city.", bl: "Trucks _____ goods across the desert.", syn: "carry" },
+ { w: "underlying", ar: "كامن / أساسي", ex: "The underlying cause was poor planning.", bl: "We must treat the _____ problem, not the symptom.", syn: "fundamental", ant: "surface" },
+ { w: "utility", ar: "منفعة / مرفق", ex: "The utility of the tool became clear later.", bl: "Water is a basic public _____.", syn: "usefulness" },
+ { w: "subsidiary", ar: "شركة تابعة / ثانوي", ex: "The bank owns a subsidiary abroad.", bl: "That is a _____ issue, not the main one.", syn: "secondary", ant: "primary" },
+ { w: "presume", ar: "يفترض", ex: "I presume you have read the notice.", bl: "Do not _____ that silence means agreement.", syn: "assume" },
+ { w: "revise", ar: "يراجع / ينقّح", ex: "Revise your notes the night before.", bl: "The editor asked him to _____ chapter two.", syn: "review" },
+ { w: "index", ar: "مؤشّر / فهرس", ex: "The price index rose by three percent.", bl: "Use the _____ at the back of the book.", syn: "indicator" },
+],
+};
+QQ.registerAWL("s6", { title: "S6", packs: [
+  { id: "h1", icon: "📝", name: "حزمة التأليف",   words: __W6.p1 },
+  { id: "h2", icon: "🤝", name: "حزمة التعاون",   words: __W6.p2 },
+  { id: "h3", icon: "⚖️", name: "حزمة الصراحة",   words: __W6.p3 },
+  { id: "h4", icon: "💡", name: "حزمة المبادرة",  words: __W6.p4 },
+  { id: "h5", icon: "🧭", name: "حزمة الحياد",    words: __W6.p5 },
+  { id: "h6", icon: "🔧", name: "حزمة التحويل",   words: __W6.p6 },
+]});
 
 
 /* ═══ content/awl-s7.js ═══ */
@@ -1672,34 +1909,67 @@ QQ.registerLessons({
   id: "C", name: "Aramco Track: CPC Preparation", icon: "🏭", color: "#8C4A2F",
   desc: "سرعة ذهنية، منطق، قراءة سريعة — بنمط اختبارات قبول أرامكو",
   units: [
-    { id: "c1", icon: "🧮", name: "الرياضيات الذهنية (بلا آلة حاسبة)", cards: [
-      { h: "قاعدة CPC الأولى", t: "لا آلة حاسبة أبدًا. سلاحك التفكيك: 47 × 6 = (40×6) + (7×6) = 240 + 42 = 282." },
-      { h: "التقريب ثم التصحيح", t: "398 + 267؟ قرّب: 400 + 267 = 667 ثم اطرح 2 = 665. أسرع وأدق من الجمع العمودي الذهني.", ex: "99 × 7 = 700 − 7 = 693" },
-      { h: "حيلة ×11 و×25", t: "×11: 34×11 = 3(3+4)4 = 374. ×25: اقسم على 4 ثم ×100: 36×25 = 9×100 = 900." },
-    ], drills: [
+    { id: "c1", icon: "🧮", name: "الرياضيات الذهنية (بلا آلة حاسبة)", genDrills: true,
+      steps: [
+        { k: "teach", h: "القاعدة الأولى: فكّك ولا تحسب عموديًا", t: "في CPC لا آلة حاسبة، والوقت خانق. الحساب العمودي في رأسك بطيء ومُتعِب. الحل: فكّك العدد لأجزاء سهلة، اضرب كل جزء، ثم اجمع.", ex: "47 × 6 = (40×6) + (7×6) = 240 + 42 = 282" },
+        { k: "example", h: "فكّك واضرب", q: "احسب ذهنيًا: 63 × 4", steps: ["فكّك 63 إلى 60 + 3", "‏60×4 = 240   و   3×4 = 12", "اجمع: 240 + 12 = 252"], answer: "252" },
+        { k: "check", q: "احسب ذهنيًا بالتفكيك: 52 × 7", options: ["364", "354", "374", "344"], a: 0, ex: "‏(50×7) + (2×7) = 350 + 14 = 364. لاحظ أن التفكيك حوّل عملية صعبة إلى جمعين سهلين." },
+        { k: "teach", h: "قرّب ثم صحّح", t: "إذا كان العدد قريبًا من رقم مستدير، قرّب إليه ثم عدّل. هذي أسرع طريقة للأعداد مثل 98 و199 و398.", ex: "398 + 267 → 400 + 267 = 667 ثم −2 = 665\n99 × 7 → 700 − 7 = 693" },
+        { k: "example", h: "التقريب في الضرب", q: "احسب ذهنيًا: 98 × 5", steps: ["‏98 قريبة من 100 → قرّب لأعلى", "‏100 × 5 = 500", "زدنا 2 في كل واحدة من الخمس → اطرح 2×5 = 10", "‏500 − 10 = 490"], answer: "490" },
+        { k: "teach", h: "حيلتا ×11 و ×25", t: "‏×11 لعدد من رقمين: افتح الرقمين وضع مجموعهما بينهما. و×25: اقسم على 4 ثم اضرب في 100 — لأن 25 = 100÷4.", ex: "34 × 11 → 3 (3+4) 4 = 374\n36 × 25 → 36÷4 = 9 → 900" },
+        { k: "check", q: "احسب: 44 × 25", options: ["1100", "1000", "1200", "1140"], a: 0, ex: "‏44 ÷ 4 = 11، ثم ×100 = 1100. أسرع بكثير من الضرب العمودي." },
+        { k: "trap", h: "احذر النسيان في منتصف الحيلة", t: "أكثر خطأ في الحساب الذهني ليس في القاعدة بل في **نسيان التصحيح**: تقرّب 98 إلى 100 ثم تنسى طرح الفرق. ثبّت عادة: بعد كل تقريب، اسأل نفسك «كم زدت؟ وكم مرة؟» ثم اطرح الحاصل — لا تسلّم الجواب قبل هذي الخطوة." },
+      ],
+      cards: [
+        { h: "قاعدة CPC الأولى", t: "لا آلة حاسبة أبدًا. سلاحك التفكيك: 47 × 6 = (40×6) + (7×6) = 240 + 42 = 282." },
+        { h: "التقريب ثم التصحيح", t: "398 + 267؟ قرّب: 400 + 267 = 667 ثم اطرح 2 = 665. أسرع وأدق من الجمع العمودي الذهني.", ex: "99 × 7 = 700 − 7 = 693" },
+        { h: "حيلة ×11 و×25", t: "×11: 34×11 = 3(3+4)4 = 374. ×25: اقسم على 4 ثم ×100: 36×25 = 9×100 = 900." },
+      ], drills: [
       { kind: "num", q: "47 × 6 =", a: 282, ex: "(40×6)+(7×6) = 240+42." },
       { kind: "num", q: "398 + 267 =", a: 665, ex: "400+267 = 667 ثم −2." },
       { kind: "num", q: "36 × 25 =", a: 900, ex: "36÷4 = 9 ثم ×100." },
       { kind: "num", q: "72 × 11 =", a: 792, ex: "7(7+2)2 = 792." },
       { kind: "num", q: "840 ÷ 12 =", a: 70, ex: "84÷12 = 7 ثم ×10." },
     ]},
-    { id: "c2", icon: "🧩", name: "التفكير المنطقي", cards: [
-      { h: "متتابعات الأنماط", t: "اسأل دائمًا: ما الفرق بين كل حدين؟ ثابت؟ متضاعف؟ متزايد؟ 2, 6, 18, 54 → كل حد ×3." },
-      { h: "الشاذ بينها", t: "دوّر الخاصية المشتركة أولًا، والعنصر الذي يكسرها هو الجواب." },
-    ], drills: [
+    { id: "c2", icon: "🧩", name: "التفكير المنطقي", genDrills: true,
+      steps: [
+        { k: "teach", h: "أي متتابعة: اسأل عن الفرق أولًا", t: "لا تحدّق في الأرقام منتظرًا الإلهام. اكتب الفرق بين كل حدّين متجاورين — سيكشف لك النمط فورًا: هل الفرق ثابت؟ أم الأعداد تتضاعف؟ أم الفروق نفسها تتزايد؟" },
+        { k: "example", h: "الفرق ثابت = متتابعة حسابية", q: "أكمل: 4, 9, 14, 19, ___", steps: ["اكتب الفروق: 9−4=5 ، 14−9=5 ، 19−14=5", "الفرق ثابت = 5 → متتابعة حسابية", "الحدّ التالي = 19 + 5 = 24"], answer: "24" },
+        { k: "teach", h: "التضاعف والفروق المتزايدة", t: "إذا كان القسمة (لا الطرح) هي الثابتة فالمتتابعة هندسية: 2, 6, 18, 54 كل حدّ ×3. وإذا لم يثبت الفرق ولا النسبة، فانظر إلى **فروق الفروق**.", ex: "3, 4, 6, 9, 13 → الفروق: 1, 2, 3, 4 → التالي +5 = 18" },
+        { k: "check", q: "أكمل: 5, 8, 12, 17, ___", options: ["23", "21", "22", "25"], a: 0, ex: "الفروق: 3، 4، 5 — تتزايد بواحد. فالفرق التالي 6 → 17 + 6 = 23." },
+        { k: "teach", h: "الشاذّ: ابحث عن الرابط لا عن الغريب", t: "في سؤال «أي واحدة لا تنتمي؟» لا تبدأ بالبحث عن الغريب — ابدأ بإيجاد **الخاصية المشتركة بين ثلاثة**. حين تتضح، يسقط الرابع من نفسه.", ex: "مربّع، مثلث، دائرة، مستطيل → الثلاثة لها أضلاع مستقيمة، فالدائرة هي الشاذّة" },
+        { k: "check", q: "أيها لا ينتمي؟", options: ["الدائرة", "المربع", "المثلث", "المستطيل"], a: 0, ex: "الرابط بين المربع والمثلث والمستطيل: أضلاع مستقيمة وزوايا. الدائرة بلا أضلاع — فهي الشاذّة." },
+        { k: "teach", h: "القياس المنطقي: صدّق المقدّمة والتزم بها", t: "أسئلة «كل… وبعض…» تُحلّ بالمعطى وحده. صدّق المقدّمة مهما بدت غريبة، ولا تُدخل معرفتك الخارجية.", ex: "كل المهندسين مخطِّطون. سامي مهندس. ← إذن سامي مخطِّط (حتمًا)." },
+        { k: "check", q: "«كل المهندسين مخطِّطون. سامي مهندس.» إذن سامي:", options: ["مخطِّط", "قد يكون مخطِّطًا", "ليس مخطِّطًا", "لا يمكن التحديد"], a: 0, ex: "«كل» لا تترك استثناء: ما دام سامي داخل مجموعة المهندسين، فهو داخل مجموعة المخطِّطين حتمًا." },
+        { k: "trap", h: "«بعض» ليست «كل»، والعكس ليس صحيحًا", t: "فخّان يسقطان الكثير: (١) «بعض الطلاب رياضيون» لا تسمح لك بالحكم على طالب بعينه. (٢) «كل مهندس مخطِّط» **لا** تعني «كل مخطِّط مهندس» — قلب الجملة ليس نتيجة. إذا رأيت خيارًا يقلب العلاقة، فهو مصيدة." },
+      ],
+      cards: [
+        { h: "متتابعات الأنماط", t: "اسأل دائمًا: ما الفرق بين كل حدين؟ ثابت؟ متضاعف؟ متزايد؟ 2, 6, 18, 54 → كل حد ×3." },
+        { h: "الشاذ بينها", t: "دوّر الخاصية المشتركة أولًا، والعنصر الذي يكسرها هو الجواب." },
+      ], drills: [
       { q: "2, 6, 18, 54, ___", options: ["108", "162", "216", "72"], a: 1, ex: "كل حد ×3: 54×3 = 162." },
       { q: "5, 8, 12, 17, ___", options: ["21", "22", "23", "25"], a: 2, ex: "الفروق تتزايد: +3 +4 +5 → +6 = 23." },
       { q: "Which is the odd one out?", options: ["Square", "Triangle", "Circle", "Rectangle"], a: 2, ex: "الدائرة الوحيدة بلا أضلاع مستقيمة." },
       { q: "All engineers are planners. Sami is an engineer. So Sami…", options: ["is not a planner", "is a planner", "may be a planner", "hates planning"], a: 1, ex: "قياس منطقي مباشر: الكل ⊃ سامي." },
       { q: "3, 4, 6, 9, 13, ___", options: ["17", "18", "16", "20"], a: 1, ex: "الفروق +1 +2 +3 +4 → +5 = 18." },
     ]},
-    { id: "c3", icon: "⚡", name: "القراءة السريعة الذكية", cards: [
-      { h: "اقرأ عناقيد لا كلمات", t: "عينك تلتقط 3-4 كلمات بنظرة واحدة. تدرّب أن تقفز بين العناقيد بدل الزحف كلمة كلمة — سرعتك تتضاعف بلا فقد للفهم." },
-      { h: "أوقف الصوت الداخلي", t: "لا تنطق الكلمات في رأسك وأنت تقرأ — عينك أسرع من لسانك الداخلي بثلاث مرات." },
-      { h: "أول وآخر جملة", t: "في CPC الوقت خانق: الفكرة تسكن أول جملة وآخر جملة من كل فقرة. ابدأ منهما ثم املأ الوسط عند الحاجة." },
-    ], drills: [
+    { id: "c3", icon: "⚡", name: "القراءة السريعة الذكية",
+      steps: [
+        { k: "teach", h: "اقرأ عناقيد لا كلمات", t: "عينك قادرة على التقاط 3–4 كلمات في نظرة واحدة. الزحف كلمة كلمة يهدر نصف وقتك. تدرّب أن تقفز بين «عناقيد» المعنى بدل الكلمات المفردة.", ex: "بدل: The / private / sector / creates / jobs\nاقرأ: The private sector — creates jobs" },
+        { k: "teach", h: "أوقف الصوت الداخلي", t: "أغلبنا ينطق الكلمات في رأسه أثناء القراءة، فتُقيَّد سرعة العين بسرعة اللسان. عينك أسرع من صوتك الداخلي بثلاثة أضعاف — أطلقها." },
+        { k: "teach", h: "قاعدة أول جملة وآخر جملة", t: "في CPC الوقت خانق. الفكرة الرئيسية تسكن غالبًا أول جملة أو آخر جملة من الفقرة. ابدأ منهما، ثم انزل للوسط فقط إذا احتاج السؤال تفصيلًا." },
+        { k: "example", h: "القراءة الانتقائية: طارِد الرقم المرتبط", q: "«Aramco, founded in 1933, discovered oil at Dammam Well No. 7 in 1938 after years of failure.»\nمتى اكتُشف النفط؟", steps: ["السؤال يسأل عن الاكتشاف discovered لا التأسيس founded", "في النص رقمان: 1933 مرتبط بـfounded، و1938 مرتبط بـdiscovered", "اربط الرقم بفعله → 1938"], answer: "1938" },
+        { k: "check", q: "«Aramco, founded in 1933, discovered oil at Dammam Well No. 7 in 1938 after years of failure.»\nالسنوات التي سبقت 1938 كانت سنوات:", options: ["failure", "success", "war", "planning"], a: 0, ex: "النص يقول صراحة after years of failure. الإجابة موجودة حرفيًا — لا تحتاج استنتاجًا." },
+        { k: "check", q: "عند ضيق الوقت في فقرة طويلة، من أين تبدأ؟", options: ["أول جملة وآخر جملة", "منتصف الفقرة", "الأسماء فقط", "الأرقام فقط"], a: 0, ex: "الفكرة الرئيسية تسكن الطرفين غالبًا، فتحصل على 80% من المعنى بـ20% من الوقت." },
+        { k: "trap", h: "السرعة بلا ربط = صفر", t: "الفخّ الأكبر في القراءة السريعة أن تلتقط الرقم الأول الذي تراه. النص يضع أرقامًا متعددة عمدًا (1933 و1938)، وكل رقم مربوط بفعل مختلف. **اقرأ السؤال أولًا**، حدّد الفعل المطلوب، ثم طارد الرقم المرتبط به وحده." },
+      ],
+      cards: [
+        { h: "اقرأ عناقيد لا كلمات", t: "عينك تلتقط 3-4 كلمات بنظرة واحدة. تدرّب أن تقفز بين العناقيد بدل الزحف كلمة كلمة — سرعتك تتضاعف بلا فقد للفهم." },
+        { h: "أوقف الصوت الداخلي", t: "لا تنطق الكلمات في رأسك وأنت تقرأ — عينك أسرع من لسانك الداخلي بثلاث مرات." },
+        { h: "أول وآخر جملة", t: "في CPC الوقت خانق: الفكرة تسكن أول جملة وآخر جملة من كل فقرة. ابدأ منهما ثم املأ الوسط عند الحاجة." },
+      ], drills: [
       { q: "«Aramco, founded in 1933, discovered oil at Dammam Well No. 7 in 1938 after years of failure.» — Oil was found in:", options: ["1933", "1935", "1938", "1940"], a: 2, ex: "التقاط الرقم المرتبط بـdiscovered لا founded — قراءة انتقائية." },
-      { q: "Same text: The years before 1938 were years of:", options: ["success", "failure", "war", "planning"], a: 1, ex: "after years of failure — نص صريح." },
+      { q: "«Aramco, founded in 1933, discovered oil at Dammam Well No. 7 in 1938 after years of failure.» — The years before 1938 were years of:", options: ["success", "failure", "war", "planning"], a: 1, ex: "after years of failure — نص صريح داخل القطعة نفسها." },
       { q: "أفضل نقطة تبدأ منها عند ضيق الوقت في فقرة طويلة:", options: ["منتصف الفقرة", "أول وآخر جملة", "الأسماء فقط", "الأرقام فقط"], a: 1, ex: "الفكرة الرئيسية تسكنهما غالبًا." },
     ]},
     { id: "c4", icon: "🏭", name: "محاكاة CPC — بوابة أرامكو", sim: { n: 14, time: 20, hard: true, cpc: true }, cards: [

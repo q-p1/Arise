@@ -93,6 +93,47 @@ export default function ({ test, assert, T }) {
     assert.eq(silent.length, 0, `units that test without teaching:\n      ${silent.join("\n      ")}`);
   });
 
+  test("every taught unit is interactive, not a wall of cards", () => {
+    // Vocabulary packs have their own word-card flow; simulations are assessment.
+    const passive = [];
+    ACADEMY.forEach(p => p.units.forEach(u => {
+      if (u.sim || u.awl) return;
+      if (!u.steps || !u.steps.length) passive.push(`${p.id}/${u.id}: ${u.name}`);
+    }));
+    assert.eq(passive.length, 0, `card-only units left:\n      ${passive.join("\n      ")}`);
+  });
+
+  test("interactive lessons follow the teach -> practise -> warn shape", () => {
+    const bad = [];
+    ACADEMY.forEach(p => p.units.forEach(u => {
+      if (!u.steps?.length) return;
+      const kinds = u.steps.map(s => s.k);
+      kinds.forEach((k, i) => { if (!["teach", "example", "check", "trap"].includes(k)) bad.push(`${u.id}#${i}: unknown step kind "${k}"`); });
+      if (!kinds.includes("teach")) bad.push(`${u.id}: never explains the idea`);
+      if (!kinds.includes("check")) bad.push(`${u.id}: never checks understanding`);
+      u.steps.forEach((s, i) => {
+        if (s.k === "check") {
+          if (!Array.isArray(s.options) || s.options.length < 2) bad.push(`${u.id}#${i}: check needs options`);
+          else if (typeof s.a !== "number" || s.a < 0 || s.a >= s.options.length) bad.push(`${u.id}#${i}: check has a bad answer index`);
+          else if (new Set(s.options.map(String)).size !== s.options.length) bad.push(`${u.id}#${i}: check has duplicate options`);
+          if (!s.ex) bad.push(`${u.id}#${i}: check gives no feedback`);
+        }
+        if (s.k === "example" && (!Array.isArray(s.steps) || !s.steps.length)) bad.push(`${u.id}#${i}: worked example has no steps`);
+      });
+    }));
+    assert.eq(bad.length, 0, `\n      ${bad.join("\n      ")}`);
+  });
+
+  test("a drill never references a passage it does not show", () => {
+    // Regression: drills used to say "Same text:" and rely on the previous
+    // question still being on screen, which broke once questions were shuffled.
+    const orphans = [];
+    ACADEMY.forEach(p => p.units.forEach(u => (u.drills || []).forEach((d, i) => {
+      if (/Same (text|passage)|نفس (النص|القطعة)/i.test(d.q || "")) orphans.push(`${u.id}#${i}`);
+    })));
+    assert.eq(orphans.length, 0, `drills depending on an unshown passage: ${orphans.join(", ")}`);
+  });
+
   /* ---------------- AWL vocabulary ---------------- */
 
   test("every AWL word is complete enough to teach and to drill", () => {
@@ -102,6 +143,31 @@ export default function ({ test, assert, T }) {
       if (!w.bl || !w.bl.includes("_____")) bad.push(`${pid}/${w.w}: cloze sentence has no blank`);
     }));
     assert.eq(bad.length, 0, `\n      ${bad.join("\n      ")}`);
+  });
+
+  test("no AWL headword is taught twice", () => {
+    // A repeat wastes a slot and lets the same word be both the prompt and a
+    // distractor in a generated drill.
+    const seen = {}, dups = [];
+    Object.entries(AWL_WORDS).forEach(([pid, words]) => words.forEach(w => {
+      if (seen[w.w]) dups.push(`"${w.w}" in both ${seen[w.w]} and ${pid}`);
+      else seen[w.w] = pid;
+    }));
+    assert.eq(dups.length, 0, `\n      ${dups.join("\n      ")}`);
+  });
+
+  test("the cloze blank does not give the answer away", () => {
+    const leaks = [];
+    Object.entries(AWL_WORDS).forEach(([pid, words]) => words.forEach(w => {
+      const stem = w.w.toLowerCase().slice(0, Math.max(4, w.w.length - 3));
+      if (w.bl.toLowerCase().replace("_____", "").includes(stem)) leaks.push(`${pid}/${w.w}: the blank sentence contains the word itself`);
+    }));
+    assert.eq(leaks.length, 0, `\n      ${leaks.join("\n      ")}`);
+  });
+
+  test("each AWL pack is big enough to generate four distinct options", () => {
+    const thin = Object.entries(AWL_WORDS).filter(([, w]) => w.length < 4).map(([p, w]) => `${p} has only ${w.length}`);
+    assert.eq(thin.length, 0, `\n      ${thin.join("\n      ")}`);
   });
 
   /* ---------------- mistakes notebook ---------------- */
