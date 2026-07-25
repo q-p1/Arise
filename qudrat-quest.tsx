@@ -2262,7 +2262,55 @@ function awlDrills(words) {
 function addAWL(id, icon, name, words) {
   return { id, icon, name, awl: words, need: 5, cards: words.map(w => ({ h: w.w, t: w.ar })), drills: awlDrills(words) };
 }
-const SRS_INT = [1, 2, 4, 8, 14, 25];   // فواصل المراجعة بأيام اللعبة
+/* ═══════════════════════════════════════════════════════════
+   🧠 المراجعة المتباعدة — SM-2 على أيام تقويمية حقيقية
+
+   قرار جوهري: الاستحقاق يُحسب بتاريخ الجهاز الحقيقي، لا بعدّاد اللعبة.
+   تثبيت الذاكرة عملية بيولوجية تحتاج مرور وقت فعلي ونوم فعلي؛ لو ربطناها
+   بعدّاد يتقدّم بضغطة زر، لأنهى اللاعب فاصل «٢٥ يومًا» في جلسة واحدة
+   وانهار أثر التباعد كلّه. لذلك: أيام حقيقية فقط.
+
+   ولكل مفهوم معامل سهولة (ef) يتكيّف مع صعوبته عند هذا الطالب تحديدًا،
+   بدل سلّم فواصل ثابت يعامل كل المفاهيم سواء.
+   ═══════════════════════════════════════════════════════════ */
+const DAY_MS = 86400000;
+/* رقم اليوم التقويمي المحلي — ثابت خلال اليوم ويزيد ١ عند منتصف ليل المستخدم */
+const realDay = (d = new Date()) => Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / DAY_MS);
+const SRS_EF_MIN = 1.3, SRS_EF_DEF = 2.5, SRS_IVL_MAX = 365;
+const SRS_LEGACY = [1, 2, 4, 8, 14, 25];   // للترحيل من نظام أيام اللعبة القديم
+
+/* بذرة أول جدولة بعد إنهاء وحدة (ivl بالأيام الحقيقية) */
+const srsSeed = (ivl) => ({ ivl, ef: SRS_EF_DEF, reps: 1, lapses: 0, due: realDay() + ivl, last: realDay() });
+
+/* SM-2: q من 0..5 — أقل من 3 يعني نسيان (انتكاسة) */
+function srsGrade(prev, q) {
+  const s = { ef: prev?.ef ?? SRS_EF_DEF, reps: prev?.reps ?? 0, ivl: prev?.ivl ?? 0, lapses: prev?.lapses ?? 0 };
+  if (q < 3) { s.reps = 0; s.ivl = 1; s.lapses += 1; }
+  else {
+    s.reps += 1;
+    s.ivl = s.reps === 1 ? 1 : s.reps === 2 ? 6 : Math.round(s.ivl * s.ef);
+    s.ef = Math.max(SRS_EF_MIN, s.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
+  }
+  s.ivl = Math.max(1, Math.min(SRS_IVL_MAX, s.ivl));
+  s.ef = Math.round(s.ef * 100) / 100;
+  s.due = realDay() + s.ivl;
+  s.last = realDay();
+  return s;
+}
+
+/* ترحيل الحفظات القديمة: due كان بأيام اللعبة — نحوّله لأيام حقيقية مرة واحدة */
+function migrateSrs(n) {
+  const today = realDay();
+  Object.entries(n.srs || {}).forEach(([id, s]) => {
+    if (!s || s.ivl != null) return;                       // مُرحَّل أصلًا
+    const lvl = Math.max(0, Math.min(SRS_LEGACY.length - 1, s.lvl | 0));
+    const ivl = SRS_LEGACY[lvl];
+    const wasDue = (s.due ?? 0) <= (n.day ?? 1);            // مستحق في النظام القديم؟
+    const remain = Math.max(1, Math.min(ivl, (s.due ?? 0) - (n.day ?? 1)));
+    n.srs[id] = { ivl, ef: SRS_EF_DEF, reps: lvl, lapses: 0, due: wasDue ? today : today + remain, last: today };
+  });
+}
+
 const PREREQ = {
   f1: [], f2: ["f1"], f3: ["f2"], f4: ["f1"], f5: ["f4"], f6: [], f7: ["f6"], f8: ["f6"],
   s1: ["f3"], s2: ["f5"], s3: ["f1"], s4: ["f2"], s5: ["f8"], s6: ["f7"],
@@ -2272,17 +2320,22 @@ const PREREQ = {
 };
 const unitById = (id) => { for (const ph of ACADEMY) { const u = ph.units.find(x => x.id === id); if (u) return { u, ph }; } return null; };
 const prereqMet = (g, uid) => (PREREQ[uid] || []).every(pid => acadDone(g, pid));
-const dueList = (g) => Object.entries(g.srs || {})
-  .filter(([id, s]) => s.due <= g.day)
+/* المستحق اليوم — بالتاريخ الحقيقي لا بيوم اللعبة */
+const srsDue = (s, today = realDay()) => !!s && (s.ivl != null ? s.due <= today : true);
+const dueList = (g) => { const t = realDay(); return Object.entries(g.srs || {})
+  .filter(([id, s]) => srsDue(s, t))
   .map(([id]) => unitById(id))
-  .filter(x => x && x.u.drills && x.u.drills.length);
+  .filter(x => x && x.u.drills && x.u.drills.length); };
+/* أيام حقيقية متبقية حتى المراجعة القادمة (للعرض) */
+const srsInDays = (s) => (s && s.ivl != null ? Math.max(0, s.due - realDay()) : null);
 
 // حالة كل مفهوم على الخريطة
 function nodeState(g, uid, phaseIdx) {
   const s = (g.srs || {})[uid];
   if (acadDone(g, uid)) {
-    if (s && s.due <= g.day) return { k: "review", label: "يحتاج مراجعة", c: "#E58E26", e: "🟠" };
-    if (s && s.lvl >= 3) return { k: "master", label: "أتقنه", c: "#C89235", e: "🥇" };
+    if (srsDue(s)) return { k: "review", label: "يحتاج مراجعة", c: "#E58E26", e: "🟠" };
+    // «أتقنه» = صمد ٣ أسابيع فأكثر بين المراجعتين — تثبيت حقيقي لا عدّ نجاحات
+    if (s && (s.ivl ?? 0) >= 21) return { k: "master", label: "أتقنه", c: "#C89235", e: "🥇" };
     return { k: "known", label: "فهمه", c: "#1F7A5C", e: "🟢" };
   }
   const open = prereqMet(g, uid) || phaseIdx <= (g.acad?.placed ?? -1);
@@ -2598,7 +2651,7 @@ const COLLECT = [
   { id: "dipA", e: "🎓", n: "شهادة AWL الأكاديمية", h: "أتقن حزم الكلمات الست", cond: (g) => phaseDone(g, "A") },
   { id: "dipC", e: "🏭", n: "شهادة CPC Prep", h: "أكمل تحضير أرامكو", cond: (g) => phaseDone(g, "C") },
   { id: "road6", e: "🏢", n: "طريق أرامكو مكتمل", h: "أنهِ محطات الرحلة الست", cond: (g) => roadMilestones(g).M.every(m => m.done) },
-  { id: "steel", e: "🧠", n: "الذاكرة الفولاذية", h: "أوصل مفهومًا لأعلى مستوى تثبيت", cond: (g) => Object.values(g.srs || {}).some(s => s.lvl >= 4) },
+  { id: "steel", e: "🧠", n: "الذاكرة الفولاذية", h: "ثبّت مفهومًا شهرًا كاملًا بين مراجعتين", cond: (g) => Object.values(g.srs || {}).some(s => (s.ivl ?? 0) >= 30) },
 ];
 
 const dayKey = () => new Date().toDateString();
@@ -4615,11 +4668,11 @@ function applyDailyChest(n, fx = FX_NULL) {
 function applyReview(n, records, fx = FX_NULL) {
             n.srs ||= {};
             let kept = 0;
-            records.forEach(({ id, ok }) => {
-              const s = n.srs[id] || { lvl: 0, due: n.day };
-              if (ok) { kept++; s.lvl = Math.min(SRS_INT.length - 1, s.lvl + 1); s.due = n.day + SRS_INT[s.lvl]; if (AWL_WORDS[id]) questEv(n, "awlword", 1); }
-              else { s.lvl = Math.max(0, s.lvl - 2); s.due = n.day + 1; }
-              n.srs[id] = s;
+            records.forEach(({ id, ok, grade }) => {
+              // درجة SM-2: صح من أول محاولة = 5، واحتاج إعادة شرح = 2 (انتكاسة)
+              const q = grade != null ? grade : (ok ? 5 : 2);
+              n.srs[id] = srsGrade(n.srs[id], q);
+              if (ok) { kept++; if (AWL_WORDS[id]) questEv(n, "awlword", 1); }
             });
             addRewardsP(n,  kept * 8, kept * 3, fx);
             questEv(n, "correct", kept);
@@ -4633,7 +4686,8 @@ function applyFinishUnit(n, u, ph, opts = {}, fx = FX_NULL) {
             n.acad.units[u.id] = true;
             if (u.awl) questEv(n, "awlword", u.need || 5);
             n.srs ||= {};
-            if (!n.srs[u.id] && u.drills) n.srs[u.id] = opts.tested ? { lvl: 2, due: n.day + SRS_INT[2] } : { lvl: 0, due: n.day + SRS_INT[0] };
+            // بذرة الجدولة: من تخطّى الوحدة باختبار صارم يبدأ بفاصل أطول من الدارس العادي
+            if (!n.srs[u.id] && u.drills) n.srs[u.id] = srsSeed(opts.tested ? 4 : 1);
             if (!review) {
               if (opts.tested) tl(n, "testout", "🔓", "تجاوزت مفهومًا باختبار الإتقان", "3/3 بلا خطأ — أثبتّ أن الأساس عندك، والخريطة فتحت الطريق.");
               const R = opts.tested ? [30, 15] : { F: [45, 20], S: [55, 25], Q: [70, 35] }[ph.id] || [50, 25];
@@ -4757,6 +4811,24 @@ function applyBattleOutcome(n, res, fx = FX_NULL) {
 
 export default function AppRoot() { return <Guard><App /></Guard>; }
 
+/* ═══════════════════════════════════════════════════════════
+   🧪 سطح الاختبار — يُستورد من tests/ فقط.
+   entry.jsx لا يستورده، فيحذفه esbuild من حزمة المتصفح (tree-shaking).
+   الغرض: اختبارات حقيقية على الكود الحقيقي بلا إعادة هيكلة الملف.
+   ═══════════════════════════════════════════════════════════ */
+export const __test = {
+  // المحرّك
+  mkMC, makeGen, unitGenQs, readingGen, buildChallenges, bankPick,
+  // المراجعة المتباعدة
+  realDay, srsSeed, srsGrade, srsDue, srsInDays, migrateSrs, dueList, nodeState,
+  SRS_EF_MIN, SRS_EF_DEF, SRS_LEGACY,
+  // المحتوى
+  QQ, GENS, BANK, ACADEMY, AWL_WORDS, PREREQ, validateContent,
+  // الحالة
+  newSave, addMistake, mistakeRec, lvlOf, xpForLvl, masteryOf, weightOf,
+  GR, sigOf,
+};
+
 function App() {
   const [g, setG] = useState(newSave());
   const [view, setView] = useState({ s: "title" });
@@ -4775,7 +4847,7 @@ function App() {
         if (!r?.value) r = await store.get("qq-save");   // ترحيل حفظات ما قبل Arise
         if (r?.value) setG({ ...newSave(), ...JSON.parse(r.value) });
       } catch (e) {}
-      setG(prev => { const n = JSON.parse(JSON.stringify(prev)); ensurePeriods(n); return n; });
+      setG(prev => { const n = JSON.parse(JSON.stringify(prev)); ensurePeriods(n); migrateSrs(n); return n; });
       loaded.current = true;
     })();
     return () => stopMusic();
@@ -4813,7 +4885,9 @@ function App() {
     try {
       const obj = JSON.parse(text);
       if (!obj || typeof obj !== "object" || obj.v == null || !obj.stats) { toast("⚠️ الرمز غير صالح"); return false; }
-      setG({ ...newSave(), ...obj });
+      const merged = { ...newSave(), ...obj };
+      migrateSrs(merged);                       // نسخة قديمة؟ رحّل جدولتها لأيام حقيقية
+      setG(merged);
       setPanel(null);
       toast("✅ تم استعادة تقدّمك بنجاح");
       return true;
