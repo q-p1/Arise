@@ -1603,7 +1603,7 @@ QQ.registerGenerators([
 /* ═══ مناهج الأكاديمية (F,S,Q,P,C) + اختبار تحديد المستوى ═══ */
 QQ.registerLessons({
   F: {
-    id: "F", name: "المرحلة الأولى: التأسيس", icon: "🧱", color: "#7B5EA7",
+    id: "F", name: "المرحلة الأولى: التأسيس", icon: "🧱", color: "var(--phPurple)",
     desc: "من الصفر تمامًا — حتى لو نسيت جدول الضرب",
     units: [
       { id: "f1", icon: "✖️", name: "جدول الضرب والحيل الذهنية", genDrills: true,
@@ -1746,7 +1746,7 @@ QQ.registerLessons({
     ],
   },
   S: {
-    id: "S", name: "المرحلة الثانية: بناء المهارات", icon: "🔨", color: "#3B82C4",
+    id: "S", name: "المرحلة الثانية: بناء المهارات", icon: "🔨", color: "var(--phBlue)",
     desc: "مسائل بسيطة بشرح وتطبيق حتى الإتقان",
     units: [
       { id: "s1", icon: "٪", name: "النسبة المئوية خطوة بخطوة", genDrills: true,
@@ -1846,7 +1846,7 @@ QQ.registerLessons({
       ]},
     ],
   },
-  Q: {    id: "Q", name: "المرحلة الثالثة: القدرات", icon: "🧭", color: "#C89235",
+  Q: {    id: "Q", name: "المرحلة الثالثة: القدرات", icon: "🧭", color: "var(--gold)",
     desc: "استراتيجيات الحل وإدارة الوقت — ثم ميدانك: معارك العالم",
     units: [
       { id: "q1", icon: "⏱", name: "إدارة وقت الاختبار",
@@ -1894,7 +1894,7 @@ QQ.registerLessons({
     ],
   },
   P: {
-    id: "P", name: "المرحلة الرابعة: الاحتراف", icon: "🥇", color: "#B3402F",
+    id: "P", name: "المرحلة الرابعة: الاحتراف", icon: "🥇", color: "var(--bad)",
     desc: "محاكاة يوم الاختبار الحقيقي وتحليل دقيق لأدائك",
     units: [
       { id: "p1", icon: "🎭", name: "محاكاة يوم الاختبار", sim: { n: 12, time: 30, hard: false }, cards: [
@@ -1906,7 +1906,7 @@ QQ.registerLessons({
     ],
   },
   C: {
-  id: "C", name: "Aramco Track: CPC Preparation", icon: "🏭", color: "#8C4A2F",
+  id: "C", name: "Aramco Track: CPC Preparation", icon: "🏭", color: "var(--phBrown)",
   desc: "سرعة ذهنية، منطق، قراءة سريعة — بنمط اختبارات قبول أرامكو",
   units: [
     { id: "c1", icon: "🧮", name: "الرياضيات الذهنية (بلا آلة حاسبة)", genDrills: true,
@@ -2614,14 +2614,14 @@ const srsInDays = (s) => (s && s.ivl != null ? Math.max(0, s.due - realDay()) : 
 function nodeState(g, uid, phaseIdx) {
   const s = (g.srs || {})[uid];
   if (acadDone(g, uid)) {
-    if (srsDue(s)) return { k: "review", label: "يحتاج مراجعة", c: "#E58E26", e: "🟠" };
+    if (srsDue(s)) return { k: "review", label: "يحتاج مراجعة", c: "var(--warn)", e: "🟠" };
     // «أتقنه» = صمد ٣ أسابيع فأكثر بين المراجعتين — تثبيت حقيقي لا عدّ نجاحات
-    if (s && (s.ivl ?? 0) >= 21) return { k: "master", label: "أتقنه", c: "#C89235", e: "🥇" };
-    return { k: "known", label: "فهمه", c: "#1F7A5C", e: "🟢" };
+    if (s && (s.ivl ?? 0) >= 21) return { k: "master", label: "أتقنه", c: "var(--gold)", e: "🥇" };
+    return { k: "known", label: "فهمه", c: "var(--ok)", e: "🟢" };
   }
   const open = prereqMet(g, uid) || phaseIdx <= (g.acad?.placed ?? -1);
-  if (g.acad?.opened?.[uid]) return { k: "learning", label: "يتعلمه", c: "#3B82C4", e: "🔵" };
-  if (open) return { k: "ready", label: "جاهز للتعلم", c: "#3B82C4", e: "🔵" };
+  if (g.acad?.opened?.[uid]) return { k: "learning", label: "يتعلمه", c: "var(--phBlue)", e: "🔵" };
+  if (open) return { k: "ready", label: "جاهز للتعلم", c: "var(--phBlue)", e: "🔵" };
   return { k: "locked", label: "لم يبدأ", c: "#8A968E", e: "⚪" };
 }
 
@@ -2661,7 +2661,7 @@ function buildAWLPhase() {
     units.push(addAWL(p.id, p.icon, `${QQ._awl[sid].title} • ${p.name}`, p.words));
     PREREQ[p.id] = [prev]; prev = p.id;
   }));
-  return { id: "A", name: "Aramco Track: الإنجليزية الأكاديمية (AWL)", icon: "🎓", color: "#2E7DA6",
+  return { id: "A", name: "Aramco Track: الإنجليزية الأكاديمية (AWL)", icon: "🎓", color: "var(--phTeal)",
     desc: `${units.length} حزمة • ${Object.values(AWL_WORDS).reduce((a,w)=>a+w.length,0)} كلمة — معنى ونطق ومعارك ومراجعة متباعدة`, units };
 }
 const PHASE_AWL = buildAWLPhase();
@@ -2692,7 +2692,7 @@ function validateContent() {
 /* 🚀 المرحلة المتقدّمة — تُعلّم الأنواع التي كانت تُختبر بلا درس */
 QQ.registerLessons({
   X: {
-    id: "X", name: "المرحلة المتقدّمة", icon: "🚀", color: "#7B5EA7",
+    id: "X", name: "المرحلة المتقدّمة", icon: "🚀", color: "var(--phPurple)",
     desc: "الأنواع التي يكثر الوقوع فيها — بشرح تفاعلي من الصفر",
     units: [
       { id: "x1", icon: "√", name: "الأسس والجذور",
@@ -3327,12 +3327,12 @@ function TodayPanel({ g, theme, onReview, onMistakes, onDrill, onPlan }) {
     <div className="card">
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
         <div style={{ fontWeight: 900, fontSize: 14 }}>☀️ ماذا أفعل الآن؟</div>
-        {daysLeft != null && <div style={{ fontSize: 11.5, fontWeight: 900, color: daysLeft <= 7 ? "#B3402F" : theme.sub }}>باقٍ {daysLeft} يوم على اختبارك</div>}
+        {daysLeft != null && <div style={{ fontSize: 11.5, fontWeight: 900, color: daysLeft <= 7 ? "var(--bad)" : theme.sub }}>باقٍ {daysLeft} يوم على اختبارك</div>}
       </div>
       {rows.map((r, i) => (
         <button key={r.n} onClick={r.go} style={{
           width: "100%", display: "flex", alignItems: "center", gap: 11, minHeight: 56,
-          background: r.hot ? "#C8923514" : "none", border: "none",
+          background: r.hot ? "var(--goldSoft)" : "none", border: "none",
           borderTop: i ? `1px solid ${theme.line}` : "none", borderRadius: r.hot ? 12 : 0,
           padding: "11px 8px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start",
         }}>
@@ -3349,7 +3349,7 @@ function TodayPanel({ g, theme, onReview, onMistakes, onDrill, onPlan }) {
 }
 
 /* ---------- 🚶 الشارع — تجوال حر ---------- */
-function Street({ g, theme, night, pos, setPos, onEnter }) {
+function Street({ g, theme, night, pos, setPos, onEnter, dim }) {
   const era = eraOf(g.chapter);
   const locs = LOCS[era].filter(l => (!l.minCh || g.chapter >= l.minCh) && (!l.maxCh || g.chapter <= l.maxCh));
   const [walking, setWalking] = useState(false);
@@ -3368,7 +3368,12 @@ function Street({ g, theme, night, pos, setPos, onEnter }) {
 
   return (
     <div style={{ borderRadius: 18, overflow: "hidden", border: `1px solid ${theme.line}`, marginBottom: 12 }}>
-      <div style={{ background: sky, transition: "background 1.2s ease", padding: "22px 8px 0", position: "relative" }}>
+      {/* المشهد نافذة على عالم اللعبة، وسماؤه تتبع وقت اللعبة لا ثيم الواجهة.
+          لكن مستطيلًا كريميًّا ساطعًا داخل واجهة ليلية يقسو على العين، فنخفض
+          سطوعه قليلًا في الثيم الداكن: تبقى الحكاية ويرتاح التكوين. */}
+      <div style={{ background: sky, transition: `background 1.2s ${DS.ease.inOut}, filter ${DS.dur.slow}ms ${DS.ease.inOut}`,
+        padding: "22px 8px 0", position: "relative",
+        filter: dim ? "brightness(.74) saturate(.88)" : "none" }}>
         <div style={{ position: "absolute", top: 10, left: 14, fontSize: 22 }}>{night ? "🌙" : g.slot === 0 ? "🌅" : g.slot === 1 ? "☀️" : "🌆"}</div>
         {era === "us" && <div style={{ position: "absolute", top: 10, right: 14, fontSize: 18, opacity: .8 }}>🗽</div>}
         <nav aria-label="مباني الحي" style={{ display: "flex" }}>
@@ -3413,7 +3418,7 @@ function Interior({ g, theme, loc, night, canAct, onQuest, onAct, onTalk, close 
       </div>
 
       {c.npcs.length > 0 && <>
-        <div style={{ fontWeight: 900, fontSize: 13.5, color: "#C89235", margin: "6px 4px" }}>الموجودون هنا</div>
+        <div style={{ fontWeight: 900, fontSize: 13.5, color: "var(--gold)", margin: "6px 4px" }}>الموجودون هنا</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           {c.npcs.map(id => {
             const l = npcLines(id, g)[0];
@@ -3428,7 +3433,7 @@ function Interior({ g, theme, loc, night, canAct, onQuest, onAct, onTalk, close 
         </div>
       </>}
 
-      {c.quests.length > 0 && <div style={{ fontWeight: 900, fontSize: 13.5, color: "#C89235", margin: "6px 4px" }}>المهمات هنا</div>}
+      {c.quests.length > 0 && <div style={{ fontWeight: 900, fontSize: 13.5, color: "var(--gold)", margin: "6px 4px" }}>المهمات هنا</div>}
       {c.quests.map(q => {
         if (q.type === "choice") {
           const done = g.done[`${q.chId}:${q.qid}`];
@@ -3452,17 +3457,17 @@ function Interior({ g, theme, loc, night, canAct, onQuest, onAct, onTalk, close 
             style={{ width: "100%", textAlign: "right", fontFamily: "inherit", cursor: playable ? "pointer" : "default", display: "flex", gap: 12, alignItems: "center", opacity: (done && !q.repeat) || locked || !canAct ? .55 : 1, background: q.isBoss ? "#17251F" : theme.card, color: q.isBoss ? "#fff" : theme.text, border: q.isBoss ? "none" : `1px solid ${theme.line}` }}>
             <div style={{ fontSize: 30 }}>{done && !q.repeat ? (q.isBoss ? "🏆" : "✅") : locked ? "🔒" : q.icon}</div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 900, fontSize: 14.5 }}>{q.name} {q.side && <span style={{ fontSize: 10.5, background: "#C8923522", color: "#C89235", borderRadius: 6, padding: "1px 6px" }}>عمل 🪙</span>}{q.isBoss && !done && <span style={{ fontSize: 10.5, background: "#B3402F33", color: "#F0A090", borderRadius: 6, padding: "1px 6px", marginRight: 4 }}>زعيم</span>}</div>
+              <div style={{ fontWeight: 900, fontSize: 14.5 }}>{q.name} {q.side && <span style={{ fontSize: 10.5, background: "var(--goldSoft)", color: "var(--gold)", borderRadius: 6, padding: "1px 6px" }}>عمل 🪙</span>}{q.isBoss && !done && <span style={{ fontSize: 10.5, background: "var(--badSoft)", color: "#F0A090", borderRadius: 6, padding: "1px 6px", marginRight: 4 }}>زعيم</span>}</div>
               <div style={{ fontSize: 12, color: q.isBoss ? "rgba(255,255,255,.75)" : theme.sub, marginTop: 2, lineHeight: 1.6 }}>{locked ? "أنهِ مهمات الفصل الرئيسية أولًا" : q.desc}</div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#C89235", marginTop: 2 }}>⭐ {q.enemy.xp} XP • 🪙 {q.enemy.coins} • يستهلك: وقت + طاقة</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--gold)", marginTop: 2 }}>⭐ {q.enemy.xp} XP • 🪙 {q.enemy.coins} • يستهلك: وقت + طاقة</div>
             </div>
           </button>
         );
       })}
 
-      {c.acts.length > 0 && <div style={{ fontWeight: 900, fontSize: 13.5, color: "#C89235", margin: "6px 4px" }}>أنشطة</div>}
+      {c.acts.length > 0 && <div style={{ fontWeight: 900, fontSize: 13.5, color: "var(--gold)", margin: "6px 4px" }}>أنشطة</div>}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        {c.acts.includes("academy") && <button className="card" onClick={() => onAct("academy")} style={{ margin: 0, fontFamily: "inherit", cursor: "pointer", textAlign: "center", color: theme.text, gridColumn: "1 / -1", border: "2px solid #7B5EA755" }}>
+        {c.acts.includes("academy") && <button className="card" onClick={() => onAct("academy")} style={{ margin: 0, fontFamily: "inherit", cursor: "pointer", textAlign: "center", color: theme.text, gridColumn: "1 / -1", border: "2px solid var(--phPurple)" }}>
           <div style={{ fontSize: 26 }}>🎓</div><div style={{ fontWeight: 900, fontSize: 13 }}>ادخل قاعات الأكاديمية</div><div style={{ fontSize: 11, color: theme.sub }}>تعلّم من الصفر → الاحتراف • لا يستهلك وقتك اليومي</div></button>}
         {c.acts.includes("rest") && <button className="card" disabled={!canAct} onClick={() => canAct && onAct("rest")} style={{ margin: 0, fontFamily: "inherit", cursor: canAct ? "pointer" : "default", textAlign: "center", opacity: canAct ? 1 : .5, color: theme.text }}>
           <div style={{ fontSize: 26 }}>🛋️</div><div style={{ fontWeight: 900, fontSize: 13 }}>استراحة</div><div style={{ fontSize: 11, color: theme.sub }}>+40 طاقة • يستهلك وقت</div></button>}
@@ -3547,13 +3552,13 @@ function Academy({ g, theme, onExit, onPlace, onFinishUnit, onSimDone, onReview,
         <div style={{ fontSize: 12.5, lineHeight: 1.7, color: theme.sub }}><b style={{ color: theme.text }}>المعلم حاضر دائمًا:</b> غلطت بأي تطبيق؟ زر «🧑‍🏫 لم أفهم» يفتح شرحًا متدرجًا، تلميحات، وسؤالًا مشابهًا حتى ترسخ.</div>
       </div>
       {due.length > 0 && (
-        <button className="card" onClick={() => { play("click"); setSub("review"); }} style={{ width: "100%", textAlign: "right", fontFamily: "inherit", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, border: "2px solid #7B5EA7", color: theme.text }}>
+        <button className="card" onClick={() => { play("click"); setSub("review"); }} style={{ width: "100%", textAlign: "right", fontFamily: "inherit", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, border: "2px solid var(--phPurple)", color: theme.text }}>
           <div style={{ fontSize: 30, animation: "pulse 1.8s infinite" }}>🧠</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 900, fontSize: 14.5 }}>مراجعة اليوم: {due.length} {due.length === 1 ? "مفهوم" : "مفاهيم"}</div>
             <div style={{ fontSize: 12, color: theme.sub, marginTop: 2 }}>حان موعدها بالضبط — 3 دقائق تحفظها لك حتى يوم الاختبار</div>
           </div>
-          <div style={{ fontWeight: 900, color: "#7B5EA7", fontSize: 13 }}>ابدأ ←</div>
+          <div style={{ fontWeight: 900, color: "var(--phPurple)", fontSize: 13 }}>ابدأ ←</div>
         </button>
       )}
 
@@ -3605,7 +3610,7 @@ function Academy({ g, theme, onExit, onPlace, onFinishUnit, onSimDone, onReview,
           </div>
         );
       })}
-      {g.acad.simBest && <div className="card" style={{ textAlign: "center", fontWeight: 900, fontSize: 13.5 }}>🎭 أفضل درجة محاكاة: <span style={{ color: "#C89235", fontSize: 17 }}>{g.acad.simBest.score}</span></div>}
+      {g.acad.simBest && <div className="card" style={{ textAlign: "center", fontWeight: 900, fontSize: 13.5 }}>🎭 أفضل درجة محاكاة: <span style={{ color: "var(--gold)", fontSize: 17 }}>{g.acad.simBest.score}</span></div>}
     </div>
   );
 }
@@ -3636,11 +3641,11 @@ function Placement({ g, theme, onDone, onBack }) {
     <div style={{ animation: "drop .3s ease" }}>
       <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع</button>
       <div className="card">
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#C89235", marginBottom: 8 }}>🧪 تحديد المستوى • {i + 1}/{N}{q.slot ? " • " + q.slot : ""} — لا توجد إجابة "غلط"، فقط خريطة</div>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", marginBottom: 8 }}>🧪 تحديد المستوى • {i + 1}/{N}{q.slot ? " • " + q.slot : ""} — لا توجد إجابة "غلط"، فقط خريطة</div>
         <div dir="ltr" style={{ textAlign: "left", fontSize: 15.5, fontWeight: 600, marginBottom: 12, lineHeight: 1.7 }}>{q.q}</div>
         {q.options.map((o, idx) => {
           let st = {};
-          if (picked !== null) { if (idx === q.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22" }; else if (idx === picked) st = { borderColor: "#B3402F", background: "#B3402F22" }; }
+          if (picked !== null) { if (idx === q.a) st = { borderColor: "var(--ok)", background: "var(--okSoft)" }; else if (idx === picked) st = { borderColor: "var(--bad)", background: "var(--badSoft)" }; }
           return <button key={idx} className="opt" style={st} onClick={() => {
             if (picked !== null) return;
             setPicked(idx); play(idx === q.a ? "correct" : "click");
@@ -3652,8 +3657,8 @@ function Placement({ g, theme, onDone, onBack }) {
         })}
         {picked !== null && picked !== q.a && (
           <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: 13, lineHeight: 1.85, background: "#B3402F10", borderRadius: 10, padding: "9px 12px" }}>
-              <b style={{ color: "#B3402F" }}>الصحيح: {q.options[q.a]}</b>{q.ex ? " — " + q.ex : ""}
+            <div style={{ fontSize: 13, lineHeight: 1.85, background: "var(--badSoft)", borderRadius: 10, padding: "9px 12px" }}>
+              <b style={{ color: "var(--bad)" }}>الصحيح: {q.options[q.a]}</b>{q.ex ? " — " + q.ex : ""}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
               <button className="btn ghost" style={{ flex: 1, padding: 10, fontSize: 13 }} onClick={() => { play("click"); setTeach(true); }}>🧑‍🏫 لم أفهم</button>
@@ -3680,11 +3685,11 @@ function LessonSteps({ theme, unit, onComplete }) {
   const go = () => { play("click"); setRevealed(1); setPick(null); if (last) onComplete(); else setSi(si + 1); };
 
   const kindMeta = {
-    teach: { c: "#C89235", label: "💡 الفكرة" },
-    example: { c: "#2E7DA6", label: "📝 مثال محلول" },
-    check: { c: "#1F7A5C", label: "🧠 ثبّت المعلومة" },
-    trap: { c: "#B3402F", label: "⚠️ الفخ الشائع" },
-  }[s.k] || { c: "#C89235", label: "" };
+    teach: { c: "var(--gold)", label: "💡 الفكرة" },
+    example: { c: "var(--phTeal)", label: "📝 مثال محلول" },
+    check: { c: "var(--ok)", label: "🧠 ثبّت المعلومة" },
+    trap: { c: "var(--bad)", label: "⚠️ الفخ الشائع" },
+  }[s.k] || { c: "var(--gold)", label: "" };
 
   return (
     <div style={{ animation: "drop .25s ease" }}>
@@ -3698,11 +3703,11 @@ function LessonSteps({ theme, unit, onComplete }) {
         {s.k === "teach" && <>
           {s.h && <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8 }}>{s.h}</div>}
           <div style={{ fontSize: 14.5, lineHeight: 2 }}>{s.t}</div>
-          {s.ex && <div dir="ltr" style={{ textAlign: "left", background: "#1F7A5C18", border: "1.5px solid #1F7A5C44", borderRadius: 10, padding: "9px 12px", marginTop: 10, fontSize: 14, fontWeight: 800, fontFamily: "Menlo, Consolas, monospace" }}>{s.ex}</div>}
+          {s.ex && <div dir="ltr" style={{ textAlign: "left", background: "var(--okSoft)", border: "1.5px solid var(--okSoft)", borderRadius: 10, padding: "9px 12px", marginTop: 10, fontSize: 14, fontWeight: 800, fontFamily: "Menlo, Consolas, monospace" }}>{s.ex}</div>}
         </>}
 
         {s.k === "trap" && <>
-          {s.h && <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8, color: "#B3402F" }}>{s.h}</div>}
+          {s.h && <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8, color: "var(--bad)" }}>{s.h}</div>}
           <div style={{ fontSize: 14.5, lineHeight: 2 }}>{s.t}</div>
         </>}
 
@@ -3711,23 +3716,23 @@ function LessonSteps({ theme, unit, onComplete }) {
           <div dir="auto" style={{ fontSize: 14.5, fontWeight: 700, lineHeight: 1.8, marginBottom: 10 }}>{s.q}</div>
           {s.steps.slice(0, revealed).map((line, i) => (
             <div key={i} dir="auto" style={{ background: theme.line + "44", borderRadius: 10, padding: "8px 12px", marginBottom: 6, fontSize: 14, fontWeight: 700, lineHeight: 1.7, animation: "drop .2s ease" }}>
-              <span style={{ color: "#2E7DA6", fontWeight: 900 }}>{i + 1}) </span>{line}
+              <span style={{ color: "var(--phTeal)", fontWeight: 900 }}>{i + 1}) </span>{line}
             </div>
           ))}
           {revealed < s.steps.length
             ? <button className="btn ghost" style={{ width: "100%", padding: 10, marginTop: 4 }} onClick={() => { play("click"); setRevealed(revealed + 1); }}>اكشف الخطوة التالية ↓</button>
-            : s.answer != null && <div style={{ textAlign: "center", fontWeight: 900, fontSize: 15, color: "#1F7A5C", marginTop: 8 }}>✓ الإجابة: {s.answer}</div>}
+            : s.answer != null && <div style={{ textAlign: "center", fontWeight: 900, fontSize: 15, color: "var(--ok)", marginTop: 8 }}>✓ الإجابة: {s.answer}</div>}
         </>}
 
         {s.k === "check" && <>
           <div dir="auto" style={{ fontSize: 14.5, fontWeight: 700, lineHeight: 1.8, marginBottom: 12 }}>{s.q}</div>
           {s.options.map((o, idx) => {
             let st = { textAlign: "start" };
-            if (pick !== null) { if (idx === s.a) st = { ...st, borderColor: "#1F7A5C", background: "#1F7A5C22", fontWeight: 700 }; else if (idx === pick) st = { ...st, borderColor: "#B3402F", background: "#B3402F18" }; else st = { ...st, opacity: .5 }; }
+            if (pick !== null) { if (idx === s.a) st = { ...st, borderColor: "var(--ok)", background: "var(--okSoft)", fontWeight: 700 }; else if (idx === pick) st = { ...st, borderColor: "var(--bad)", background: "var(--badSoft)" }; else st = { ...st, opacity: .5 }; }
             return <button key={idx} className="opt" style={st} disabled={pick !== null} onClick={() => { setPick(idx); play(idx === s.a ? "correct" : "wrong"); }}>{String.fromCharCode(65 + idx)}. {o}</button>;
           })}
-          {pick !== null && <div style={{ marginTop: 8, background: (pick === s.a ? "#1F7A5C1d" : "#B3402F14"), border: `1.5px solid ${(pick === s.a ? "#1F7A5C44" : "#B3402F33")}`, borderRadius: 12, padding: "10px 13px", fontSize: 13.5, lineHeight: 1.9, fontWeight: 700 }}>
-            <b style={{ color: pick === s.a ? "#1F7A5C" : "#B3402F" }}>{pick === s.a ? "✓ أحسنت! " : "التقط الفكرة: "}</b>{s.ex}
+          {pick !== null && <div style={{ marginTop: 8, background: (pick === s.a ? "var(--okSoft)" : "var(--badSoft)"), border: `1.5px solid ${(pick === s.a ? "var(--okSoft)" : "var(--badSoft)")}`, borderRadius: 12, padding: "10px 13px", fontSize: 13.5, lineHeight: 1.9, fontWeight: 700 }}>
+            <b style={{ color: pick === s.a ? "var(--ok)" : "var(--bad)" }}>{pick === s.a ? "✓ أحسنت! " : "التقط الفكرة: "}</b>{s.ex}
           </div>}
         </>}
       </div>
@@ -3785,7 +3790,7 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
   if (stage === "fail") return (
     <div className="card" style={{ textAlign: "center", padding: 24, animation: "pop .4s ease" }}>
       <div style={{ fontSize: 46 }}>🧱</div>
-      <div style={{ fontWeight: 900, fontSize: 16, margin: "8px 0", color: "#B3402F" }}>الاختبار الصارم لا يسامح</div>
+      <div style={{ fontWeight: 900, fontSize: 16, margin: "8px 0", color: "var(--bad)" }}>الاختبار الصارم لا يسامح</div>
       <div style={{ fontSize: 13.5, color: theme.sub, lineHeight: 1.9 }}>خطأ واحد يعني أن الأساس يحتاج بناء فعليًا — وهذا خبر جيد: عرفناه قبل يوم الاختبار الحقيقي. ادرس متطلباته ثم ارجع.</div>
       <button className="btn" style={{ width: "100%", marginTop: 12, padding: 12 }} onClick={() => onDone(true)}>فهمت — ارجعني ←</button>
     </div>
@@ -3794,7 +3799,7 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
     <div className="card" style={{ textAlign: "center", padding: 26, animation: "pop .45s ease", position: "relative", overflow: "hidden" }}>
       {["✨", "🎓", "⭐", "✨", "🌟"].map((c, i) => <span key={i} style={{ position: "absolute", bottom: 8, left: `${12 + i * 18}%`, fontSize: 18, animation: `confetti ${1 + i * .15}s ease forwards` }}>{c}</span>)}
       <div style={{ fontSize: 52 }}>🎓</div>
-      <div style={{ fontWeight: 900, fontSize: 18, margin: "8px 0 4px", color: "#1F7A5C" }}>{test ? "🔓 اجتزت اختبار الإتقان!" : review ? "مراجعة مكتملة" : "أتقنت الدرس!"}</div>
+      <div style={{ fontWeight: 900, fontSize: 18, margin: "8px 0 4px", color: "var(--ok)" }}>{test ? "🔓 اجتزت اختبار الإتقان!" : review ? "مراجعة مكتملة" : "أتقنت الدرس!"}</div>
       <div style={{ fontSize: 14, color: theme.sub }}>{unit.name}</div>
       <button className="btn gold" style={{ width: "100%", marginTop: 14, padding: 12 }} onClick={() => onDone(false)}>{review ? "رجوع" : "استلم مكافأتك ←"}</button>
     </div>
@@ -3809,25 +3814,25 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
       {stage === "cards" && !unit.steps && <>
         {unit.awl ? (() => { const w = unit.awl[ci]; return (
           <div className="card" style={{ minHeight: 200, textAlign: "center" }}>
-            <div style={{ fontSize: 11.5, fontWeight: 900, color: "#2E7DA6", marginBottom: 10 }}>{unit.icon} كلمة {ci + 1}/{unit.awl.length}</div>
+            <div style={{ fontSize: 11.5, fontWeight: 900, color: "var(--phTeal)", marginBottom: 10 }}>{unit.icon} كلمة {ci + 1}/{unit.awl.length}</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
               <div dir="ltr" style={{ fontSize: 30, fontWeight: 900, letterSpacing: .5 }}>{w.w}</div>
-              <button onClick={() => { play("click"); say(w.w); }} style={{ border: "none", background: "#2E7DA61a", color: "#2E7DA6", borderRadius: 99, width: 40, height: 40, fontSize: 18, cursor: "pointer" }}>🔊</button>
+              <button onClick={() => { play("click"); say(w.w); }} style={{ border: "none", background: "var(--phTealSoft)", color: "var(--phTeal)", borderRadius: 99, width: 40, height: 40, fontSize: 18, cursor: "pointer" }}>🔊</button>
             </div>
-            <div style={{ fontSize: 17, fontWeight: 900, color: "#0F5147", margin: "6px 0 10px" }}>{w.ar}</div>
+            <div style={{ fontSize: 17, fontWeight: 900, color: "var(--brand)", margin: "6px 0 10px" }}>{w.ar}</div>
             <div dir="ltr" style={{ textAlign: "left", background: theme.line + "44", borderRadius: 12, padding: "10px 13px", fontSize: 14, lineHeight: 1.8, fontStyle: "italic" }}>“{w.ex}”</div>
             <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 10 }}>
-              <span style={{ background: "#1F7A5C18", color: "#1F7A5C", borderRadius: 8, padding: "3px 10px", fontSize: 12, fontWeight: 800 }} dir="ltr">≈ {w.syn}</span>
-              {w.ant && <span style={{ background: "#B3402F14", color: "#B3402F", borderRadius: 8, padding: "3px 10px", fontSize: 12, fontWeight: 800 }} dir="ltr">≠ {w.ant}</span>}
+              <span style={{ background: "var(--okSoft)", color: "var(--ok)", borderRadius: 8, padding: "3px 10px", fontSize: 12, fontWeight: 800 }} dir="ltr">≈ {w.syn}</span>
+              {w.ant && <span style={{ background: "var(--badSoft)", color: "var(--bad)", borderRadius: 8, padding: "3px 10px", fontSize: 12, fontWeight: 800 }} dir="ltr">≠ {w.ant}</span>}
             </div>
             <div dir="ltr" style={{ textAlign: "left", fontSize: 12.5, color: theme.sub, marginTop: 10, lineHeight: 1.7 }}>✍️ {w.bl.replace("_____", `[${w.w}]`)}</div>
           </div>
         ); })() : (
         <div className="card" style={{ minHeight: 180 }}>
-          <div style={{ fontSize: 11.5, fontWeight: 900, color: "#C89235", marginBottom: 8 }}>{unit.icon} {unit.name} • مفهوم {ci + 1}/{unit.cards.length}</div>
+          <div style={{ fontSize: 11.5, fontWeight: 900, color: "var(--gold)", marginBottom: 8 }}>{unit.icon} {unit.name} • مفهوم {ci + 1}/{unit.cards.length}</div>
           <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8 }}>{unit.cards[ci].h}</div>
           <div style={{ fontSize: 14.5, lineHeight: 2 }}>{unit.cards[ci].t}</div>
-          {unit.cards[ci].ex && <div dir="ltr" style={{ textAlign: "left", background: "#1F7A5C18", border: "1.5px solid #1F7A5C44", borderRadius: 10, padding: "9px 12px", marginTop: 10, fontSize: 14, fontWeight: 800, color: theme.text, fontFamily: "Menlo, Consolas, monospace" }}>{unit.cards[ci].ex}</div>}
+          {unit.cards[ci].ex && <div dir="ltr" style={{ textAlign: "left", background: "var(--okSoft)", border: "1.5px solid var(--okSoft)", borderRadius: 10, padding: "9px 12px", marginTop: 10, fontSize: 14, fontWeight: 800, color: theme.text, fontFamily: "Menlo, Consolas, monospace" }}>{unit.cards[ci].ex}</div>}
         </div>)}
         <div style={{ display: "flex", gap: 8 }}>
           {ci > 0 && <button className="btn ghost" style={{ flex: 1, padding: 12 }} onClick={() => { play("click"); setCi(ci - 1); }}>السابق</button>}
@@ -3839,13 +3844,13 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
 
       {stage === "drill" && drill && <>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, padding: "0 4px" }}>
-          <span style={{ fontSize: 12.5, fontWeight: 900, color: test ? "#B3402F" : "#C89235" }}>{test ? "🔓 اختبار صارم: 3/3 — أي خطأ ينهيه" : "✏️ تطبيق بلا خوف — الخطأ هنا معلّم، مو عقوبة"}</span>
+          <span style={{ fontSize: 12.5, fontWeight: 900, color: test ? "var(--bad)" : "var(--gold)" }}>{test ? "🔓 اختبار صارم: 3/3 — أي خطأ ينهيه" : "✏️ تطبيق بلا خوف — الخطأ هنا معلّم، مو عقوبة"}</span>
           <span style={{ fontSize: 12.5, fontWeight: 900 }}>{"🟢".repeat(correct)}{"⚪".repeat(Math.max(0, need - correct))}</span>
         </div>
         <div className="card">
           <div dir="ltr" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, marginBottom: 12, lineHeight: 1.7 }}>{drill.q}</div>
           {drill.kind === "num" ? <>
-            <div dir="ltr" style={{ textAlign: "center", fontSize: 24, fontWeight: 900, letterSpacing: 3, background: theme.line + "55", borderRadius: 12, padding: "9px 0", marginBottom: 10, minHeight: 48, color: picked === "ok" ? "#1F7A5C" : picked === "no" ? "#B3402F" : theme.text }}>{numVal || "؟"}</div>
+            <div dir="ltr" style={{ textAlign: "center", fontSize: 24, fontWeight: 900, letterSpacing: 3, background: theme.line + "55", borderRadius: 12, padding: "9px 0", marginBottom: 10, minHeight: 48, color: picked === "ok" ? "var(--ok)" : picked === "no" ? "var(--bad)" : theme.text }}>{numVal || "؟"}</div>
             {picked === null && <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 7 }}>
               {[1,2,3,4,5,6,7,8,9,"⌫",0,"✓"].map(k => (
                 <button key={k} className="opt" style={{ textAlign: "center", fontSize: 17, fontWeight: 900, padding: "12px 0", margin: 0, background: k === "✓" ? "#0F5147" : undefined, color: k === "✓" ? "#fff" : undefined, opacity: k === "✓" && !numVal ? .45 : 1 }}
@@ -3854,13 +3859,13 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
             </div>}
           </> : drill.options.map((o, idx) => {
             let st = {};
-            if (picked !== null) { if (idx === drill.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22", fontWeight: 700 }; else st = { opacity: .5 }; }
+            if (picked !== null) { if (idx === drill.a) st = { borderColor: "var(--ok)", background: "var(--okSoft)", fontWeight: 700 }; else st = { opacity: .5 }; }
             return <button key={idx} className="opt" style={st} onClick={() => picked === null && answer(idx === drill.a)}>{String.fromCharCode(65 + idx)}. {o}</button>;
           })}
-          {picked === "ok" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "#1F7A5C1d", borderRadius: 12, padding: "10px 13px", fontSize: 13.5, fontWeight: 800, color: "#1F7A5C" }}>✓ صحيح! {drill.ex}</div>}
+          {picked === "ok" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "var(--okSoft)", borderRadius: 12, padding: "10px 13px", fontSize: 13.5, fontWeight: 800, color: "var(--ok)" }}>✓ صحيح! {drill.ex}</div>}
           {picked === "no" && <div role="status" aria-live="assertive" style={{ marginTop: 8 }}>
-            <div style={{ background: "#B3402F14", border: "1.5px solid #B3402F33", borderRadius: 12, padding: "11px 13px", fontSize: 13.5, lineHeight: 1.9 }}>
-              <b style={{ color: "#B3402F" }}>لا بأس — هذا سر الدرس:</b> {drill.ex}
+            <div style={{ background: "var(--badSoft)", border: "1.5px solid var(--badSoft)", borderRadius: 12, padding: "11px 13px", fontSize: 13.5, lineHeight: 1.9 }}>
+              <b style={{ color: "var(--bad)" }}>لا بأس — هذا سر الدرس:</b> {drill.ex}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <button className="btn ghost" style={{ flex: 1, padding: 11, fontSize: 13 }} onClick={() => { play("click"); setTeach(true); }}>🧑‍🏫 لم أفهم</button>
@@ -3913,7 +3918,7 @@ function SimFlow({ g, theme, unit, onDone, onBack }) {
         <div style={{ fontWeight: 900, fontSize: 17, margin: "6px 0" }}>{unit.name}</div>
         <div style={{ fontSize: 13.5, opacity: .9, lineHeight: 1.9 }}>{unit.cards[0].t}</div>
       </div>
-      <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, background: "#B3402F" }} onClick={() => { play("boss"); setPhase("run"); }}>🎬 ابدأ — القاعة صامتة</button>
+      <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, background: "var(--bad)" }} onClick={() => { play("boss"); setPhase("run"); }}>🎬 ابدأ — القاعة صامتة</button>
     </div>
   );
 
@@ -3929,7 +3934,7 @@ function SimFlow({ g, theme, unit, onDone, onBack }) {
       <div style={{ animation: "pop .4s ease" }}>
         <div className="card" style={{ textAlign: "center" }}>
           <div style={{ fontSize: 13, fontWeight: 900, color: theme.sub }}>📋 تقرير المحاكاة</div>
-          <div style={{ fontSize: 42, fontWeight: 900, color: score >= 90 ? "#C89235" : "#0F5147", margin: "4px 0" }}>{score}</div>
+          <div style={{ fontSize: 42, fontWeight: 900, color: score >= 90 ? "var(--gold)" : "#0F5147", margin: "4px 0" }}>{score}</div>
           <div style={{ fontSize: 13, color: theme.sub }}>درجة تقديرية • {correct}/{log.length} صحيحة {unit.sim.hard && "• 🏅 وضع الصفوة"}</div>
         </div>
         <div className="card">
@@ -3940,14 +3945,14 @@ function SimFlow({ g, theme, unit, onDone, onBack }) {
               <div key={sec} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
                 <span style={{ fontSize: 12, fontWeight: 800, minWidth: 96 }}>{SEC_AR[sec] || sec}</span>
                 <div style={{ flex: 1, background: theme.line, borderRadius: 99, height: 8, overflow: "hidden" }}>
-                  <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "#1F7A5C" : p >= 60 ? "#C89235" : "#B3402F" }} />
+                  <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "var(--ok)" : p >= 60 ? "var(--gold)" : "var(--bad)" }} />
                 </div>
                 <span style={{ fontSize: 11.5, fontWeight: 900, minWidth: 34, textAlign: "left" }}>{p}%</span>
               </div>
             );
           })}
         </div>
-        {weak.length > 0 && <div className="card" style={{ background: "#B3402F0d", borderColor: "#B3402F33" }}>
+        {weak.length > 0 && <div className="card" style={{ background: "var(--badSoft)", borderColor: "var(--badSoft)" }}>
           <div style={{ fontWeight: 900, fontSize: 13.5, marginBottom: 6 }}>🦉 وصفة المدرب بعد هذه الجلسة:</div>
           {weak.map(([sec]) => <div key={sec} style={{ fontSize: 13, lineHeight: 1.9, marginBottom: 6 }}><b>{SEC_AR[sec]}:</b> {TIP_FIX[sec]}</div>)}
         </div>}
@@ -3960,16 +3965,16 @@ function SimFlow({ g, theme, unit, onDone, onBack }) {
     <div style={{ animation: "drop .25s ease" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, padding: "0 4px" }}>
         <span style={{ fontSize: 12.5, fontWeight: 900, color: theme.sub }}>🎭 محاكاة • {i + 1}/{qs.length}</span>
-        <span className={timeLeft <= 5 ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 14, color: timeLeft <= 8 ? "#B3402F" : theme.text, direction: "ltr" }}>⏱ {Math.max(timeLeft, 0)}s</span>
+        <span className={timeLeft <= 5 ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 14, color: timeLeft <= 8 ? "var(--bad)" : theme.text, direction: "ltr" }}>⏱ {Math.max(timeLeft, 0)}s</span>
       </div>
       <div style={{ background: theme.line, borderRadius: 99, height: 6, marginBottom: 10, overflow: "hidden" }}>
-        <div style={{ width: `${(i / qs.length) * 100}%`, height: "100%", background: "#B3402F", borderRadius: 99, transition: "width .4s" }} />
+        <div style={{ width: `${(i / qs.length) * 100}%`, height: "100%", background: "var(--bad)", borderRadius: 99, transition: "width .4s" }} />
       </div>
       <div className="card" style={{ animation: flash === "no" ? "shake .35s ease" : "none" }}>
         <div dir="ltr" style={{ textAlign: "left", fontSize: 15.5, fontWeight: 600, lineHeight: 1.75, marginBottom: 12, whiteSpace: "pre-line" }}>{q.q}</div>
         {q.options.map((o, idx) => (
           <button key={idx} className="opt" disabled={!!flash}
-            style={flash && idx === q.a ? { borderColor: "#1F7A5C", background: "#1F7A5C22" } : {}}
+            style={flash && idx === q.a ? { borderColor: "var(--ok)", background: "var(--okSoft)" } : {}}
             onClick={() => !flash && submit(idx)}>{String.fromCharCode(65 + idx)}. {o}</button>
         ))}
       </div>
@@ -4038,7 +4043,7 @@ function MockExam({ g, theme, close, onDone }) {
               <span style={{ fontSize: 12.5, color: theme.sub }}>{s.n} سؤال • ⏱ {fmtClock(s.time)}</span>
             </div>
           ))}
-          <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, marginTop: 8, background: "#B3402F" }} onClick={() => startSection(0)}>🎬 ابدأ المحاكاة</button>
+          <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, marginTop: 8, background: "var(--bad)" }} onClick={() => startSection(0)}>🎬 ابدأ المحاكاة</button>
           <button className="btn ghost" style={{ width: "100%", padding: 10, marginTop: 8 }} onClick={close}>إغلاق</button>
         </div>
       </div>
@@ -4050,7 +4055,7 @@ function MockExam({ g, theme, close, onDone }) {
       <div style={{ fontSize: 44 }}>✅</div>
       <div style={{ fontWeight: 900, fontSize: 18, margin: "8px 0" }}>انتهى {MOCK_SECS[secIdx].name}</div>
       <div style={{ fontSize: 14, opacity: .85, marginBottom: 20, lineHeight: 1.9 }}>خذ نفسًا… القسم التالي: <b>{MOCK_SECS[secIdx + 1].name}</b><br />{MOCK_SECS[secIdx + 1].n} سؤال • ⏱ {fmtClock(MOCK_SECS[secIdx + 1].time)}</div>
-      <button className="btn" style={{ padding: "13px 30px", fontSize: 16, background: "#fff", color: "#0F5147" }} onClick={() => startSection(secIdx + 1)}>ابدأ {MOCK_SECS[secIdx + 1].name} ←</button>
+      <button className="btn" style={{ padding: "13px 30px", fontSize: 16, background: "#fff", color: "var(--brand)" }} onClick={() => startSection(secIdx + 1)}>ابدأ {MOCK_SECS[secIdx + 1].name} ←</button>
     </div>
   );
 
@@ -4068,7 +4073,7 @@ function MockExam({ g, theme, close, onDone }) {
         <div onClick={e => e.stopPropagation()} style={{ background: theme.bg, color: theme.text, width: "min(100%,620px)", maxHeight: "88vh", overflowY: "auto", borderRadius: "22px 22px 0 0", padding: "18px 16px 30px", animation: "drop .3s ease" }}>
           <div className="card" style={{ textAlign: "center" }}>
             <div style={{ fontSize: 13, fontWeight: 900, color: theme.sub }}>📋 تقرير المحاكاة الكاملة</div>
-            <div style={{ fontSize: 46, fontWeight: 900, color: score >= 90 ? "#C89235" : "#0F5147", margin: "2px 0" }}>{score}</div>
+            <div style={{ fontSize: 46, fontWeight: 900, color: score >= 90 ? "var(--gold)" : "#0F5147", margin: "2px 0" }}>{score}</div>
             <div style={{ fontSize: 13, color: theme.sub }}>درجة تقديرية • {correct}/{logs.length} صحيحة</div>
             {g.mockBest && <div style={{ fontSize: 11.5, color: theme.sub, marginTop: 3 }}>أفضل نتيجة سابقة: {g.mockBest.score}</div>}
           </div>
@@ -4076,7 +4081,7 @@ function MockExam({ g, theme, close, onDone }) {
             {MOCK_SECS.map(s => (
               <div key={s.key} className="card" style={{ flex: 1, textAlign: "center", margin: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: theme.sub }}>{s.icon} {s.name}</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: secScore(s.key) >= 70 ? "#1F7A5C" : "#B3402F" }}>{secScore(s.key)}%</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: secScore(s.key) >= 70 ? "var(--ok)" : "var(--bad)" }}>{secScore(s.key)}%</div>
               </div>
             ))}
           </div>
@@ -4088,14 +4093,14 @@ function MockExam({ g, theme, close, onDone }) {
                 <div key={s} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
                   <span style={{ fontSize: 12, fontWeight: 800, minWidth: 96 }}>{SEC_AR[s] || s}</span>
                   <div style={{ flex: 1, background: theme.line, borderRadius: 99, height: 8, overflow: "hidden" }}>
-                    <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "#1F7A5C" : p >= 60 ? "#C89235" : "#B3402F" }} />
+                    <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "var(--ok)" : p >= 60 ? "var(--gold)" : "var(--bad)" }} />
                   </div>
                   <span style={{ fontSize: 11.5, fontWeight: 900, minWidth: 34, textAlign: "left" }}>{p}%</span>
                 </div>
               );
             })}
           </div>
-          {weak.length > 0 && <div className="card" style={{ background: "#B3402F0d", borderColor: "#B3402F33" }}>
+          {weak.length > 0 && <div className="card" style={{ background: "var(--badSoft)", borderColor: "var(--badSoft)" }}>
             <div style={{ fontWeight: 900, fontSize: 13.5, marginBottom: 6 }}>🦉 ركّز على:</div>
             {weak.map(([s]) => <div key={s} style={{ fontSize: 13, lineHeight: 1.9, marginBottom: 6 }}><b>{SEC_AR[s]}:</b> {TIP_FIX[s]}</div>)}
           </div>}
@@ -4115,14 +4120,14 @@ function MockExam({ g, theme, close, onDone }) {
       <div style={{ maxWidth: 620, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 900 }}>{sec.icon} {sec.name}</span>
-          <span className={low ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 16, color: low ? "#B3402F" : theme.text, direction: "ltr" }}>⏱ {fmtClock(timeLeft)}</span>
+          <span className={low ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 16, color: low ? "var(--bad)" : theme.text, direction: "ltr" }}>⏱ {fmtClock(timeLeft)}</span>
         </div>
         <div style={{ background: theme.line, borderRadius: 99, height: 6, marginBottom: 4, overflow: "hidden" }}>
-          <div style={{ width: `${(timeLeft / sec.time) * 100}%`, height: "100%", background: low ? "#B3402F" : "#C89235", borderRadius: 99, transition: "width 1s linear" }} />
+          <div style={{ width: `${(timeLeft / sec.time) * 100}%`, height: "100%", background: low ? "var(--bad)" : "var(--gold)", borderRadius: 99, transition: "width 1s linear" }} />
         </div>
         <div style={{ fontSize: 12, color: theme.sub, marginBottom: 10, fontWeight: 800 }}>سؤال {qi + 1} من {qs.length} • القسم {secIdx + 1}/{MOCK_SECS.length}</div>
         <div className="card">
-          <div style={{ fontSize: 11, fontWeight: 900, color: "#C89235", marginBottom: 8 }}>{SEC_AR[q.sec] || q.sec}</div>
+          <div style={{ fontSize: 11, fontWeight: 900, color: "var(--gold)", marginBottom: 8 }}>{SEC_AR[q.sec] || q.sec}</div>
           <div dir="auto" style={{ fontSize: 15.5, fontWeight: 600, lineHeight: 1.8, marginBottom: 12, whiteSpace: "pre-line" }}>{q.q}</div>
           {q.options.map((o, idx) => (
             <button key={idx} className="opt" style={{ textAlign: "start" }} onClick={() => answer(idx)}>{String.fromCharCode(65 + idx)}. {o}</button>
@@ -4169,7 +4174,7 @@ const IC_PATHS = {
   bolt2: <path d="M13 2 4.5 13.5h5.6L9 22l8.7-11.6h-5.6z" fill="#F0C560" stroke="#B8860B" strokeWidth="1"/>,
   battery: <><rect x="2.5" y="8" width="16" height="9" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.8"/><rect x="19.5" y="10.5" width="2.5" height="4" rx="1" fill="currentColor"/></>,
   skull: <><path d="M12 3c-4.6 0-7.6 3-7.6 7.2 0 2.5 1.2 4.2 2.6 5.2V19a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3.6c1.4-1 2.6-2.7 2.6-5.2C19.6 6 16.6 3 12 3z" fill="#E8E6E0"/><circle cx="9" cy="11" r="1.9" fill="#17251F"/><circle cx="15" cy="11" r="1.9" fill="#17251F"/><path d="M10.5 17h3M12 14.3l-1 1.6h2z" stroke="#17251F" strokeWidth="1.2" fill="#17251F"/></>,
-  brain: <path d="M9 3.5C6.8 3.5 5.4 5 5.3 6.8 3.8 7.3 3 8.6 3 10.1c0 1 .4 1.9 1.1 2.5-.4.6-.6 1.3-.6 2 0 2 1.6 3.5 3.6 3.6.4 1.6 1.8 2.6 3.4 2.6h1V3.5H9zM15 3.5c2.2 0 3.6 1.5 3.7 3.3 1.5.5 2.3 1.8 2.3 3.3 0 1-.4 1.9-1.1 2.5.4.6.6 1.3.6 2 0 2-1.6 3.5-3.6 3.6-.4 1.6-1.8 2.6-3.4 2.6h-1V3.5H15z" fill="#9B7EC8" stroke="#7B5EA7" strokeWidth="1"/>,
+  brain: <path d="M9 3.5C6.8 3.5 5.4 5 5.3 6.8 3.8 7.3 3 8.6 3 10.1c0 1 .4 1.9 1.1 2.5-.4.6-.6 1.3-.6 2 0 2 1.6 3.5 3.6 3.6.4 1.6 1.8 2.6 3.4 2.6h1V3.5H9zM15 3.5c2.2 0 3.6 1.5 3.7 3.3 1.5.5 2.3 1.8 2.3 3.3 0 1-.4 1.9-1.1 2.5.4.6.6 1.3.6 2 0 2-1.6 3.5-3.6 3.6-.4 1.6-1.8 2.6-3.4 2.6h-1V3.5H15z" fill="#9B7EC8" stroke="var(--phPurple)" strokeWidth="1"/>,
 };
 function Ico({ n, s = 16, c = "currentColor", style = {} }) {
   return <svg width={s} height={s} viewBox="0 0 24 24" fill={c} style={{ verticalAlign: "-2px", ...style }}>{IC_PATHS[n]}</svg>;
@@ -4188,6 +4193,151 @@ function TeacherFace({ size = 44 }) {
       <path d="M19 35c2 2.2 8 2.2 10 0" stroke="#8A5A3B" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
       <path d="M14 20c3-2 17-2 20 0" stroke="#D9C9B0" strokeWidth="1.4" fill="none"/>
     </svg>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🧭 دافع عن إجابتك — Defend Your Answer
+
+   الفكرة: حين يخطئ الطالب، لا نكشف الحل فورًا. نسأله أولًا: «ليش اخترت هذا؟»
+   شرح المتعلّم لخطئه بنفسه (self-explanation) من أقوى التدخلات أثرًا في علم
+   التعلّم، لكنه نادرًا ما يُنفَّذ لأنه يحتاج تصحيح نصّ حر. مولّدات Arise تحمل
+   سبب كل مشتّت (`traps`)، فيصير السؤال اختيارًا من متعدد — وهذا ما يجعل هذي
+   الميزة ممكنة هنا وحدها.
+
+   والمشتّتات في سؤال «لماذا» ليست مخترعة: هي أسباب الأخطاء الأخرى في نفس
+   السؤال. فالطالب مضطر أن يميّز أي غلط وقع فيه هو تحديدًا، لا أن يخمّن.
+
+   ولا تظهر إلا حين يكون الخطأ متكرّرًا (وقع فيه مرتين فأكثر). الزلّة الواحدة
+   قد تكون سهوًا؛ التكرار وحده يستحقّ وقفة. بهذا تبدو الميزة ذكيّة لا ضريبة. */
+const GENERIC_WHY = [
+  "استعجلت وحسبتها بدون تأكيد",
+  "اخترت الأقرب لما توقعته قبل الحل",
+  "ما انتبهت لكلمة مهمة في السؤال",
+  "خلطت بين قانونين متشابهين",
+];
+/* هل يستحق هذا الخطأ وقفة تشخيص؟ */
+function shouldDefend(g, q, picked) {
+  const why = q?.traps?.[picked];
+  if (!why) return false;
+  const rec = (g.stats?.traps || {})[sigOf(why)];
+  return !!rec && rec.n >= 2;
+}
+function DefendAnswer({ g, theme, q, picked, onResolve }) {
+  const real = q.traps[picked];
+  const box = useRef(null);
+  /* البطاقة قد تولد أسفل الطيّة في الشاشات الصغيرة — نسوقها للعين */
+  useEffect(() => { box.current?.scrollIntoView({ behavior: "smooth", block: "center" }); }, []);
+  const [choice, setChoice] = useState(null);
+  const [opts] = useState(() => {
+    // مشتّتات «لماذا» = أسباب الأخطاء الأخرى في نفس السؤال — حقيقية وقابلة للتمييز
+    const siblings = Object.entries(q.traps || {})
+      .filter(([i, w]) => String(i) !== String(picked) && w && w !== real)
+      .map(([, w]) => w);
+    const pool = [...new Set(siblings)].slice(0, 2);
+    const pad = GENERIC_WHY.filter(w => w !== real);
+    while (pool.length < 2 && pad.length) pool.push(pad.shift());
+    return GR.shuffle([real, ...pool]);
+  });
+  const times = (g.stats?.traps || {})[sigOf(real)]?.n || 2;
+  const got = choice === real;
+
+  return (
+    <div ref={box} className="card rise" style={{ borderColor: "var(--warn)", background: T.warnSoft, marginTop: DS.space[2] }}>
+      <div style={{ fontSize: DS.text.micro, fontWeight: 900, color: T.warn, marginBottom: DS.space[1] }}>
+        وقعت في هذا الخطأ {times} مرات
+      </div>
+      <div style={{ fontWeight: 900, fontSize: DS.text.sm, marginBottom: DS.space[1] }}>
+        قبل ما نشوف الحل — ليش اخترت هذا؟
+      </div>
+      <div style={{ fontSize: DS.text.micro, color: theme.sub, marginBottom: DS.space[3], lineHeight: DS.lead.snug }}>
+        تحديد سبب غلطك بنفسك أقوى من قراءة الحل عشر مرات.
+      </div>
+
+      {choice === null ? opts.map(o => (
+        <button key={o} className="opt rtl" style={{ fontSize: DS.text.tiny, lineHeight: DS.lead.snug }}
+          onClick={() => { const ok = o === real; setChoice(o); play(ok ? "correct" : "click"); onResolve(ok); }}>
+          {o}
+        </button>
+      )) : (
+        <div className={got ? "" : "settle"} style={{
+          borderRadius: DS.radius.md, padding: DS.space[3],
+          background: got ? T.okSoft : "var(--surface)", border: `1.5px solid ${got ? "var(--ok)" : T.line}`,
+        }}>
+          <div style={{ fontWeight: 900, fontSize: DS.text.sm, color: got ? T.ok : T.text, marginBottom: DS.space[1] }}>
+            {got ? "✓ شخّصت غلطك بنفسك" : "الأقرب لغلطك هو:"}
+          </div>
+          <div style={{ fontSize: DS.text.tiny, lineHeight: DS.lead.body }}>
+            {got ? "هذي أثمن لحظة في الجلسة — الغلط اللي تعرف سببه ما يتكرر." : real}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🏔️ اللحظة — The Moment
+
+   حين يتجنّب الطالب فخًّا أوقعه ثلاث مرات فأكثر، تظهر هذي الشاشة مرة واحدة
+   في العمر لكل فخّ. لا احتفال صاخب: وقار. الانتصار الذي تعرف أنت وحدك
+   ثمنه لا يحتاج قصاصات ملوّنة.
+   ═══════════════════════════════════════════════════════════ */
+function TheMoment({ trap, theme, onClose }) {
+  useEffect(() => { play("win"); }, []);
+  return (
+    <div onClick={onClose} role="dialog" aria-label="لحظة انتصار"
+      style={{ position: "fixed", inset: 0, zIndex: 240, background: "var(--page)",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        padding: `${DS.space[8]}px ${DS.space[6]}px`, textAlign: "center",
+        animation: `fadein ${DS.dur.slow}ms ${DS.ease.out}` }}>
+
+      {/* علامة الندرة: هذي الشاشة لا تتكرّر لنفس الفخّ أبدًا، والطالب يستحق أن يعرف */}
+      <div className="rise" style={{ fontSize: DS.text.micro, fontWeight: 900, color: T.faint,
+        letterSpacing: 3, marginBottom: DS.space[6] }}>
+        تظهر مرة واحدة فقط
+      </div>
+
+      <div style={{ position: "relative", marginBottom: DS.space[5] }}>
+        <div aria-hidden="true" style={{ position: "absolute", inset: -40, borderRadius: "50%",
+          background: "radial-gradient(circle, var(--goldSoft) 0%, transparent 72%)",
+          animation: `haloBreathe 3.4s ${DS.ease.inOut} infinite` }} />
+        {/* علامة مرسومة لا إيموجي: كل ما في هذي الشاشة مقصود، فلا نتركها لصورة نظام
+            تختلف من جهاز لآخر. قمّة وعَلَم — أنت وصلت. */}
+        <svg width="76" height="76" viewBox="0 0 100 100" aria-hidden="true"
+          style={{ position: "relative", display: "block", animation: `pop ${DS.dur.slow}ms ${DS.ease.spring}` }}>
+          <path d="M10 82 L38 30 L54 58 L63 44 L90 82 Z" fill="var(--ok)" opacity=".22" />
+          <path d="M10 82 L38 30 L54 58 L63 44 L90 82 Z" fill="none" stroke="var(--ok)" strokeWidth="3.5" strokeLinejoin="round" />
+          <path d="M38 30 L38 8" stroke="var(--gold)" strokeWidth="3.5" strokeLinecap="round" />
+          <path d="M38 9 L58 15 L38 22 Z" fill="var(--gold)" />
+        </svg>
+      </div>
+
+      <div className="rise rise-1" style={{ fontSize: DS.text.micro, fontWeight: 900, color: T.gold,
+        letterSpacing: 2, marginBottom: DS.space[3] }}>
+        فخّ قديم — سقط اليوم
+      </div>
+      <div className="rise rise-2" style={{ fontSize: DS.text.lg, fontWeight: 900,
+        lineHeight: DS.lead.snug, maxWidth: 440, marginBottom: DS.space[5] }}>
+        {trap.why}
+      </div>
+
+      {/* العدّاد بصريًا: كل نقطة حمراء سقطة، والأخيرة خضراء — القصة كلها في سطر */}
+      <div aria-hidden="true" style={{ display: "flex", gap: 7, marginBottom: DS.space[4] }}>
+        {Array.from({ length: Math.min(trap.n, 8) }).map((_, i) => (
+          <span key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: T.bad, opacity: .45 }} />
+        ))}
+        <span style={{ width: 9, height: 9, borderRadius: "50%", background: T.ok,
+          boxShadow: "0 0 0 4px var(--okSoft)", animation: `pop ${DS.dur.slow}ms ${DS.ease.spring} both`, animationDelay: "300ms" }} />
+      </div>
+
+      <div className="rise rise-3" style={{ fontSize: DS.text.base, color: theme.sub, lineHeight: DS.lead.body, maxWidth: 420 }}>
+        وقعت فيه <b style={{ color: T.bad }}>{trap.n} {trap.n === 2 ? "مرتين" : "مرات"}</b>.
+        <br />اليوم — <b style={{ color: T.ok }}>ما وقعت</b>.
+      </div>
+
+      <button className="btn rise rise-4" style={{ marginTop: DS.space[8], minWidth: 200 }} onClick={onClose}>كمّل ←</button>
+    </div>
   );
 }
 
@@ -4214,37 +4364,37 @@ function Teacher({ g, theme, q, picked, fallbackCard, onClose, onBonus }) {
 
         {tab === "main" && <>
           {wrongOpt != null && (
-            <div className="card" style={{ borderColor: "#B3402F44", background: "#B3402F0a" }}>
-              <div style={{ fontWeight: 900, fontSize: 13, color: "#B3402F", marginBottom: 4 }}>🔍 ليش أخطأت بالضبط:</div>
+            <div className="card" style={{ borderColor: "var(--badSoft)", background: "var(--badSoft)" }}>
+              <div style={{ fontWeight: 900, fontSize: 13, color: "var(--bad)", marginBottom: 4 }}>🔍 ليش أخطأت بالضبط:</div>
               <div style={{ fontSize: 13.5, lineHeight: 1.9 }}>{trap || `اخترت «${wrongOpt}» — والصحيح «${q.options[q.a]}». ${q.ex || ""}`}</div>
             </div>
           )}
           <div className="card">
-            <div style={{ fontWeight: 900, fontSize: 13, color: "#0F5147", marginBottom: 8 }}>🪜 الحل خطوة بخطوة:</div>
+            <div style={{ fontWeight: 900, fontSize: 13, color: "var(--brand)", marginBottom: 8 }}>🪜 الحل خطوة بخطوة:</div>
             {(q.steps || [q.ex || (fallbackCard ? fallbackCard.t : "")]).map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 7 }}>
                 <span style={{ minWidth: 22, height: 22, borderRadius: "50%", background: "#0F5147", color: "#fff", fontSize: 11.5, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
                 <span style={{ fontSize: 13.5, lineHeight: 1.8 }}>{s}</span>
               </div>
             ))}
-            {q.alt && <div style={{ marginTop: 8, background: "#7B5EA714", border: "1.5px solid #7B5EA733", borderRadius: 10, padding: "9px 12px", fontSize: 13, lineHeight: 1.8 }}><b style={{ color: "#7B5EA7" }}>🔀 {q.alt}</b></div>}
+            {q.alt && <div style={{ marginTop: 8, background: "var(--phPurpleSoft)", border: "1.5px solid var(--phPurple)", borderRadius: 10, padding: "9px 12px", fontSize: 13, lineHeight: 1.8 }}><b style={{ color: "var(--phPurple)" }}>🔀 {q.alt}</b></div>}
           </div>
           {q.hints && hintN < q.hints.length && (
             <button className="btn ghost" style={{ width: "100%", padding: 10, marginBottom: 8, fontSize: 13.5 }} onClick={() => { play("click"); setHintN(hintN + 1); }}>💡 أعطني تلميحًا فقط ({hintN}/{q.hints.length})</button>
           )}
           {q.hints && q.hints.slice(0, hintN).map((h, i) => (
-            <div key={i} className="card" style={{ padding: "9px 13px", fontSize: 13, borderColor: "#C8923544" }}>💡 {i + 1}: {h}</div>
+            <div key={i} className="card" style={{ padding: "9px 13px", fontSize: 13, borderColor: "var(--goldSoft)" }}>💡 {i + 1}: {h}</div>
           ))}
           {sq && <button className="btn" style={{ width: "100%", padding: 12, fontSize: 13.5 }} onClick={() => { play("click"); setTab("similar"); }}>🧪 جرّبني بسؤال مشابه</button>}
         </>}
 
         {tab === "similar" && sq && (
           <div className="card">
-            <div style={{ fontWeight: 900, fontSize: 12.5, color: "#0F5147", marginBottom: 8 }}>🧪 نفس المهارة ({sq.skill}) — لو حليته، الفكرة رسخت:</div>
+            <div style={{ fontWeight: 900, fontSize: 12.5, color: "var(--brand)", marginBottom: 8 }}>🧪 نفس المهارة ({sq.skill}) — لو حليته، الفكرة رسخت:</div>
             <div dir="ltr" style={{ textAlign: "left", fontWeight: 700, fontSize: 15, marginBottom: 10, lineHeight: 1.7, whiteSpace: "pre-line" }}>{sq.q}</div>
             {sq.options.map((o, i) => {
               let st = {};
-              if (sPicked !== null) { if (i === sq.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22" }; else if (i === sPicked) st = { borderColor: "#B3402F", background: "#B3402F22" }; }
+              if (sPicked !== null) { if (i === sq.a) st = { borderColor: "var(--ok)", background: "var(--okSoft)" }; else if (i === sPicked) st = { borderColor: "var(--bad)", background: "var(--badSoft)" }; }
               return <button key={i} className="opt" style={st} onClick={() => {
                 if (sPicked !== null) return;
                 setSPicked(i); play(i === sq.a ? "correct" : "wrong");
@@ -4252,8 +4402,8 @@ function Teacher({ g, theme, q, picked, fallbackCard, onClose, onBonus }) {
               }}>{String.fromCharCode(65 + i)}. {o}</button>;
             })}
             {sPicked !== null && (
-              <div style={{ fontSize: 13, lineHeight: 1.8, background: sPicked === sq.a ? "#1F7A5C14" : "#B3402F10", borderRadius: 10, padding: "9px 12px" }}>
-                <b style={{ color: sPicked === sq.a ? "#1F7A5C" : "#B3402F" }}>{sPicked === sq.a ? "✓ رسخت! خذ مكافأتك" : "شوف الخطوات:"}</b> {sPicked === sq.a ? sq.ex : (sq.steps || [sq.ex]).join(" ← ")}
+              <div style={{ fontSize: 13, lineHeight: 1.8, background: sPicked === sq.a ? "var(--okSoft)" : "var(--badSoft)", borderRadius: 10, padding: "9px 12px" }}>
+                <b style={{ color: sPicked === sq.a ? "var(--ok)" : "var(--bad)" }}>{sPicked === sq.a ? "✓ رسخت! خذ مكافأتك" : "شوف الخطوات:"}</b> {sPicked === sq.a ? sq.ex : (sq.steps || [sq.ex]).join(" ← ")}
               </div>
             )}
             <button className="btn ghost" style={{ width: "100%", marginTop: 10, padding: 10, fontSize: 13 }} onClick={() => setTab("main")}>→ رجوع للشرح</button>
@@ -4291,8 +4441,8 @@ function AskTeacher({ g, theme, onBack, onBonus }) {
       </div>
 
       {!q && <>
-        <div className="card" style={{ borderColor: "#C8923544", background: "#C8923510" }}>
-          <div style={{ fontSize: 12.5, fontWeight: 900, color: "#C89235", marginBottom: 6 }}>🎯 اقتراح المعلم — أضعف مواضيعك الآن</div>
+        <div className="card" style={{ borderColor: "var(--goldSoft)", background: "var(--goldSoft)" }}>
+          <div style={{ fontSize: 12.5, fontWeight: 900, color: "var(--gold)", marginBottom: 6 }}>🎯 اقتراح المعلم — أضعف مواضيعك الآن</div>
           <div style={{ fontSize: 13.5, marginBottom: 8 }}>{SEC_AR[weakTopic] || weakTopic}</div>
           <button className="btn gold" style={{ width: "100%", padding: 11, fontSize: 13.5 }} onClick={() => {
             const cands = GENS.filter(x => (x.type || "mcq") === "mcq" && x.topic === weakTopic);
@@ -4313,11 +4463,11 @@ function AskTeacher({ g, theme, onBack, onBonus }) {
       </>}
 
       {q && <div className="card">
-        <div style={{ fontSize: 11.5, fontWeight: 900, color: "#0F5147", marginBottom: 8 }}>🧑‍🏫 تدريب • {q.skill}</div>
+        <div style={{ fontSize: 11.5, fontWeight: 900, color: "var(--brand)", marginBottom: 8 }}>🧑‍🏫 تدريب • {q.skill}</div>
         <div dir="ltr" style={{ textAlign: "left", fontWeight: 700, fontSize: 15, marginBottom: 10, lineHeight: 1.75, whiteSpace: "pre-line" }}>{q.q}</div>
         {q.options.map((o, i) => {
           let st = {};
-          if (picked !== null) { if (i === q.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22" }; else if (i === picked) st = { borderColor: "#B3402F", background: "#B3402F22" }; }
+          if (picked !== null) { if (i === q.a) st = { borderColor: "var(--ok)", background: "var(--okSoft)" }; else if (i === picked) st = { borderColor: "var(--bad)", background: "var(--badSoft)" }; }
           return <button key={i} className="opt" style={st} onClick={() => {
             if (picked !== null) return;
             setPicked(i); play(i === q.a ? "correct" : "wrong");
@@ -4325,8 +4475,8 @@ function AskTeacher({ g, theme, onBack, onBonus }) {
           }}>{String.fromCharCode(65 + i)}. {o}</button>;
         })}
         {picked !== null && (
-          <div style={{ fontSize: 13, lineHeight: 1.85, background: picked === q.a ? "#1F7A5C14" : "#B3402F10", borderRadius: 10, padding: "9px 12px" }}>
-            <b style={{ color: picked === q.a ? "#1F7A5C" : "#B3402F" }}>{picked === q.a ? "✓ أحسنت" : "الصحيح: " + q.options[q.a]}</b>
+          <div style={{ fontSize: 13, lineHeight: 1.85, background: picked === q.a ? "var(--okSoft)" : "var(--badSoft)", borderRadius: 10, padding: "9px 12px" }}>
+            <b style={{ color: picked === q.a ? "var(--ok)" : "var(--bad)" }}>{picked === q.a ? "✓ أحسنت" : "الصحيح: " + q.options[q.a]}</b>
             {" "}{picked === q.a ? q.ex : ((q.traps || {})[picked] || q.ex)}
           </div>
         )}
@@ -4381,7 +4531,7 @@ function ReviewSession({ g, theme, onFinish, onExit }) {
       <div className="card" style={{ textAlign: "center", padding: 26, animation: "pop .4s ease" }}>
         <div style={{ fontSize: 50 }}>🧠</div>
         <div style={{ fontWeight: 900, fontSize: 18, margin: "8px 0" }}>مراجعة اليوم اكتملت</div>
-        <div style={{ fontSize: 14, lineHeight: 2 }}>ثابت في ذاكرتك: <b style={{ color: "#1F7A5C" }}>{kept}</b> • رجع لخطة الغد: <b style={{ color: "#E58E26" }}>{results.length - kept}</b></div>
+        <div style={{ fontSize: 14, lineHeight: 2 }}>ثابت في ذاكرتك: <b style={{ color: "var(--ok)" }}>{kept}</b> • رجع لخطة الغد: <b style={{ color: "var(--warn)" }}>{results.length - kept}</b></div>
         <div style={{ fontSize: 12.5, color: theme.sub, marginTop: 6 }}>كل إجابة صحيحة تُبعد موعد المراجعة القادمة — هكذا تبقى المعلومة ليوم الاختبار.</div>
         <button className="btn gold" style={{ width: "100%", marginTop: 14, padding: 12 }} onClick={onExit}>ممتاز ←</button>
       </div>
@@ -4390,11 +4540,11 @@ function ReviewSession({ g, theme, onFinish, onExit }) {
 
   if (stage === "reteach") return (
     <div style={{ animation: "drop .3s ease" }}>
-      <div className="card" style={{ border: "1.5px solid #E58E2666" }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#E58E26", marginBottom: 8 }}>🔄 تنشيط سريع — {it.u.icon} {it.u.name}</div>
+      <div className="card" style={{ border: "1.5px solid var(--warnSoft)" }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "var(--warn)", marginBottom: 8 }}>🔄 تنشيط سريع — {it.u.icon} {it.u.name}</div>
         <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 6 }}>{it.u.cards[0].h}</div>
         <div style={{ fontSize: 14, lineHeight: 2 }}>{it.u.cards[0].t}</div>
-        {it.u.cards[0].ex && <div dir="ltr" style={{ textAlign: "left", background: "#1F7A5C18", borderRadius: 10, padding: "8px 12px", marginTop: 8, fontSize: 13.5, fontWeight: 800, fontFamily: "Menlo, monospace" }}>{it.u.cards[0].ex}</div>}
+        {it.u.cards[0].ex && <div dir="ltr" style={{ textAlign: "left", background: "var(--okSoft)", borderRadius: 10, padding: "8px 12px", marginTop: 8, fontSize: 13.5, fontWeight: 800, fontFamily: "Menlo, monospace" }}>{it.u.cards[0].ex}</div>}
       </div>
       <button className="btn" style={{ width: "100%", padding: 12 }} onClick={() => { play("click"); setStage("q2"); }}>تذكرت — جرّبني بسؤال تطبيقي ←</button>
     </div>
@@ -4403,14 +4553,14 @@ function ReviewSession({ g, theme, onFinish, onExit }) {
   return (
     <div style={{ animation: "drop .25s ease" }}>
       <div style={{ display: "flex", justifyContent: "space-between", padding: "0 4px", marginBottom: 8 }}>
-        <span style={{ fontSize: 12.5, fontWeight: 900, color: "#7B5EA7" }}>🔁 مراجعة {i + 1}/{items.length} — {it.u.icon} {it.u.name}</span>
+        <span style={{ fontSize: 12.5, fontWeight: 900, color: "var(--phPurple)" }}>🔁 مراجعة {i + 1}/{items.length} — {it.u.icon} {it.u.name}</span>
         <button onClick={onExit} style={{ background: "none", border: "none", color: theme.sub, fontWeight: 800, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit" }}>إيقاف مؤقت</button>
       </div>
       <div className="card">
-        {stage === "q2" && <div style={{ fontSize: 11.5, fontWeight: 900, color: "#E58E26", marginBottom: 8 }}>سؤال التثبيت بعد التنشيط:</div>}
+        {stage === "q2" && <div style={{ fontSize: 11.5, fontWeight: 900, color: "var(--warn)", marginBottom: 8 }}>سؤال التثبيت بعد التنشيط:</div>}
         <div dir="ltr" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, marginBottom: 12, lineHeight: 1.7 }}>{drill.q}</div>
         {drill.kind === "num" ? <>
-          <div dir="ltr" style={{ textAlign: "center", fontSize: 24, fontWeight: 900, letterSpacing: 3, background: theme.line + "55", borderRadius: 12, padding: "9px 0", marginBottom: 10, minHeight: 48, color: picked === "ok" ? "#1F7A5C" : picked === "no" ? "#B3402F" : theme.text }}>{numVal || "؟"}</div>
+          <div dir="ltr" style={{ textAlign: "center", fontSize: 24, fontWeight: 900, letterSpacing: 3, background: theme.line + "55", borderRadius: 12, padding: "9px 0", marginBottom: 10, minHeight: 48, color: picked === "ok" ? "var(--ok)" : picked === "no" ? "var(--bad)" : theme.text }}>{numVal || "؟"}</div>
           {picked === null && <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 7 }}>
             {[1,2,3,4,5,6,7,8,9,"⌫",0,"✓"].map(k => (
               <button key={k} className="opt" style={{ textAlign: "center", fontSize: 17, fontWeight: 900, padding: "12px 0", margin: 0, background: k === "✓" ? "#0F5147" : undefined, color: k === "✓" ? "#fff" : undefined, opacity: k === "✓" && !numVal ? .45 : 1 }}
@@ -4419,11 +4569,11 @@ function ReviewSession({ g, theme, onFinish, onExit }) {
           </div>}
         </> : drill.options.map((o, idx) => {
           let st = {};
-          if (picked !== null) { if (idx === drill.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22" }; else st = { opacity: .5 }; }
+          if (picked !== null) { if (idx === drill.a) st = { borderColor: "var(--ok)", background: "var(--okSoft)" }; else st = { opacity: .5 }; }
           return <button key={idx} className="opt" style={st} onClick={() => picked === null && record(idx === drill.a)}>{String.fromCharCode(65 + idx)}. {o}</button>;
         })}
-        {picked === "ok" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "#1F7A5C1d", borderRadius: 12, padding: "9px 12px", fontSize: 13, fontWeight: 800, color: "#1F7A5C" }}>✓ ثابتة! {drill.ex}</div>}
-        {picked === "no" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "#B3402F14", borderRadius: 12, padding: "9px 12px", fontSize: 13, lineHeight: 1.8 }}><b style={{ color: "#B3402F" }}>القاعدة:</b> {drill.ex} — رجعت لخطة الغد.</div>}
+        {picked === "ok" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "var(--okSoft)", borderRadius: 12, padding: "9px 12px", fontSize: 13, fontWeight: 800, color: "var(--ok)" }}>✓ ثابتة! {drill.ex}</div>}
+        {picked === "no" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "var(--badSoft)", borderRadius: 12, padding: "9px 12px", fontSize: 13, lineHeight: 1.8 }}><b style={{ color: "var(--bad)" }}>القاعدة:</b> {drill.ex} — رجعت لخطة الغد.</div>}
       </div>
     </div>
   );
@@ -4474,11 +4624,11 @@ function Coach({ tip, close }) {
   useEffect(() => { play("coin"); }, []);
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 190, background: "rgba(0,0,0,.45)", display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={close}>
-      <div onClick={e => e.stopPropagation()} style={{ width: "min(96%,560px)", margin: "0 8px 14px", background: "#17251F", color: "#fff", borderRadius: 20, padding: "16px 16px 14px", animation: "drop .35s ease", border: "1.5px solid #C8923555", boxShadow: "0 -8px 40px rgba(0,0,0,.4)" }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "min(96%,560px)", margin: "0 8px 14px", background: "#17251F", color: "#fff", borderRadius: 20, padding: "16px 16px 14px", animation: "drop .35s ease", border: "1.5px solid var(--goldSoft)", boxShadow: "0 -8px 40px rgba(0,0,0,.4)" }}>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
           <div style={{ animation: "pulse 2.5s infinite" }}><TeacherFace size={46} /></div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 900, color: "#C89235", letterSpacing: .5 }}>المعلم • تحليل مبني على أدائك أنت</div>
+            <div style={{ fontSize: 11.5, fontWeight: 900, color: "var(--gold)", letterSpacing: .5 }}>المعلم • تحليل مبني على أدائك أنت</div>
             <div style={{ fontWeight: 900, fontSize: 15, margin: "4px 0 6px" }}>{tip.e} {tip.h}</div>
             <div style={{ fontSize: 13.5, lineHeight: 1.9, opacity: .92 }}>{tip.d}</div>
           </div>
@@ -4512,9 +4662,9 @@ function BossPrep({ g, theme, q, onBegin, onBack }) {
           <span>🔋 {g.energy}%</span>
         </div>
         {g.mode === "calm" && <div style={{ fontSize: 12, color: theme.sub, fontWeight: 800, marginTop: 8 }}>⏱ تنبيه: معارك الزعماء بمؤقت دائمًا — حتى في الوضع الهادئ. هذي هيبتهم.</div>}
-        {g.energy < 30 && <div style={{ fontSize: 12, color: "#B3402F", fontWeight: 800, marginTop: 8 }}>⚠️ طاقتك منخفضة — الأفضل ترتاح أو تنام قبل الزعيم.</div>}
+        {g.energy < 30 && <div style={{ fontSize: 12, color: "var(--bad)", fontWeight: 800, marginTop: 8 }}>⚠️ طاقتك منخفضة — الأفضل ترتاح أو تنام قبل الزعيم.</div>}
       </div>
-      <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, background: "#B3402F" }} onClick={onBegin}>⚔️ ادخل المعركة</button>
+      <button className="btn" style={{ width: "100%", padding: 14, fontSize: 16, background: "var(--bad)" }} onClick={onBegin}>⚔️ ادخل المعركة</button>
       <button className="btn ghost" style={{ width: "100%", padding: 11, marginTop: 8 }} onClick={onBack}>لست جاهزًا بعد — رجوع</button>
     </div>
   );
@@ -4557,12 +4707,12 @@ function TaskRow({ def, prog, claimed, onClaim, theme, weekly }) {
     <div style={{ marginBottom: 9 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
         <div style={{ fontSize: 12.5, fontWeight: 800, flex: 1 }}>{def.t}</div>
-        {claimed ? <span style={{ fontSize: 11.5, color: "#1F7A5C", fontWeight: 900 }}>✓ مُستلمة</span> :
+        {claimed ? <span style={{ fontSize: 11.5, color: "var(--ok)", fontWeight: 900 }}>✓ مُستلمة</span> :
           done ? <button className="btn gold" style={{ padding: "5px 12px", fontSize: 12 }} onClick={onClaim}>استلم 🎁</button> :
             <span style={{ fontSize: 11.5, fontWeight: 900, color: theme.sub }}>{p}/{def.goal}</span>}
       </div>
       <div style={{ background: theme.line, borderRadius: 99, height: 6, overflow: "hidden", marginTop: 4 }}>
-        <div style={{ width: `${(p / def.goal) * 100}%`, height: "100%", borderRadius: 99, background: claimed ? "#1F7A5C" : weekly ? "#7B5EA7" : "#C89235", transition: "width .4s" }} />
+        <div style={{ width: `${(p / def.goal) * 100}%`, height: "100%", borderRadius: 99, background: claimed ? "var(--ok)" : weekly ? "var(--phPurple)" : "var(--gold)", transition: "width .4s" }} />
       </div>
     </div>
   );
@@ -4581,23 +4731,23 @@ function GoalTasks({ g, theme, claimTask, claimSeason, onReview }) {
       {/* الهدف التالي */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 900, fontSize: 13.5, color: goal.boss ? "#B3402F" : theme.text }}>{goal.t}</div>
+          <div style={{ fontWeight: 900, fontSize: 13.5, color: goal.boss ? "var(--bad)" : theme.text }}>{goal.t}</div>
           <div style={{ fontSize: 11, color: theme.sub, marginTop: 2 }}>{goal.sub} • {goal.pct}%</div>
         </div>
         <button onClick={() => { play("click"); setOpen(!open); }} aria-expanded={open}
           aria-label={readyCount > 0 ? `المهمات — ${readyCount} مكافأة جاهزة` : "المهمات"}
-          style={{ border: "none", background: "#C8923522", color: "#C89235", borderRadius: 10, padding: "7px 11px", minHeight: 44, fontWeight: 900, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit", position: "relative", whiteSpace: "nowrap" }}>
-          📋 المهمات{readyCount > 0 && <span aria-hidden="true" style={{ position: "absolute", top: -6, left: -6, background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{readyCount}</span>}
+          style={{ border: "none", background: "var(--goldSoft)", color: "var(--gold)", borderRadius: 10, padding: "7px 11px", minHeight: 44, fontWeight: 900, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit", position: "relative", whiteSpace: "nowrap" }}>
+          📋 المهمات{readyCount > 0 && <span aria-hidden="true" style={{ position: "absolute", top: -6, left: -6, background: "var(--badFill)", color: "var(--onBad)", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{readyCount}</span>}
         </button>
       </div>
       <div style={{ background: theme.line, borderRadius: 99, height: 7, overflow: "hidden", marginTop: 8 }}>
         <div style={{ width: `${goal.pct}%`, height: "100%", borderRadius: 99, background: "linear-gradient(90deg,#F0C560,#C89235)", transition: "width .5s" }} />
       </div>
       {dueList(g).length > 0 && (
-        <button onClick={onReview} style={{ display: "flex", width: "100%", alignItems: "center", gap: 8, marginTop: 9, border: "1.5px solid #7B5EA755", background: "#7B5EA714", borderRadius: 11, padding: "8px 11px", cursor: "pointer", fontFamily: "inherit", color: theme.text }}>
+        <button onClick={onReview} style={{ display: "flex", width: "100%", alignItems: "center", gap: 8, marginTop: 9, border: "1.5px solid var(--phPurple)", background: "var(--phPurpleSoft)", borderRadius: 11, padding: "8px 11px", cursor: "pointer", fontFamily: "inherit", color: theme.text }}>
           <Ico n="brain" s={19} />
           <span style={{ flex: 1, textAlign: "right", fontWeight: 800, fontSize: 12.5 }}>مراجعة اليوم: {dueList(g).length} — قبل ما تتبخر من الذاكرة</span>
-          <span style={{ fontWeight: 900, fontSize: 12, color: "#7B5EA7" }}>3 دقائق ←</span>
+          <span style={{ fontWeight: 900, fontSize: 12, color: "var(--phPurple)" }}>3 دقائق ←</span>
         </button>
       )}
 
@@ -4612,7 +4762,7 @@ function GoalTasks({ g, theme, claimTask, claimSeason, onReview }) {
         {tab === "w" && w && w.ids.map(id => { const def = WEEKLY_POOL.find(p => p.id === id); return def && <TaskRow key={id} def={def} prog={w.prog[id]} claimed={w.claimed[id]} onClaim={() => claimTask("w", id)} theme={theme} weekly />; })}
         {tab === "w" && <div style={{ fontSize: 11, color: theme.sub, textAlign: "center" }}>تتجدد كل أسبوع • كل مهمة = +40 نقطة موسم</div>}
         {tab === "s" && s && <>
-          <div style={{ fontWeight: 900, fontSize: 12.5, marginBottom: 6 }}>{SEASON.name} — <span style={{ color: "#C89235" }}>{s.pts} نقطة</span></div>
+          <div style={{ fontWeight: 900, fontSize: 12.5, marginBottom: 6 }}>{SEASON.name} — <span style={{ color: "var(--gold)" }}>{s.pts} نقطة</span></div>
           {SEASON.tiers.map((t, i) => {
             const reached = s.pts >= t.p, claimed = s.claimed.includes(i);
             return (
@@ -4621,10 +4771,10 @@ function GoalTasks({ g, theme, claimTask, claimSeason, onReview }) {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 800 }}>{t.t} <span style={{ color: theme.sub }}>({t.p} نقطة)</span></div>
                   <div style={{ background: theme.line, borderRadius: 99, height: 5, overflow: "hidden", marginTop: 3 }}>
-                    <div style={{ width: `${Math.min(100, (s.pts / t.p) * 100)}%`, height: "100%", background: "#7B5EA7", borderRadius: 99 }} />
+                    <div style={{ width: `${Math.min(100, (s.pts / t.p) * 100)}%`, height: "100%", background: "var(--phPurple)", borderRadius: 99 }} />
                   </div>
                 </div>
-                {claimed ? <span style={{ fontSize: 11, color: "#1F7A5C", fontWeight: 900 }}>✓</span> :
+                {claimed ? <span style={{ fontSize: 11, color: "var(--ok)", fontWeight: 900 }}>✓</span> :
                   reached ? <button className="btn gold" style={{ padding: "5px 11px", fontSize: 11.5 }} onClick={() => claimSeason(i)}>استلم</button> :
                     <span style={{ fontSize: 11, color: theme.sub, fontWeight: 800 }}>🔒</span>}
               </div>
@@ -4663,16 +4813,16 @@ function RoadPanel({ g, theme, close, goAcad }) {
           <div style={{ fontWeight: 900, fontSize: 17 }}>🏢 Road to Aramco</div>
           <button onClick={close} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: theme.text }}>✕</button>
         </div>
-        <div style={{ fontSize: 12.5, color: theme.sub, marginBottom: 10 }}>كل لعبة تلعبها = خطوة حقيقية نحو القبول • إجمالي الرحلة: <b style={{ color: "#C89235" }}>{total}%</b></div>
+        <div style={{ fontSize: 12.5, color: theme.sub, marginBottom: 10 }}>كل لعبة تلعبها = خطوة حقيقية نحو القبول • إجمالي الرحلة: <b style={{ color: "var(--gold)" }}>{total}%</b></div>
         {M.map((m, i) => (
           <div key={m.name} style={{ display: "flex", gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 36 }}>
               <div style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 900,
-                background: m.done ? "#1F7A5C" : i === current ? "#C89235" : theme.card, color: m.done || i === current ? "#fff" : theme.sub,
-                border: `2px solid ${m.done ? "#1F7A5C" : i === current ? "#C89235" : theme.line}`, animation: i === current ? "pulse 2s infinite" : "none" }}>
+                background: m.done ? "var(--ok)" : i === current ? "var(--gold)" : theme.card, color: m.done || i === current ? "#fff" : theme.sub,
+                border: `2px solid ${m.done ? "var(--ok)" : i === current ? "var(--gold)" : theme.line}`, animation: i === current ? "pulse 2s infinite" : "none" }}>
                 {m.done ? "✓" : m.locked ? "🔒" : m.icon}
               </div>
-              {i < M.length - 1 && <div style={{ width: 3, flex: 1, minHeight: 22, background: m.done ? "#1F7A5C" : theme.line, borderRadius: 2 }} />}
+              {i < M.length - 1 && <div style={{ width: 3, flex: 1, minHeight: 22, background: m.done ? "var(--ok)" : theme.line, borderRadius: 2 }} />}
             </div>
             <div className="card" style={{ flex: 1, opacity: m.locked ? .5 : 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -4683,7 +4833,7 @@ function RoadPanel({ g, theme, close, goAcad }) {
                 {!m.locked && !m.done && i === current && <button className="btn gold" style={{ padding: "7px 12px", fontSize: 12 }} onClick={() => { close(); if (m.go === "acad") goAcad(); }}>{m.go === "acad" ? "الأكاديمية ←" : "العالم ←"}</button>}
               </div>
               <div style={{ background: theme.line, borderRadius: 99, height: 7, overflow: "hidden", marginTop: 8 }}>
-                <div style={{ width: `${m.pct}%`, height: "100%", borderRadius: 99, background: m.done ? "#1F7A5C" : "linear-gradient(90deg,#F0C560,#C89235)", transition: "width .5s" }} />
+                <div style={{ width: `${m.pct}%`, height: "100%", borderRadius: 99, background: m.done ? "var(--ok)" : "linear-gradient(90deg,#F0C560,#C89235)", transition: "width .5s" }} />
               </div>
             </div>
           </div>
@@ -4738,7 +4888,7 @@ function MistakesTab({ g, theme, clearMistake }) {
         {m.kind === "mcq" ? (
           <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
             {m.options.map((opt, idx) => {
-              let bg; if (picked !== null) { if (idx === m.a) bg = "#1F7A5C"; else if (idx === picked) bg = "#B3402F"; }
+              let bg; if (picked !== null) { if (idx === m.a) bg = "var(--ok)"; else if (idx === picked) bg = "var(--bad)"; }
               return (
                 <button key={idx} className="opt" disabled={picked !== null}
                   style={{ background: bg, color: bg ? "#fff" : undefined, textAlign: "start" }}
@@ -4752,7 +4902,7 @@ function MistakesTab({ g, theme, clearMistake }) {
               <button className="btn ghost" style={{ width: "100%", padding: 11 }} onClick={() => setPicked("rev")}>أظهر الإجابة</button>
             ) : (
               <>
-                <div className="card" style={{ textAlign: "center", fontWeight: 900 }}>الإجابة الصحيحة: <span style={{ color: "#1F7A5C" }}>{m.a}</span></div>
+                <div className="card" style={{ textAlign: "center", fontWeight: 900 }}>الإجابة الصحيحة: <span style={{ color: "var(--ok)" }}>{m.a}</span></div>
                 {picked === "rev" && (
                   <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                     <button className="btn" style={{ flex: 1, padding: 10 }} onClick={() => { grade(m, true); setPicked("marked"); }}>✓ عرفتها</button>
@@ -4785,8 +4935,8 @@ function MistakesTab({ g, theme, clearMistake }) {
           </div>
           <div dir="auto" style={{ fontWeight: 800, fontSize: 13.5, whiteSpace: "pre-wrap", lineHeight: 1.7 }}>{m.q}</div>
           <div style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.9 }}>
-            <span style={{ color: "#B3402F" }}>إجابتك: {m.picked === -1 ? "انتهى الوقت ⏰" : m.kind === "mcq" ? m.options[m.picked] : m.picked} ❌</span><br />
-            <span style={{ color: "#1F7A5C" }}>الصحيحة: {m.kind === "mcq" ? m.options[m.a] : m.a} ✓</span>
+            <span style={{ color: "var(--bad)" }}>إجابتك: {m.picked === -1 ? "انتهى الوقت ⏰" : m.kind === "mcq" ? m.options[m.picked] : m.picked} ❌</span><br />
+            <span style={{ color: "var(--ok)" }}>الصحيحة: {m.kind === "mcq" ? m.options[m.a] : m.a} ✓</span>
           </div>
           {m.ex && <div style={{ fontSize: 12, color: theme.sub, marginTop: 5, lineHeight: 1.8 }}>💡 {m.ex}</div>}
         </div>
@@ -4929,6 +5079,34 @@ function noteAttempt(n, { sec, skill, ok, t, trap, genId }) {
       .forEach(k => { if (k !== key) delete n.stats.traps[k]; });
   }
 }
+/* هل تجاوز الطالب للتوّ فخًّا طالما أوقعه؟
+   نتحقق بدقة: السؤال الذي أجابه صحيحًا كان يحمل هذا الفخّ فعلًا بين خياراته،
+   أي أنه رفضه اختيارًا لا صدفة. ويُحتسب مرة واحدة في العمر لكل فخّ. */
+const BEAT_AFTER = 3;
+/* قراءة فقط — تُستدعى أثناء المعركة لمعرفة هل يستحق هذا الانتصار لحظة */
+function peekBeatable(g, q) {
+  if (!q?.traps) return null;
+  const traps = g.stats?.traps || {};
+  for (const why of Object.values(q.traps)) {
+    const rec = traps[sigOf(why)];
+    if (rec && !rec.beat && rec.n >= BEAT_AFTER) return { ...rec, id: sigOf(why) };
+  }
+  return null;
+}
+function beatenTrap(n, q) {
+  if (!q?.traps) return null;
+  const traps = n.stats?.traps || {};
+  for (const why of Object.values(q.traps)) {
+    const key = sigOf(why);
+    const rec = traps[key];
+    if (rec && !rec.beat && rec.n >= BEAT_AFTER) {
+      rec.beat = true; rec.beatOn = n.day;
+      return { ...rec, id: key };
+    }
+  }
+  return null;
+}
+
 /* أبرز المفاهيم الخاطئة — مرتّبة بالتكرار ثم بحداثة الوقوع */
 const topTraps = (g, k = 5) => Object.entries(g.stats?.traps || {})
   .map(([id, v]) => ({ id, ...v }))
@@ -4953,12 +5131,116 @@ function addMistake(n, rec, day) {
    يُعرَّف في <head> عبر @font-face ويُخزَّن محليًا ليعمل التطبيق دون إنترنت. */
 const FONT_STACK = "'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, system-ui, sans-serif";
 
-/* لوحات الألوان. الداكنة مائلة للأخضر لا رمادية محايدة، حتى تبقى هوية Arise
-   حاضرة ليلًا. نسب التباين في الداكنة تتجاوز 4.5:1 للنص الأساسي. */
-const THEMES = {
-  light: { bg: "#F4F6F3", head: "#0F5147", card: "#FFFFFF", text: "#17251F", sub: "#5A6A62", line: "#E2E8E1" },
-  dark:  { bg: "#0D1714", head: "#0C3A33", card: "#152420", text: "#E8EFEA", sub: "#9DB0A6", line: "#243530" },
-  usa:   { bg: "#0B1626", head: "#122B4A", card: "#16233A", text: "#EAF0F8", sub: "#9FB2CC", line: "#24354F" },
+/* ═══════════════════════════════════════════════════════════
+   🎨 نظام التصميم — Arise Design System
+
+   قبل هذا كان في الملف ٧٣ لونًا سداسيًا، و٢٤ حجم خط (12 و12.5 و13 و13.5…
+   وهذا ليس مقياسًا بل تحسّسًا حتى «يضبط الشكل»)، و١٠ أنصاف أقطار، و٧٠ لونًا
+   بشفافية مخلوطة يدويًا. لا يمكن لأي واجهة أن تبدو عالمية فوق هذا.
+
+   البنية: متغيّرات CSS هي المصدر الوحيد للحقيقة، تُبثّ مرة واحدة ويقلبها
+   [data-theme]. وكائن JS يعيد `var(--x)` فتعمل الأنماط السطرية الموجودة
+   (٧٣٧ منها) بلا إعادة كتابة، ويتبدّل الثيم بلا إعادة رسم من React.
+   ═══════════════════════════════════════════════════════════ */
+
+/* المقاييس: كل قيمة هنا قرار مقصود، لا رقمًا مُجرَّبًا */
+const DS = {
+  /* مقياس الخط مضبوط للعربية: الحرف العربي يحتاج حجمًا أكبر قليلًا من
+     اللاتيني لنفس الوضوح، ومسافة أسطر أوسع لأن له نتوءات علوية وسفلية. */
+  text: { micro: 11, tiny: 12.5, sm: 14, base: 15.5, lg: 18, xl: 22, xxl: 28, display: 40 },
+  lead: { tight: 1.35, snug: 1.6, body: 1.85, loose: 2.05 },
+  space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40 },
+  radius: { sm: 8, md: 12, lg: 16, xl: 22, full: 999 },
+  /* لغة الحركة: مدد وانسيابات مسمّاة بدل أرقام متناثرة */
+  dur: { instant: 120, quick: 180, base: 260, slow: 420, story: 900 },
+  ease: {
+    out: "cubic-bezier(.2,.8,.2,1)",        // الافتراضي: يدخل بسرعة ويستقر بهدوء
+    inOut: "cubic-bezier(.5,0,.2,1)",       // للانتقالات بين حالتين
+    spring: "cubic-bezier(.34,1.56,.64,1)", // للمكافآت فقط — تجاوز بسيط يوحي بالفرح
+  },
+};
+
+/* ألوان دلالية. لكل ثيم قيمه الخاصة — بما فيها درجات «الناعم» (soft)،
+   لأن تظليل 12٪ فوق الأبيض ليس هو تظليل 12٪ فوق الأسود. */
+const PALETTE = {
+  light: {
+    page: "#F4F6F3", surface: "#FFFFFF", surface2: "#FAFBFA", line: "#E2E8E1",
+    ink: "#17251F", ink2: "#5A6A62", ink3: "#8A968E",
+    brand: "#0F5147", brandInk: "#FFFFFF", brandSoft: "#0F51470F",
+    /* لكل لون دلالي ثلاث صور: حبر يعبر 4.5:1 كنصّ صغير، وتعبئة لامعة،
+       وحبر يُكتب فوق تلك التعبئة. خلط الحبر بالتعبئة جعل الذهب يقيس 3.65:1. */
+    gold: "#7A5610", goldFill: "#C89235", goldSoft: "#C892351A", onGold: "#1B1405",
+    ok:   "#1B6B50", okFill:   "#1F7A5C", okSoft:   "#1F7A5C16", onOk:   "#FFFFFF",
+    warn: "#8F5510", warnFill: "#E58E26", warnSoft: "#E58E261A", onWarn: "#1B1405",
+    bad:  "#A5392A", badFill:  "#B3402F", badSoft:  "#B3402F14", onBad:  "#FFFFFF",
+    phPurple: "#6B4E97",
+    phBlue: "#2F6FAD",
+    phTeal: "#256B90",
+    phBrown: "#7A3E26",
+    phPurpleSoft: "#7B5EA714", phBlueSoft: "#3B82C414", phTealSoft: "#2E7DA614", phBrownSoft: "#8C4A2F14",
+    btn: "#0F5147", onBtn: "#FFFFFF",
+    focus: "#C89235",
+    e1: "0 1px 2px rgba(15,30,25,.05), 0 5px 16px rgba(15,30,25,.06)",
+    e2: "0 2px 6px rgba(15,30,25,.07), 0 12px 28px rgba(15,30,25,.09)",
+    e3: "0 8px 24px rgba(15,30,25,.14), 0 24px 56px rgba(15,30,25,.14)",
+  },
+  dark: {
+    /* الداكن مائل للأخضر لا رماديًا محايدًا، فتبقى هوية Arise حاضرة ليلًا */
+    page: "#0D1714", surface: "#152420", surface2: "#1B2C26", line: "#243530",
+    ink: "#E8EFEA", ink2: "#9DB0A6", ink3: "#75887E",
+    brand: "#0C3A33", brandInk: "#FFFFFF", brandSoft: "#7FD8A414",
+    gold: "#E3B65C", goldFill: "#D9A344", goldSoft: "#E3B65C1F", onGold: "#1B1405",
+    ok:   "#5FC79B", okFill:   "#2E8F6C", okSoft:   "#5FC79B1C", onOk:   "#FFFFFF",
+    warn: "#E9A854", warnFill: "#C4761B", warnSoft: "#E9A8541C", onWarn: "#1B1405",
+    /* على الداكن يفتحّ الأحمر، فالنص فوقه لا بد أن يكون داكنًا لا أبيض */
+    bad:  "#E8776A", badFill:  "#B5473A", badSoft:  "#E8776A1C", onBad:  "#FFFFFF",
+    phPurpleSoft: "#B79BE01F", phBlueSoft: "#8FBEF01F", phTealSoft: "#79C2E61F", phBrownSoft: "#D9967A1F",
+    btn: "#1F7A5C", onBtn: "#FFFFFF",
+    phPurple: "#B79BE0",
+    phBlue: "#8FBEF0",
+    phTeal: "#79C2E6",
+    phBrown: "#D9967A",
+    focus: "#E3B65C",
+    /* في الداكن يأتي الارتفاع من سطح أفتح لا من ظلّ أعمق — الظل لا يُرى على
+       خلفية سوداء. هذي التفصيلة يخطئ فيها أغلب التطبيقات. */
+    e1: "0 1px 0 rgba(255,255,255,.04) inset, 0 6px 18px rgba(0,0,0,.4)",
+    e2: "0 1px 0 rgba(255,255,255,.06) inset, 0 12px 30px rgba(0,0,0,.5)",
+    e3: "0 1px 0 rgba(255,255,255,.08) inset, 0 24px 60px rgba(0,0,0,.6)",
+  },
+  usa: {
+    page: "#0B1626", surface: "#16233A", surface2: "#1B2C45", line: "#24354F",
+    ink: "#EAF0F8", ink2: "#9FB2CC", ink3: "#7A8DA8",
+    brand: "#122B4A", brandInk: "#FFFFFF", brandSoft: "#8FB6E814",
+    gold: "#E3B65C", goldFill: "#D9A344", goldSoft: "#E3B65C1F", onGold: "#1B1405",
+    ok:   "#5FC79B", okFill:   "#2E8F6C", okSoft:   "#5FC79B1C", onOk:   "#FFFFFF",
+    warn: "#E9A854", warnFill: "#C4761B", warnSoft: "#E9A8541C", onWarn: "#1B1405",
+    bad:  "#E8776A", badFill:  "#B5473A", badSoft:  "#E8776A1C", onBad:  "#FFFFFF",
+    btn: "#1E5A8F", onBtn: "#FFFFFF",
+    phPurple: "#B79BE0", phPurpleSoft: "#B79BE01F",
+    phBlue: "#8FBEF0", phBlueSoft: "#8FBEF01F",
+    phTeal: "#79C2E6", phTealSoft: "#79C2E61F",
+    phBrown: "#D9967A", phBrownSoft: "#D9967A1F",
+    focus: "#E3B65C",
+    e1: "0 1px 0 rgba(255,255,255,.04) inset, 0 6px 18px rgba(0,0,0,.4)",
+    e2: "0 1px 0 rgba(255,255,255,.06) inset, 0 12px 30px rgba(0,0,0,.5)",
+    e3: "0 1px 0 rgba(255,255,255,.08) inset, 0 24px 60px rgba(0,0,0,.6)",
+  },
+};
+const cssVars = (p) => Object.entries(p).map(([k, v]) => `--${k}:${v}`).join(";");
+
+/* الواجهة التي يستهلكها التطبيق. المفاتيح الخمسة القديمة (bg/card/text/sub/line)
+   محفوظة عمدًا فتترقّى كل الأنماط السطرية الموجودة إلى النظام بلا لمسها. */
+const T = {
+  bg: "var(--page)", card: "var(--surface)", card2: "var(--surface2)",
+  text: "var(--ink)", sub: "var(--ink2)", faint: "var(--ink3)", line: "var(--line)",
+  head: "var(--brand)", headInk: "var(--brandInk)", brandSoft: "var(--brandSoft)",
+  btn: "var(--btn)", onBtn: "var(--onBtn)",
+  phPurpleSoft: "var(--phPurpleSoft)", phTealSoft: "var(--phTealSoft)",
+  gold: "var(--gold)", goldFill: "var(--goldFill)", goldSoft: "var(--goldSoft)", onGold: "var(--onGold)",
+  ok: "var(--ok)", okFill: "var(--okFill)", okSoft: "var(--okSoft)", onOk: "var(--onOk)",
+  warn: "var(--warn)", warnFill: "var(--warnFill)", warnSoft: "var(--warnSoft)", onWarn: "var(--onWarn)",
+  bad: "var(--bad)", badFill: "var(--badFill)", badSoft: "var(--badSoft)", onBad: "var(--onBad)",
+  e1: "var(--e1)", e2: "var(--e2)", e3: "var(--e3)",
 };
 const THEME_PREFS = [
   { id: "auto", e: "🌗", n: "تلقائي (حسب جهازك)" },
@@ -5163,6 +5445,14 @@ function applyBattleOutcome(n, res, fx = FX_NULL) {
         noteAttempt(n, { sec, skill, ok, t, genId, trap: trap ?? wrong?.trap });
         if (wrong) addMistake(n, wrong, n.day);   // 📕 احفظ السؤال في دفتر الأخطاء
       });
+      /* 🧭 تشخيص الطالب لغلطه بنفسه فعلٌ تعليمي يستحق مكافأة صريحة */
+      if (res.selfDx > 0) {
+        addRewardsP(n, res.selfDx * 12, res.selfDx * 4, fx);
+        n.stats.selfDx = (n.stats.selfDx || 0) + res.selfDx;
+        fx.toast(`🧭 شخّصت ${res.selfDx === 1 ? "غلطك" : `${res.selfDx} أغلاط`} بنفسك`);
+      }
+      /* 🏔️ ثبّت أن الفخّ سقط، فلا تتكرّر اللحظة مرتين */
+      if (res.moment) { const r = (n.stats.traps || {})[res.moment.id]; if (r) { r.beat = true; r.beatOn = n.day; } }
       n.stats.bestCombo = Math.max(n.stats.bestCombo, res.bestCombo);
       n.lastBattle = { won: res.won, boss: res.isBoss };
       /* 🪞 ذاكرة السلوك */
@@ -5249,6 +5539,7 @@ export const __test = {
   // الحالة والتشخيص
   newSave, addMistake, mistakeRec, lvlOf, xpForLvl, masteryOf, weightOf,
   noteAttempt, topTraps, weakSkills, applyBattleOutcome, TRAPS_MAX,
+  shouldDefend, peekBeatable, beatenTrap, BEAT_AFTER, DS, PALETTE, T,
   GR, sigOf,
 };
 
@@ -5258,6 +5549,7 @@ function App() {
   const [panel, setPanel] = useState(null);
   const [trans, setTrans] = useState(null);       // بطاقة سينمائية
   const [coach, setCoach] = useState(null);       // 🦉 المدرب الذكي
+  const [moment, setMoment] = useState(null);    // 🏔️ لحظة سقوط فخّ قديم
   const [toasts, setToasts] = useState([]);
   const [musicMode, setMusicMode] = useState("off");
   const [sound, setSound] = useState(true);
@@ -5355,6 +5647,9 @@ function App() {
     const n = JSON.parse(JSON.stringify(g));
     const tip = applyBattleOutcome(n, res, FX);
     setG(n);
+    /* 🏔️ تُعرض بعد انتهاء المعركة لا في وسطها: القتال يبقى متّصلًا،
+       واللحظة تصل والطالب مرتاح فتُقرأ بوقارها لا كمقاطعة. */
+    if (res.moment) { setTimeout(() => setMoment(res.moment), 500); }
     if (tip) setTimeout(() => setCoach(tip), 900);
     if (res.won && res.isFinal) { setView({ s: "ending" }); return; }
     // زعيم مهزوم → مشهد ختام الفصل + بطاقة الفصل الجديد
@@ -5440,13 +5735,15 @@ function App() {
   /* الوضع الليلي كان مربوطًا بفصول الغربة في القصة فقط: طالب يذاكر ليلًا في
      الفصل الأول لم يكن يملك خيارًا. صار تفضيلًا صريحًا — تلقائي (يتبع النظام)
      أو فاتح أو داكن — مع إبقاء لوحة الغربة الزرقاء كأثر سردي في فصولها. */
-  const theme = usaNow ? THEMES.usa : (dark ? THEMES.dark : THEMES.light);
+  const mode = usaNow ? "usa" : dark ? "dark" : "light";
+  const theme = T;                      // قيم var(--x) — لا تتغيّر، تتغيّر المتغيّرات تحتها
   /* شريط المتصفح/النظام يتبع الثيم، وإلا بقي أخضر فاتحًا فوق واجهة داكنة */
   useEffect(() => {
     const m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", usaNow ? THEMES.usa.head : dark ? THEMES.dark.head : THEMES.light.head);
-    document.documentElement.style.colorScheme = (usaNow || dark) ? "dark" : "light";
-  }, [dark, usaNow]);
+    if (m) m.setAttribute("content", PALETTE[mode].brand);
+    document.documentElement.style.colorScheme = mode === "light" ? "light" : "dark";
+    document.documentElement.style.background = PALETTE[mode].page;
+  }, [mode]);
 
   /* التنقّل السفلي: يظهر في شاشات التصفّح لا في الشاشات الغامرة */
   const IMMERSIVE = ["title", "battle", "dialog", "chapterCard", "ending"];
@@ -5456,34 +5753,82 @@ function App() {
   const tabBadges = { mistakes: (g.mistakes || []).length, acad: dueList(g).length };
 
   return (
-    <div dir="rtl" style={{ minHeight: "100dvh", background: theme.bg, color: theme.text, fontFamily: FONT_STACK, transition: "background .6s ease" }}>
+    <div dir="rtl" data-theme={mode} style={{ minHeight: "100dvh", background: theme.bg, color: theme.text, fontFamily: FONT_STACK, transition: `background ${DS.dur.slow}ms ${DS.ease.inOut}` }}>
       <style>{`
+        /* ── الرموز: مصدر واحد للحقيقة، يقلبه data-theme بلا إعادة رسم React ── */
+        [data-theme="light"]{${cssVars(PALETTE.light)}}
+        [data-theme="dark"]{${cssVars(PALETTE.dark)}}
+        [data-theme="usa"]{${cssVars(PALETTE.usa)}}
+
         *{box-sizing:border-box;margin:0}
         /* الخط على html/body أيضًا: بدونه يومض النص بخط Times قبل أن يتولّى جذر التطبيق */
-        html,body{background:${theme.bg};overscroll-behavior-y:contain;font-family:${FONT_STACK}}
-        .card{box-shadow:0 1px 2px rgba(15,30,25,.05),0 5px 16px rgba(15,30,25,.06);background:${theme.card};border:1px solid ${theme.line};border-radius:16px;padding:14px;margin-bottom:10px;transition:background .5s ease}
-        .btn{border:none;box-shadow:0 3px 10px rgba(15,81,71,.28);background:linear-gradient(180deg,#146455,#0F5147);color:#fff;padding:12px 20px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
-        .btn.gold{background:linear-gradient(180deg,#D9A344,#C08A2C);box-shadow:0 3px 10px rgba(200,146,53,.3)}.btn.dark{background:#17251F}.btn.ghost{background:transparent;color:${theme.text};border:1.5px solid ${theme.line}}
-        .opt{display:block;width:100%;text-align:left;direction:ltr;border:1.5px solid ${theme.line};background:${usaNow ? "#1B2B45" : dark ? "#1B2C26" : "#FAFBFA"};color:${theme.text};border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:15px;cursor:pointer;font-family:inherit}
+        html,body{background:${PALETTE[mode].page};overscroll-behavior-y:contain;font-family:${FONT_STACK};
+          -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+        body{font-size:${DS.text.base}px;line-height:${DS.lead.body}}
+
+        .card{background:${T.card};border:1px solid ${T.line};border-radius:${DS.radius.lg}px;
+          padding:${DS.space[4]}px;margin-bottom:${DS.space[3]}px;box-shadow:${T.e1};
+          transition:background ${DS.dur.slow}ms ${DS.ease.inOut},border-color ${DS.dur.slow}ms ${DS.ease.inOut}}
+        .card.raised{box-shadow:${T.e2}}
+
+        .btn{border:none;background:${T.btn};color:${T.onBtn};padding:${DS.space[3]}px ${DS.space[5]}px;
+          border-radius:${DS.radius.md}px;font-size:${DS.text.base}px;font-weight:800;cursor:pointer;
+          font-family:inherit;box-shadow:${T.e1};
+          transition:transform ${DS.dur.instant}ms ${DS.ease.out},box-shadow ${DS.dur.quick}ms ${DS.ease.out},filter ${DS.dur.quick}ms ${DS.ease.out}}
+        .btn:hover{filter:brightness(1.08)}
+        .btn.gold{background:${T.goldFill};color:${T.onGold}}
+        .btn.dark{background:${T.text};color:${T.card}}
+        .btn.ghost{background:transparent;color:${T.text};border:1.5px solid ${T.line};box-shadow:none}
+        .btn:disabled{opacity:.4;cursor:default}
+
+        .opt{display:block;width:100%;text-align:left;direction:ltr;border:1.5px solid ${T.line};
+          background:${T.card2};color:${T.text};border-radius:${DS.radius.md}px;
+          padding:${DS.space[3]}px ${DS.space[4]}px;margin-bottom:${DS.space[2]}px;
+          font-size:${DS.text.base}px;line-height:${DS.lead.snug};cursor:pointer;font-family:inherit;
+          transition:border-color ${DS.dur.quick}ms ${DS.ease.out},background ${DS.dur.quick}ms ${DS.ease.out},transform ${DS.dur.instant}ms ${DS.ease.out}}
+        .opt:hover:not(:disabled){border-color:${T.gold}}
         .opt:disabled{opacity:.35}
-        /* 44×44 هو الحد الأدنى لهدف اللمس (WCAG 2.5.5 / إرشادات آبل) — كان 36×31 */
-        .hudbtn{border:none;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;padding:8px 10px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex:0 0 auto}
+        /* نصّ عربي داخل زر خيار: لا بد من فرض الاتجاه، وإلا قفزت النقطة
+           لأول السطر لأن قاعدة .opt تفرض ltr وتغلب سمة dir. */
+        .opt.rtl{direction:rtl;text-align:right}
+
+        .hudbtn{border:none;background:rgba(255,255,255,.15);color:#fff;border-radius:${DS.radius.md}px;
+          padding:${DS.space[2]}px ${DS.space[3]}px;min-width:44px;min-height:44px;display:inline-flex;
+          align-items:center;justify-content:center;font-size:${DS.text.base}px;font-weight:800;cursor:pointer;
+          font-family:inherit;white-space:nowrap;flex:0 0 auto}
+
         /* يُقرأ لقارئ الشاشة ولا يُرى — لإعلان التغييرات وعناوين الأقسام */
         .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+        /* ── لغة الحركة ──
+           مبدأ: العنصر يدخل من جهة سببه، والمكافأة وحدها «تنطّ».
+           والخطأ يستقرّ ولا يهتزّ: الاهتزاز عقوبة، وطالب قلق من اختباره
+           لا يحتاج من تطبيقه أن يوبّخه — يحتاج معلومة هادئة. */
         @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
-        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+        @keyframes settle{0%{transform:translateY(-3px)}55%{transform:translateY(2px)}100%{transform:translateY(0)}}
         @keyframes floatUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-52px)}}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
         @keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+        @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
         @keyframes fadein{from{opacity:0}to{opacity:1}}
         @keyframes walkbob{from{transform:translateY(0)}to{transform:translateY(-4px)}}
-        .toast{background:#17251F;color:#F0C560;padding:11px 18px;border-radius:13px;font-weight:800;font-size:14px;animation:pop .3s ease;box-shadow:0 6px 22px rgba(0,0,0,.3);margin-bottom:8px}
-        button:focus-visible{outline:3px solid #C89235;outline-offset:2px}
-        button:active{transform:scale(.98)}
-        .tpulse{animation:pulse .5s infinite;display:inline-block}
         @keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-90px) rotate(260deg);opacity:0}}
         @keyframes sheen{0%{background-position:-80px 0}100%{background-position:160px 0}}
+        @keyframes haloBreathe{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.75;transform:scale(1.06)}}
+        .settle{animation:settle ${DS.dur.base}ms ${DS.ease.out}}
+        .rise{animation:riseIn ${DS.dur.base}ms ${DS.ease.out} both}
+        /* تدرّج الظهور: العناصر المتتابعة تصل تباعًا لا دفعة واحدة */
+        .rise-1{animation-delay:60ms}.rise-2{animation-delay:120ms}.rise-3{animation-delay:180ms}.rise-4{animation-delay:240ms}
+
+        .toast{background:${T.text};color:${T.card};padding:${DS.space[3]}px ${DS.space[5]}px;
+          border-radius:${DS.radius.md}px;font-weight:800;font-size:${DS.text.sm}px;
+          animation:pop ${DS.dur.base}ms ${DS.ease.spring};box-shadow:${T.e3};margin-bottom:${DS.space[2]}px}
+
+        button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:${DS.radius.sm}px}
+        button:active{transform:scale(.98)}
+        .tpulse{animation:pulse .5s infinite;display:inline-block}
         .goldbar{background-image:linear-gradient(90deg,#F0C560,#C89235),linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%)!important;background-size:100% 100%,60px 100%;background-repeat:no-repeat,no-repeat;animation:sheen 2.6s ease-in-out infinite}
+
         /* احترام تفضيل النظام: بعض المستخدمين يصابون بدوار من الحركة.
            نُبقي التغذية الراجعة اللونية ونُلغي الاهتزاز والانزلاق فقط. */
         @media (prefers-reduced-motion: reduce){
@@ -5498,6 +5843,7 @@ function App() {
         {toasts.map(t => <div className="toast" key={t.id}>{t.msg}</div>)}
       </div>
 
+      {moment && <TheMoment trap={moment} theme={theme} onClose={() => setMoment(null)} />}
       {trans && <Transition card={trans} onDone={() => setTrans(null)} />}
       {coach && <Coach tip={coach} close={() => setCoach(null)} />}
 
@@ -5521,7 +5867,7 @@ function App() {
           setView({ s: "chapterCard", id: 1 });
         }} onContinue={() => { play("click"); setView({ s: "world" }); }} />}
 
-        {view.s === "world" && <World g={g} theme={theme} night={night} startBattle={startBattle} doAct={doAct}
+        {view.s === "world" && <World g={g} theme={theme} night={night} dim={mode !== "light"} startBattle={startBattle} doAct={doAct}
           onTalkEv={() => mut(n => questEv(n, "talk"))}
           onReview={() => { play("click"); setView({ s: "acad", review: true }); }}
           onMistakes={() => { play("click"); setPanel("mistakes"); }}
@@ -5581,7 +5927,7 @@ function App() {
 }
 
 /* ---------- العالم: شارع + داخل مبنى ---------- */
-function World({ g, theme, night, startBattle, doAct, onTalkEv, claimTask, claimSeason, onReview, onMistakes, onDrill, onPlan, toast }) {
+function World({ g, theme, night, dim, startBattle, doAct, onTalkEv, claimTask, claimSeason, onReview, onMistakes, onDrill, onPlan, toast }) {
   const [inside, setInside] = useState(null);
   const [pos, setPos] = useState(0);
   const [talk, setTalk] = useState(null);
@@ -5592,7 +5938,7 @@ function World({ g, theme, night, startBattle, doAct, onTalkEv, claimTask, claim
   return (
     <div>
       {!inside && <GoalTasks g={g} theme={theme} claimTask={claimTask} claimSeason={claimSeason} onReview={onReview} />}
-      {!inside && <Street g={g} theme={theme} night={night} pos={pos} setPos={setPos} onEnter={(loc) => setInside(loc)} />}
+      {!inside && <Street g={g} theme={theme} night={night} dim={dim} pos={pos} setPos={setPos} onEnter={(loc) => setInside(loc)} />}
       {!inside && <TodayPanel g={g} theme={theme} onReview={onReview} onMistakes={onMistakes} onDrill={onDrill} onPlan={onPlan} />}
       {!inside && night && (
         <div className="card" style={{ textAlign: "center", fontWeight: 800, fontSize: 13.5 }}>
@@ -5679,11 +6025,14 @@ function TabBar({ active, theme, badges, onGo }) {
             style={{
               flex: 1, minHeight: 56, border: "none", background: "none", cursor: "pointer",
               fontFamily: "inherit", padding: "7px 2px 8px", position: "relative",
-              color: on ? "#0F5147" : theme.sub, borderTop: `2.5px solid ${on ? "#C89235" : "transparent"}`,
+              /* كان اللون هنا أخضر الثيم الفاتح مثبّتًا، فقاس 1.75:1 على السطح
+                 الداكن — أي غير مقروء عمليًا. الحبر الكامل يُقرأ في الثيمين،
+                 والخط الذهبي فوقه يكفي للدلالة على التبويب النشط. */
+              color: on ? T.text : T.sub, borderTop: `2.5px solid ${on ? "var(--gold)" : "transparent"}`,
             }}>
             <div aria-hidden="true" style={{ fontSize: 21, lineHeight: 1.1, transform: on ? "scale(1.06)" : "none", transition: "transform .2s" }}>{t.e}</div>
             <div aria-hidden="true" style={{ fontSize: 10.5, fontWeight: on ? 900 : 700, marginTop: 3 }}>{t.n}</div>
-            {badge > 0 && <span aria-hidden="true" style={{ position: "absolute", top: 4, insetInlineEnd: "26%", background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 9.5, fontWeight: 900, padding: "1px 5px", minWidth: 16 }}>{badge > 99 ? "99+" : badge}</span>}
+            {badge > 0 && <span aria-hidden="true" style={{ position: "absolute", top: 4, insetInlineEnd: "26%", background: "var(--badFill)", color: "var(--onBad)", borderRadius: 99, fontSize: 9.5, fontWeight: 900, padding: "1px 5px", minWidth: 16 }}>{badge > 99 ? "99+" : badge}</span>}
           </button>
         );
       })}
@@ -5700,14 +6049,14 @@ function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMod
         <span style={{ display: "block", fontWeight: 800, fontSize: 14.5 }}>{n}</span>
         {sub && <span style={{ display: "block", fontSize: 11.5, color: theme.sub, marginTop: 2 }}>{sub}</span>}
       </span>
-      {badge > 0 && <span style={{ background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 11, fontWeight: 900, padding: "2px 8px" }}>{badge}</span>}
+      {badge > 0 && <span style={{ background: "var(--badFill)", color: "var(--onBad)", borderRadius: 99, fontSize: 11, fontWeight: 900, padding: "2px 8px" }}>{badge}</span>}
     </button>
   );
   const Toggle = ({ e, n, state, on, onClick }) => (
     <button onClick={onClick} aria-pressed={on} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: "none", border: "none", borderBottom: `1px solid ${theme.line}`, padding: "14px 4px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start", minHeight: 56 }}>
       <span aria-hidden="true" style={{ fontSize: 22, width: 30, textAlign: "center" }}>{e}</span>
       <span style={{ flex: 1, fontWeight: 800, fontSize: 14.5 }}>{n}</span>
-      <span style={{ fontSize: 12.5, fontWeight: 800, color: on ? "#1F7A5C" : theme.sub, background: (on ? "#1F7A5C" : theme.sub) + "1a", borderRadius: 99, padding: "4px 12px" }}>{state}</span>
+      <span style={{ fontSize: 12.5, fontWeight: 800, color: on ? "var(--ok)" : theme.sub, background: (on ? "var(--ok)" : theme.sub) + "1a", borderRadius: 99, padding: "4px 12px" }}>{state}</span>
     </button>
   );
   return (
@@ -5733,8 +6082,8 @@ function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMod
               const on = (themePref || "auto") === t.id;
               return (
                 <button key={t.id} role="radio" aria-checked={on} onClick={() => setThemePref(t.id)}
-                  style={{ flex: 1, minHeight: 44, border: `1.5px solid ${on ? "#C89235" : theme.line}`, background: on ? "#C8923518" : "none",
-                    color: on ? "#C89235" : theme.sub, borderRadius: 11, fontFamily: "inherit", fontWeight: 800, fontSize: 12, cursor: "pointer", padding: "6px 4px" }}>
+                  style={{ flex: 1, minHeight: 44, border: `1.5px solid ${on ? "var(--gold)" : theme.line}`, background: on ? "var(--goldSoft)" : "none",
+                    color: on ? "var(--gold)" : theme.sub, borderRadius: 11, fontFamily: "inherit", fontWeight: 800, fontSize: 12, cursor: "pointer", padding: "6px 4px" }}>
                   <span aria-hidden="true" style={{ display: "block", fontSize: 16 }}>{t.e}</span>
                   {t.n.split(" ")[0]}
                 </button>
@@ -5755,7 +6104,7 @@ function Title({ g, setG, onStart, onContinue }) {
   const [confirmNew, setConfirmNew] = useState(false);
   return (
     <div style={{ textAlign: "center", paddingTop: 40, animation: "pop .5s ease" }}>
-      <div style={{ color: "#0F5147" }}><AriseLogo size={96} /></div>
+      <div style={{ color: "var(--brand)" }}><AriseLogo size={96} /></div>
       <h1 dir="ltr" style={{ fontSize: 34, fontWeight: 900, color: "#17251F", margin: "4px 0 2px", letterSpacing: 6 }}>ARISE</h1>
       <div style={{ fontSize: 15.5, color: "#5A6A62", fontWeight: 700 }}>من الصفر… إلى أرامكو 🛢️</div>
       <div style={{ fontSize: 13, color: "#8A968E", margin: "10px 0 26px", lineHeight: 1.8 }}>عالم حر • أيام تعيشها • شخصيات تتذكرك — وسلاحك عقلك</div>
@@ -5813,7 +6162,7 @@ function Dialog({ lines, theme, onDone }) {
         style={{ display: "block", width: "100%", textAlign: "inherit", background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit", color: "inherit" }}>
         <div aria-hidden="true" style={{ textAlign: "center", fontSize: 76, marginBottom: 14, animation: "pulse 3s infinite" }}>{line.e}</div>
         <div className="card" style={{ padding: 18, minHeight: 130 }}>
-          <div style={{ fontWeight: 900, fontSize: 14, color: "#C89235", marginBottom: 8 }}>{line.who}</div>
+          <div style={{ fontWeight: 900, fontSize: 14, color: "var(--gold)", marginBottom: 8 }}>{line.who}</div>
           <div aria-hidden="true" style={{ fontSize: 16, lineHeight: 2 }}>{full.slice(0, chars)}<span style={{ opacity: .5 }}>▌</span></div>
           <div className="sr-only" aria-live="polite">{doneTyping ? `${line.who}: ${full}` : ""}</div>
         </div>
@@ -5834,20 +6183,20 @@ function UniChoice({ g, theme, onPick, onRetake, back }) {
       <button onClick={back} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع</button>
       <div className="card" style={{ textAlign: "center" }}>
         <div style={{ fontSize: 34 }}>🗝️</div>
-        <div style={{ fontWeight: 900, fontSize: 16, margin: "4px 0" }}>درجتك: <span style={{ color: "#C89235" }}>{score}</span></div>
+        <div style={{ fontWeight: 900, fontSize: 16, margin: "4px 0" }}>درجتك: <span style={{ color: "var(--gold)" }}>{score}</span></div>
         <div style={{ fontSize: 13, color: theme.sub }}>كل باب له مفتاح. الأبواب المقفلة تحتاج درجة أعلى.</div>
       </div>
       {UNIS.map(u => {
         const open = score >= u.need;
         return (
           <button key={u.name} className="card" disabled={!open} onClick={() => open && onPick(u)}
-            style={{ width: "100%", textAlign: "right", fontFamily: "inherit", cursor: open ? "pointer" : "not-allowed", opacity: open ? 1 : .5, display: "flex", gap: 12, alignItems: "center", color: theme.text, border: open ? "1.5px solid #1F7A5C55" : `1px solid ${theme.line}` }}>
+            style={{ width: "100%", textAlign: "right", fontFamily: "inherit", cursor: open ? "pointer" : "not-allowed", opacity: open ? 1 : .5, display: "flex", gap: 12, alignItems: "center", color: theme.text, border: open ? "1.5px solid var(--okSoft)" : `1px solid ${theme.line}` }}>
             <div style={{ fontSize: 28 }}>{open ? u.e : "🔒"}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 900, fontSize: 14.5 }}>{u.name}</div>
               <div style={{ fontSize: 12.5, color: theme.sub, marginTop: 2 }}>{u.need > 0 ? `يتطلب ${u.need}+` : "قبول مفتوح"}</div>
             </div>
-            {open && <div style={{ fontWeight: 900, color: "#1F7A5C", fontSize: 13 }}>ادخل ←</div>}
+            {open && <div style={{ fontWeight: 900, color: "var(--ok)", fontSize: 13 }}>ادخل ←</div>}
           </button>
         );
       })}
@@ -5875,6 +6224,11 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
   const [matchShuf] = useState(() => qs.map(c => c.kind === "match" ? [...c.pairs.map(p => p[1])].sort(() => Math.random() - 0.5) : null));
   const [orderProg, setOrderProg] = useState([]);
   const [orderFails, setOrderFails] = useState(0);
+  const [selfDx, setSelfDx] = useState(0);          // كم مرة شخّص غلطه بنفسه
+  /* 🧭 حجب الكشف: ما دام الطالب لم يشخّص غلطه، لا نُظهر الإجابة الصحيحة ولا
+     الشرح. سؤال «ليش اخترت هذا؟» لا معنى له بعد أن يرى الحل. */
+  const [defendOn, setDefendOn] = useState(false);
+  const [pendingMoment, setPendingMoment] = useState(null);   // 🏔️ فخّ سقط اليوم
   const [orderShuf] = useState(() => qs.map(c => c.kind === "order" ? [...c.steps].sort(() => Math.random() - 0.5) : null));
   const [removed, setRemoved] = useState([]);
   const [frozen, setFrozen] = useState(false);
@@ -5916,7 +6270,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     const acc = finalLog.length ? correct / finalLog.length : 0;
     setOver(won ? "win" : "lose");
     play(won ? "win" : "wrong");
-    setFx(f => ({ ...f, result: { won, chId, questId, isBoss, isGat: !!enemy.isGat, isFinal: !!enemy.isFinal, acc, xpGained: finalXp, coins: enemy.coins, xp: enemy.xp, bestCombo: finalBest, answered: finalLog } }));
+    setFx(f => ({ ...f, result: { won, chId, questId, isBoss, isGat: !!enemy.isGat, isFinal: !!enemy.isFinal, acc, xpGained: finalXp, coins: enemy.coins, xp: enemy.xp, bestCombo: finalBest, answered: finalLog, selfDx, moment: pendingMoment } }));
   };
 
   const dealDamage = (dmg, gain, crit, newLog, newCombo) => {
@@ -5948,6 +6302,9 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || over) return;
     setPicked(idx);
     const ok = idx === q.a;
+    // 🏔️ هل رفض للتوّ فخًّا طالما أوقعه؟ يُفحص هنا لأن الخيارات ما زالت بين يدينا
+    if (ok && q.traps) setPendingMoment(m => m || peekBeatable(g, q));
+    if (!ok && shouldDefend(g, q, idx)) setDefendOn(true);
     const newLog = [...log, { sec: q.sec, skill: q.skill, genId: q.genId, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, idx, "mcq") }) }];
     setLog(newLog);
     if (ok) {
@@ -6035,7 +6392,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     play("click");
     setQi(qi + 1); setPicked(null); setRemoved([]); setFrozen(false);
     setNumVal(""); setMatchSel(null); setMatchDone([]); setMatchWrong(0);
-    setOrderProg([]); setOrderFails(0);
+    setOrderProg([]); setOrderFails(0); setDefendOn(false);
   };
 
   const useHint = () => {
@@ -6065,13 +6422,13 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
           <span key={i} style={{ position: "absolute", bottom: 10, left: `${8 + i * 12}%`, fontSize: 18, animation: `confetti ${0.9 + (i % 3) * 0.3}s ease ${i * 0.08}s forwards` }}>{c}</span>
         ))}
         <div style={{ fontSize: 58 }}>{r.won ? (isBoss ? "🏆" : "⚔️") : "💔"}</div>
-        <div style={{ fontSize: 21, fontWeight: 900, margin: "8px 0 6px", color: r.won ? "#1F7A5C" : "#B3402F" }}>
+        <div style={{ fontSize: 21, fontWeight: 900, margin: "8px 0 6px", color: r.won ? "var(--ok)" : "var(--bad)" }}>
           {r.won ? `هزمت ${enemy.name}!` : "سقطت في المعركة"}
         </div>
-        {r.won && r.isGat && <div style={{ fontSize: 15, fontWeight: 900, background: "#C8923522", color: "#C89235", borderRadius: 12, padding: "8px 12px", margin: "6px 0" }}>📜 درجتك في القدرات: {Math.min(100, Math.round(55 + r.acc * 45))}</div>}
+        {r.won && r.isGat && <div style={{ fontSize: 15, fontWeight: 900, background: "var(--goldSoft)", color: "var(--gold)", borderRadius: 12, padding: "8px 12px", margin: "6px 0" }}>📜 درجتك في القدرات: {Math.min(100, Math.round(55 + r.acc * 45))}</div>}
         <div style={{ fontSize: 14.5, lineHeight: 2.1 }}>
           الدقة: <b>{acc}%</b> • أفضل كومبو: <b>🔥×{r.bestCombo}</b><br />
-          <span style={{ color: "#C89235", fontWeight: 900, fontSize: 17 }}>+{r.xpGained + (r.won ? r.xp : 0)} XP</span>
+          <span style={{ color: "var(--gold)", fontWeight: 900, fontSize: 17 }}>+{r.xpGained + (r.won ? r.xp : 0)} XP</span>
           {r.won && <span style={{ fontWeight: 900 }}> • 🪙 +{r.coins}{g.skills.includes("gold") ? " (×1.5)" : ""}</span>}
         </div>
         {!r.won && <div style={{ fontSize: 13, color: theme.sub, marginTop: 8, lineHeight: 1.8 }}>احتفظت بالـXP اللي جمعته. جهّز أدواتك أو افتح مهارة وارجع.</div>}
@@ -6100,7 +6457,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
       {/* اللاعب */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px", marginBottom: 8, animation: fx.hitMe ? "shake .4s ease" : "none" }}>
         <div style={{ display: "flex", gap: 3 }}>{Array.from({ length: maxHearts }).map((_, i) => <Ico key={i} n="heart" s={19} c={i < hearts ? "#E0453A" : theme.line} style={{ filter: i < hearts ? "drop-shadow(0 1px 1px rgba(0,0,0,.25))" : "none", transition: "fill .3s" }} />)}</div>
-        <div style={{ fontWeight: 900, fontSize: 13, color: combo >= 2 ? "#C89235" : theme.sub }}>{combo >= 2 ? `🔥 كومبو ×${Math.min(combo, 4)}` : tired ? "🥱 مرهق: −1 قلب" : calm ? "🧘 خذ راحتك" : `جولة ${qi + 1}`}</div>
+        <div style={{ fontWeight: 900, fontSize: 13, color: combo >= 2 ? "var(--gold)" : theme.sub }}>{combo >= 2 ? `🔥 كومبو ×${Math.min(combo, 4)}` : tired ? "🥱 مرهق: −1 قلب" : calm ? "🧘 خذ راحتك" : `جولة ${qi + 1}`}</div>
         <div style={{ display: "flex", gap: 6 }}>
           <button className="hudbtn" onClick={useHint} disabled={q.kind !== "mcq" || picked !== null || removed.length > 0 || (!freeHint && g.items.hint <= 0)}
             style={{ opacity: q.kind === "mcq" && (freeHint || g.items.hint > 0) && !removed.length ? 1 : .35 }}>💡{freeHint ? "★" : g.items.hint}</button>
@@ -6110,15 +6467,15 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
       </div>
 
       <div className="card" style={{ position: "relative" }}>
-        {fx.xpText && fx.hitEnemy && <div style={{ position: "absolute", top: 8, left: 14, color: "#C89235", fontWeight: 900, fontSize: 15, animation: "floatUp .9s ease forwards", direction: "ltr" }}>{fx.xpText} XP</div>}
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#C89235", marginBottom: 8 }}>{kindChip}</div>
+        {fx.xpText && fx.hitEnemy && <div style={{ position: "absolute", top: 8, left: 14, color: "var(--gold)", fontWeight: 900, fontSize: 15, animation: "floatUp .9s ease forwards", direction: "ltr" }}>{fx.xpText} XP</div>}
+        <div style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", marginBottom: 8 }}>{kindChip}</div>
 
         {/* المؤقت — يختفي كليًا في الوضع الهادئ */}
         {!calm && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <span className={!frozen && timeLeft <= 5 ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 13, color: frozen ? "#3B82C4" : timeLeft <= 8 ? "#B3402F" : theme.text, minWidth: 44, direction: "ltr", textAlign: "left" }}>{frozen ? "🧊 ∞" : `⏱ ${Math.max(timeLeft, 0)}s`}</span>
+            <span className={!frozen && timeLeft <= 5 ? "tpulse" : ""} style={{ fontWeight: 900, fontSize: 13, color: frozen ? "var(--phBlue)" : timeLeft <= 8 ? "var(--bad)" : theme.text, minWidth: 44, direction: "ltr", textAlign: "left" }}>{frozen ? "🧊 ∞" : `⏱ ${Math.max(timeLeft, 0)}s`}</span>
             <div style={{ flex: 1, background: theme.line, height: 6, borderRadius: 99, overflow: "hidden" }}>
-              <div style={{ width: frozen ? "100%" : `${(Math.max(timeLeft, 0) / TIME) * 100}%`, height: "100%", background: frozen ? "#3B82C4" : timeLeft <= 8 ? "#B3402F" : "#C89235", transition: "width 1s linear", borderRadius: 99 }} />
+              <div style={{ width: frozen ? "100%" : `${(Math.max(timeLeft, 0) / TIME) * 100}%`, height: "100%", background: frozen ? "var(--phBlue)" : timeLeft <= 8 ? "var(--bad)" : "var(--gold)", transition: "width 1s linear", borderRadius: 99 }} />
             </div>
           </div>
         )}
@@ -6130,8 +6487,9 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
             const gone = removed.includes(idx);
             let style = {};
             if (picked !== null) {
-              if (idx === q.a) style = { borderColor: "#1F7A5C", background: "#1F7A5C22", fontWeight: 700 };
-              else if (idx === picked) style = { borderColor: "#B3402F", background: "#B3402F22" };
+              // أثناء التشخيص نُظهر خطأ اختياره فقط — لا نكشف الصحيح بعد
+              if (idx === picked) style = { borderColor: "var(--bad)", background: T.badSoft };
+              else if (idx === q.a && !defendOn) style = { borderColor: "var(--ok)", background: T.okSoft, fontWeight: 700 };
             }
             return <button key={idx} className="opt" style={style} disabled={gone} onClick={() => hit(idx)}>{String.fromCharCode(65 + idx)}. {gone ? "—" : o}</button>;
           })}
@@ -6140,7 +6498,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
         {/* ---------- NUM: لوحة أرقام ---------- */}
         {q.kind === "num" && <>
           <div dir="ltr" style={{ textAlign: "left", fontSize: 17, fontWeight: 700, marginBottom: 10 }}>{q.q}</div>
-          <div dir="ltr" style={{ textAlign: "center", fontSize: 26, fontWeight: 900, letterSpacing: 3, background: theme.line + "55", borderRadius: 12, padding: "10px 0", marginBottom: 10, minHeight: 52, color: picked === "done" ? "#1F7A5C" : picked === "wrongnum" ? "#B3402F" : theme.text }}>
+          <div dir="ltr" style={{ textAlign: "center", fontSize: 26, fontWeight: 900, letterSpacing: 3, background: theme.line + "55", borderRadius: 12, padding: "10px 0", marginBottom: 10, minHeight: 52, color: picked === "done" ? "var(--ok)" : picked === "wrongnum" ? "var(--bad)" : theme.text }}>
             {numVal || "؟"}
           </div>
           {picked === null && <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 7 }}>
@@ -6164,18 +6522,18 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
               {q.pairs.map(([w]) => {
                 const done = matchDone.some(d => d[0] === w);
                 return <button key={w} className="opt" disabled={done} onClick={() => tapEn(w)}
-                  style={{ textAlign: "center", fontWeight: 800, margin: "0 0 8px", opacity: done ? .35 : 1, borderColor: matchSel === w ? "#C89235" : undefined, background: matchSel === w ? "#C8923522" : done ? "#1F7A5C22" : undefined }}>{done ? "✓ " : ""}{w}</button>;
+                  style={{ textAlign: "center", fontWeight: 800, margin: "0 0 8px", opacity: done ? .35 : 1, borderColor: matchSel === w ? "var(--gold)" : undefined, background: matchSel === w ? "var(--goldSoft)" : done ? "var(--okSoft)" : undefined }}>{done ? "✓ " : ""}{w}</button>;
               })}
             </div>
             <div>
               {matchShuf[qi % qs.length].map((m) => {
                 const done = matchDone.some(d => d[1] === m);
-                return <button key={m} className="opt" dir="rtl" disabled={done} onClick={() => tapAr(m)}
-                  style={{ textAlign: "center", fontWeight: 800, margin: "0 0 8px", opacity: done ? .35 : 1, background: done ? "#1F7A5C22" : undefined }}>{done ? "✓ " : ""}{m}</button>;
+                return <button key={m} className="opt rtl" disabled={done} onClick={() => tapAr(m)}
+                  style={{ textAlign: "center", fontWeight: 800, margin: "0 0 8px", opacity: done ? .35 : 1, background: done ? "var(--okSoft)" : undefined }}>{done ? "✓ " : ""}{m}</button>;
               })}
             </div>
           </div>
-          {matchWrong > 0 && picked === null && <div style={{ fontSize: 12.5, color: "#B3402F", fontWeight: 800, marginTop: 4 }}>محاولات خاطئة: {matchWrong}/3</div>}
+          {matchWrong > 0 && picked === null && <div style={{ fontSize: 12.5, color: "var(--bad)", fontWeight: 800, marginTop: 4 }}>محاولات خاطئة: {matchWrong}/3</div>}
         </>}
 
         {/* ---------- ORDER: رتّب الحل ---------- */}
@@ -6183,20 +6541,26 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
           <div style={{ fontSize: 14.5, fontWeight: 800, marginBottom: 10, lineHeight: 1.7 }}>{q.title}</div>
           <div style={{ minHeight: 34, background: theme.line + "44", borderRadius: 10, padding: "8px 10px", marginBottom: 10, fontSize: 13, lineHeight: 1.9 }}>
             {orderProg.length === 0 ? <span style={{ color: theme.sub }}>اضغط الخطوات بالترتيب الصحيح ↓</span> :
-              orderProg.map((s, i) => <div key={i} style={{ color: "#1F7A5C", fontWeight: 700 }}>{i + 1}. {s}</div>)}
+              orderProg.map((s, i) => <div key={i} style={{ color: "var(--ok)", fontWeight: 700 }}>{i + 1}. {s}</div>)}
           </div>
           {picked === null && [...q.steps].filter(s => !orderProg.includes(s)).length > 0 &&
             (orderShuf[qi % qs.length] || q.steps).map((s) => !orderProg.includes(s) && (
-              <button key={s} className="opt" dir="rtl" style={{ textAlign: "right" }} onClick={() => tapStep(s)}>{s}</button>
+              <button key={s} className="opt rtl" onClick={() => tapStep(s)}>{s}</button>
             ))}
-          {orderFails > 0 && picked === null && <div style={{ fontSize: 12.5, color: "#B3402F", fontWeight: 800 }}>ترتيب خاطئ — انعاد من البداية ({orderFails}/2)</div>}
+          {orderFails > 0 && picked === null && <div style={{ fontSize: 12.5, color: "var(--bad)", fontWeight: 800 }}>ترتيب خاطئ — انعاد من البداية ({orderFails}/2)</div>}
         </>}
 
+        {/* 🧭 التشخيص أولًا — يسبق الكشف ولا يليه */}
+        {defendOn && typeof picked === "number" && picked >= 0 && (
+          <DefendAnswer g={g} theme={theme} q={q} picked={picked}
+            onResolve={(ok) => { if (ok) setSelfDx(d => d + 1); setTimeout(() => setDefendOn(false), 1500); }} />
+        )}
+
         {/* شريط ما بعد الجولة */}
-        {picked !== null && hearts > 0 && enemyHp > 0 && (
+        {picked !== null && !defendOn && hearts > 0 && enemyHp > 0 && (
           <div style={{ marginTop: 8 }}>
-            <div style={{ background: (picked === "done" || picked === q.a) ? "#1F7A5C1d" : "#B3402F1d", borderRadius: 12, padding: "11px 13px", fontSize: 13.5, lineHeight: 1.8 }}>
-              <b style={{ color: (picked === "done" || picked === q.a) ? "#1F7A5C" : "#B3402F" }}>
+            <div style={{ background: (picked === "done" || picked === q.a) ? "var(--okSoft)" : "var(--badSoft)", borderRadius: 12, padding: "11px 13px", fontSize: 13.5, lineHeight: 1.8 }}>
+              <b style={{ color: (picked === "done" || picked === q.a) ? "var(--ok)" : "var(--bad)" }}>
                 {picked === "done" || picked === q.a ? "⚔️ ضربة ناجحة" : picked === -1 ? "⏰ انتهى الوقت — العدو ضربك" : picked === "failorder" ? "🧩 العدو ضربك — هذا الترتيب الصحيح:" : "🩸 العدو ضربك"}
               </b>{picked === "failorder" ? ` ${q.steps.join(" ← ")}` : q.ex ? ` — ${q.ex}` : q.kind === "num" && picked === "wrongnum" ? ` — الجواب الصحيح: ${q.a}. ${q.ex || ""}` : ""}
             </div>
@@ -6220,9 +6584,9 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
 
 function Ending({ g, theme, onReplay, onFree }) {
   const E = {
-    legend: { e: "👑🛢️", t: "النهاية الأسطورية", d: `"${g.name}... مبروك. أهلًا بك مهندسًا في أرامكو السعودية." — البداية كانت ليلة مذاكرة وكسل يجلس على كتفك. والنهاية: مكتبك يطل على أبراج الظهران. الرحلة اللي بدأت بسؤال حساب... انتهت بحلم كامل.`, c: "#C89235" },
-    good: { e: "💼✨", t: "نهاية مشرّفة", d: `حصلت على وظيفة قوية في شركة كبرى. أرامكو ردّت: "ملفك واعد — نرحب بإعادة التقديم بعد سنة خبرة." الحلم مو بعيد... يحتاج جولة أخيرة أقوى.`, c: "#1F7A5C" },
-    open: { e: "🌅", t: "الرحلة مستمرة", d: `ما عبرت اختبار أرامكو هالمرة، لكن اللي بنيته ما ينهدم: شهادة، لغة، وعقل أقوى بكثير من طالب الثانوية اللي بدأ الرحلة. ارفع درجاتك وارجع للمعركة الأخيرة.`, c: "#3B82C4" },
+    legend: { e: "👑🛢️", t: "النهاية الأسطورية", d: `"${g.name}... مبروك. أهلًا بك مهندسًا في أرامكو السعودية." — البداية كانت ليلة مذاكرة وكسل يجلس على كتفك. والنهاية: مكتبك يطل على أبراج الظهران. الرحلة اللي بدأت بسؤال حساب... انتهت بحلم كامل.`, c: "var(--gold)" },
+    good: { e: "💼✨", t: "نهاية مشرّفة", d: `حصلت على وظيفة قوية في شركة كبرى. أرامكو ردّت: "ملفك واعد — نرحب بإعادة التقديم بعد سنة خبرة." الحلم مو بعيد... يحتاج جولة أخيرة أقوى.`, c: "var(--ok)" },
+    open: { e: "🌅", t: "الرحلة مستمرة", d: `ما عبرت اختبار أرامكو هالمرة، لكن اللي بنيته ما ينهدم: شهادة، لغة، وعقل أقوى بكثير من طالب الثانوية اللي بدأ الرحلة. ارفع درجاتك وارجع للمعركة الأخيرة.`, c: "var(--phBlue)" },
   }[g.ending || "open"];
   const acc = g.stats.answered ? Math.round((g.stats.correct / g.stats.answered) * 100) : 0;
   return (
@@ -6233,7 +6597,7 @@ function Ending({ g, theme, onReplay, onFree }) {
       <div className="card" style={{ textAlign: "right" }}>
         <div style={{ fontWeight: 900, marginBottom: 8 }}>📜 سجل الرحلة</div>
         <div style={{ fontSize: 13.5, lineHeight: 2.2 }}>
-          درجة القدرات: <b style={{ color: "#C89235" }}>{g.gatScore ?? "—"}</b> • الجامعة: <b>{g.uni ?? "—"}</b><br />
+          درجة القدرات: <b style={{ color: "var(--gold)" }}>{g.gatScore ?? "—"}</b> • الجامعة: <b>{g.uni ?? "—"}</b><br />
           دقة الإجابات الكلية: <b>{acc}%</b> • معارك محسومة: <b>{g.stats.battles}</b> • أفضل كومبو: <b>🔥×{g.stats.bestCombo}</b><br />
           الإنجازات: <b>{g.ach.length}/{ACHV.length}</b> • اللقب: <b>{titleOf(g.xp).icon} {titleOf(g.xp).name}</b>
         </div>
@@ -6255,7 +6619,7 @@ function StudyPlanCard({ g, theme, onSetDate }) {
   const weak = [...secs].sort((a, b) => weightOf(g, b) - weightOf(g, a)).slice(0, 2);
   const due = (dueList(g) || []).length;
   return (
-    <div className="card" style={{ background: "#0F51470d", borderColor: "#0F514733" }}>
+    <div className="card" style={{ background: "var(--brandSoft)", borderColor: "var(--brandSoft)" }}>
       <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 6 }}>📅 خطة المذاكرة والعدّاد</div>
       {!g.examDate ? (
         <>
@@ -6272,7 +6636,7 @@ function StudyPlanCard({ g, theme, onSetDate }) {
       ) : (
         <>
           <div style={{ textAlign: "center", margin: "2px 0 10px" }}>
-            <div style={{ fontSize: 42, fontWeight: 900, color: daysLeft <= 7 ? "#B3402F" : "#0F5147", lineHeight: 1.1 }}>{daysLeft}</div>
+            <div style={{ fontSize: 42, fontWeight: 900, color: daysLeft <= 7 ? "var(--bad)" : "#0F5147", lineHeight: 1.1 }}>{daysLeft}</div>
             <div style={{ fontSize: 12.5, color: theme.sub }}>{daysLeft === 0 ? "اليوم اختبارك — بالتوفيق! 🍀" : daysLeft === 1 ? "باقٍ يوم واحد على اختبارك" : `باقٍ ${daysLeft} يوم على اختبارك`}</div>
           </div>
           <div style={{ fontWeight: 900, fontSize: 13, marginBottom: 5 }}>🎯 خطة اليوم:</div>
@@ -6319,7 +6683,7 @@ function BackupBox({ theme, onExport, onImport }) {
             <button className="btn ghost" style={{ flex: 1, padding: 10 }} onClick={() => fileRef.current && fileRef.current.click()}>📁 من ملف</button>
           </div>
           <input ref={fileRef} type="file" accept="application/json,.json,.txt" style={{ display: "none" }} onChange={readFile} />
-          <div style={{ fontSize: 11, color: "#B3402F", marginTop: 8, textAlign: "center" }}>⚠️ الاستعادة تستبدل تقدّمك الحالي بالكامل</div>
+          <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 8, textAlign: "center" }}>⚠️ الاستعادة تستبدل تقدّمك الحالي بالكامل</div>
         </>
       )}
     </div>
@@ -6351,7 +6715,7 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
                 <div style={{ fontWeight: 900, fontSize: 14 }}>{sk.name} <span style={{ fontSize: 11, color: theme.sub }}>({sk.branch})</span></div>
                 <div style={{ fontSize: 12.5, color: theme.sub, marginTop: 2 }}>{sk.desc}</div>
               </div>
-              {owned ? <span style={{ color: "#1F7A5C", fontWeight: 900, fontSize: 13 }}>✓ مفتوحة</span> :
+              {owned ? <span style={{ color: "var(--ok)", fontWeight: 900, fontSize: 13 }}>✓ مفتوحة</span> :
                 <button className="btn" style={{ padding: "8px 14px", fontSize: 13, opacity: can ? 1 : .45 }} disabled={!can}
                   onClick={() => { buySkill(sk); play("levelup"); }}>{sk.cost} ⭐</button>}
             </div>
@@ -6360,7 +6724,7 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
         {panel === "skills" && <div style={{ fontSize: 12.5, color: theme.sub, textAlign: "center" }}>تكسب نقطة مهارة ⭐ مع كل مستوى جديد</div>}
 
         {panel === "shop" && <>
-          <div style={{ fontWeight: 900, fontSize: 13.5, color: "#C89235", margin: "4px 4px 8px" }}>أدوات المعركة{g.dayFlags?.sale ? " — 🏷️ تخفيضات اليوم −50%!" : ""}</div>
+          <div style={{ fontWeight: 900, fontSize: 13.5, color: "var(--gold)", margin: "4px 4px 8px" }}>أدوات المعركة{g.dayFlags?.sale ? " — 🏷️ تخفيضات اليوم −50%!" : ""}</div>
           {SHOP_ITEMS.map(it => (
             <div className="card" key={it.id} style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <div style={{ fontSize: 26 }}>{it.icon}</div>
@@ -6372,7 +6736,7 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
                 onClick={() => { buyItem(it); play("coin"); }}>🪙 {priceOf(it.price)}{g.dayFlags?.sale ? " 🏷️" : ""}</button>
             </div>
           ))}
-          <div style={{ fontWeight: 900, fontSize: 13.5, color: "#C89235", margin: "10px 4px 8px" }}>شخصيات</div>
+          <div style={{ fontWeight: 900, fontSize: 13.5, color: "var(--gold)", margin: "10px 4px 8px" }}>شخصيات</div>
           {AVATARS.map(av => {
             const owned = g.owned.includes(av.id);
             const wearing = g.avatar === av.id;
@@ -6380,7 +6744,7 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
               <div className="card" key={av.id} style={{ display: "flex", gap: 12, alignItems: "center" }}>
                 <div style={{ fontSize: 28 }}>{av.e}</div>
                 <div style={{ flex: 1, fontWeight: 900, fontSize: 14 }}>{av.name}</div>
-                {wearing ? <span style={{ color: "#1F7A5C", fontWeight: 900, fontSize: 13 }}>✓ مُرتدى</span> :
+                {wearing ? <span style={{ color: "var(--ok)", fontWeight: 900, fontSize: 13 }}>✓ مُرتدى</span> :
                   owned ? <button className="btn" style={{ padding: "8px 14px", fontSize: 13 }} onClick={() => { wearAvatar(av); play("click"); }}>ارتدِ</button> :
                     <button className="btn gold" style={{ padding: "8px 14px", fontSize: 13, opacity: g.coins >= av.price ? 1 : .45 }} disabled={g.coins < av.price}
                       onClick={() => { buyAvatar(av); play("coin"); toast(`${av.e} فتحت: ${av.name}`); }}>🪙 {av.price}</button>}
@@ -6405,10 +6769,10 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
         {panel === "stats" && <StatsPanel g={g} theme={theme} onDrill={onDrillWeak} />}
         {panel === "stats" && <StudyPlanCard g={g} theme={theme} onSetDate={onSetDate} />}
         {panel === "stats" && (
-          <div className="card" style={{ textAlign: "center", background: "#B3402F0d", borderColor: "#B3402F33" }}>
+          <div className="card" style={{ textAlign: "center", background: "var(--badSoft)", borderColor: "var(--badSoft)" }}>
             <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 3 }}>🎯 محاكاة اختبار كاملة</div>
             <div style={{ fontSize: 12, color: theme.sub, lineHeight: 1.8, marginBottom: 10 }}>قسمان مؤقّتان (لفظي + كمي) كما في القدرات الحقيقي، مع تقرير مفصّل.{g.mockBest ? ` أفضل نتيجة: ${g.mockBest.score}` : ""}</div>
-            <button className="btn" style={{ width: "100%", padding: 12, background: "#B3402F" }} onClick={() => { play("click"); onOpenMock(); }}>ابدأ المحاكاة الكاملة</button>
+            <button className="btn" style={{ width: "100%", padding: 12, background: "var(--bad)" }} onClick={() => { play("click"); onOpenMock(); }}>ابدأ المحاكاة الكاملة</button>
           </div>
         )}
         {panel === "stats" && <BackupBox theme={theme} onExport={onExport} onImport={onImport} />}
@@ -6434,7 +6798,7 @@ function ProgressChart({ g, theme }) {
     }).join(" ");
     return { path, color, last: vals[vals.length - 1] };
   };
-  const q = pts("q", "#C89235"), v = pts("v", "#7B5EA7");
+  const q = pts("q", "var(--gold)"), v = pts("v", "var(--phPurple)");
   return (
     <div className="card">
       <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 8 }}>📈 تطورك عبر الأيام</div>
@@ -6444,8 +6808,8 @@ function ProgressChart({ g, theme }) {
         <polyline points={v.path} fill="none" stroke={v.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <div style={{ display: "flex", justifyContent: "center", gap: 16, fontSize: 12, fontWeight: 800, marginTop: 4 }}>
-        <span style={{ color: "#C89235" }}>● الكمي {q.last ?? "—"}%</span>
-        <span style={{ color: "#7B5EA7" }}>● اللفظي {v.last ?? "—"}%</span>
+        <span style={{ color: "var(--gold)" }}>● الكمي {q.last ?? "—"}%</span>
+        <span style={{ color: "var(--phPurple)" }}>● اللفظي {v.last ?? "—"}%</span>
       </div>
     </div>
   );
@@ -6469,12 +6833,12 @@ function DiagnosisCard({ g, theme, onDrill }) {
     );
   }
   return (
-    <div className="card" style={{ borderColor: "#B3402F44", background: "#B3402F08" }}>
+    <div className="card" style={{ borderColor: "var(--badSoft)", background: "var(--badSoft)" }}>
       <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 3 }}>🔬 تشخيص أخطائك</div>
       <div style={{ fontSize: 11.5, color: theme.sub, marginBottom: 10 }}>ليست نسبًا — هذي المفاهيم التي تُسقطك فعلًا، مرتّبة بتكرارها</div>
       {traps.map((t, i) => (
         <div key={t.id} style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "9px 0", borderTop: i ? `1px solid ${theme.line}` : "none" }}>
-          <span style={{ background: "#B3402F", color: "#fff", borderRadius: 8, fontSize: 11, fontWeight: 900, padding: "3px 8px", whiteSpace: "nowrap", marginTop: 1 }}>×{t.n}</span>
+          <span style={{ background: "var(--badFill)", color: "var(--onBad)", borderRadius: 8, fontSize: 11, fontWeight: 900, padding: "3px 8px", whiteSpace: "nowrap", marginTop: 1 }}>×{t.n}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12.5, lineHeight: 1.8, fontWeight: 700 }}>{t.why}</div>
             <div style={{ fontSize: 10.5, color: theme.sub, marginTop: 2 }}>{t.skill || SEC_AR[t.sec] || t.sec}</div>
@@ -6488,10 +6852,10 @@ function DiagnosisCard({ g, theme, onDrill }) {
             <div key={s.name} style={{ marginBottom: 7 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, fontWeight: 800, marginBottom: 3 }}>
                 <span>{s.name}</span>
-                <span style={{ color: s.pct >= 70 ? "#1F7A5C" : s.pct >= 50 ? "#C89235" : "#B3402F" }}>{s.pct}% ({s.c}/{s.a})</span>
+                <span style={{ color: s.pct >= 70 ? "var(--ok)" : s.pct >= 50 ? "var(--gold)" : "var(--bad)" }}>{s.pct}% ({s.c}/{s.a})</span>
               </div>
               <div style={{ background: theme.line, borderRadius: 99, height: 5, overflow: "hidden" }}>
-                <div style={{ width: `${s.pct}%`, height: "100%", background: s.pct >= 70 ? "#1F7A5C" : s.pct >= 50 ? "#C89235" : "#B3402F", borderRadius: 99 }} />
+                <div style={{ width: `${s.pct}%`, height: "100%", background: s.pct >= 70 ? "var(--ok)" : s.pct >= 50 ? "var(--gold)" : "var(--bad)", borderRadius: 99 }} />
               </div>
             </div>
           ))}
@@ -6508,7 +6872,7 @@ function StatsPanel({ g, theme, onDrill }) {
   return (
     <div>
       <div className="card" style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 34, fontWeight: 900, color: acc >= 90 ? "#C89235" : "#0F5147" }}>{acc}%</div>
+        <div style={{ fontSize: 34, fontWeight: 900, color: acc >= 90 ? "var(--gold)" : "#0F5147" }}>{acc}%</div>
         <div style={{ fontSize: 13, color: theme.sub }}>الدقة الكلية • {g.stats.correct}/{g.stats.answered} إجابة صحيحة</div>
         <div style={{ fontSize: 13, marginTop: 6, fontWeight: 800 }}>⚔️ {g.stats.battles} معركة محسومة • 🔥 أفضل كومبو ×{g.stats.bestCombo} • ⚡ سلسلة {g.streak} يوم</div>
       </div>
@@ -6518,7 +6882,7 @@ function StatsPanel({ g, theme, onDrill }) {
         <div style={{ fontWeight: 900, marginBottom: 10, fontSize: 14 }}>الدقة حسب القسم — هذي بوصلتك: العب في الأقسام الحمراء</div>
         {secs.length === 0 && <div style={{ fontSize: 13, color: theme.sub }}>خض معاركك الأولى وستظهر بياناتك هنا</div>}
         {secs.length >= 2 && (
-          <div style={{ fontSize: 12, fontWeight: 800, background: "#C8923518", color: "#C89235", borderRadius: 10, padding: "7px 10px", marginBottom: 10, lineHeight: 1.7 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, background: "var(--goldSoft)", color: "var(--gold)", borderRadius: 10, padding: "7px 10px", marginBottom: 10, lineHeight: 1.7 }}>
             🧠 اللعبة تركز حاليًا على: {[...secs].sort((x, y) => weightOf(g, y[0]) - weightOf(g, x[0])).slice(0, 2).map(([s]) => SEC_AR[s] || s).join(" و ")} — لأنها أضعف أقسامك الآن
           </div>
         )}
@@ -6530,16 +6894,16 @@ function StatsPanel({ g, theme, onDrill }) {
             <div key={sec} style={{ marginBottom: 11 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12.5, fontWeight: 800, marginBottom: 3, gap: 6 }}>
                 <span>{SEC_AR[sec] || sec} <span style={{ fontSize: 10.5, background: theme.line + "88", borderRadius: 6, padding: "1px 6px" }}>{m.e} {m.label}</span></span>
-                <span style={{ color: p >= 80 ? "#1F7A5C" : p >= 60 ? "#C89235" : "#B3402F", whiteSpace: "nowrap" }}>{p}% ({v.c}/{v.a}){avg ? ` • ⏱${avg}ث` : ""}{v.to ? ` • ⏰${v.to}` : ""}</span>
+                <span style={{ color: p >= 80 ? "var(--ok)" : p >= 60 ? "var(--gold)" : "var(--bad)", whiteSpace: "nowrap" }}>{p}% ({v.c}/{v.a}){avg ? ` • ⏱${avg}ث` : ""}{v.to ? ` • ⏰${v.to}` : ""}</span>
               </div>
               <div style={{ background: theme.line, borderRadius: 99, height: 8, overflow: "hidden" }}>
-                <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "#1F7A5C" : p >= 60 ? "#C89235" : "#B3402F", transition: "width .5s" }} />
+                <div style={{ width: `${p}%`, height: "100%", borderRadius: 99, background: p >= 80 ? "var(--ok)" : p >= 60 ? "var(--gold)" : "var(--bad)", transition: "width .5s" }} />
               </div>
             </div>
           );
         })}
       </div>
-      {g.gatScore && <div className="card" style={{ textAlign: "center", fontWeight: 900 }}>📜 درجة القدرات داخل اللعبة: <span style={{ color: "#C89235", fontSize: 18 }}>{g.gatScore}</span></div>}
+      {g.gatScore && <div className="card" style={{ textAlign: "center", fontWeight: 900 }}>📜 درجة القدرات داخل اللعبة: <span style={{ color: "var(--gold)", fontSize: 18 }}>{g.gatScore}</span></div>}
     </div>
   );
 }
