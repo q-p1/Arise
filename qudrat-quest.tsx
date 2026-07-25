@@ -3406,7 +3406,7 @@ function Interior({ g, theme, loc, night, canAct, onQuest, onAct, onTalk, close 
   const c = locContent(loc.id, g);
   return (
     <div style={{ animation: "drop .3s ease" }}>
-      <button onClick={close} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ اخرج للشارع</button>
+      <button onClick={close} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ اخرج للشارع</button>
       <div className="card" style={{ textAlign: "center" }}>
         <div style={{ fontSize: 44 }}>{loc.e}</div>
         <div style={{ fontWeight: 900, fontSize: 17 }}>{loc.name}</div>
@@ -3501,7 +3501,7 @@ function Academy({ g, theme, onExit, onPlace, onFinishUnit, onSimDone, onReview,
     const U = sub.lock;
     return (
       <div style={{ animation: "drop .3s ease" }}>
-        <button onClick={() => setSub(null)} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع</button>
+        <button onClick={() => setSub(null)} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع</button>
         <div className="card" style={{ textAlign: "center" }}>
           <div style={{ fontSize: 40 }}>🔒</div>
           <div style={{ fontWeight: 900, fontSize: 16, margin: "6px 0" }}>{U.icon} {U.name}</div>
@@ -3532,14 +3532,14 @@ function Academy({ g, theme, onExit, onPlace, onFinishUnit, onSimDone, onReview,
 
   return (
     <div style={{ animation: "drop .3s ease" }}>
-      <button onClick={onExit} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ اخرج من الأكاديمية</button>
+      <button onClick={onExit} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ اخرج من الأكاديمية</button>
       <div className="card" style={{ textAlign: "center", background: "#17251F", color: "#fff", border: "none" }}>
         <div style={{ fontSize: 40 }}>📚</div>
         <div style={{ fontWeight: 900, fontSize: 17 }}>الأكاديمية</div>
         <div style={{ fontSize: 12.5, opacity: .85, marginTop: 4, lineHeight: 1.8 }}>رحلة كاملة: من لا شيء… إلى درجة عالية في القدرات. بدون أي مصدر خارجي.</div>
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 10 }}>
-          <button className="btn ghost" style={{ padding: "8px 14px", fontSize: 12.5, color: "#fff", borderColor: "rgba(255,255,255,.35)" }} onClick={() => { play("click"); setSub("map"); }}>🗺️ خريطة المعرفة</button>
-          <button className="btn gold" style={{ padding: "8px 14px", fontSize: 12.5 }} onClick={() => { play("click"); setSub("ask"); }}>💬 غرفة المعلم</button>
+          <button className="btn ghost" style={{ padding: "8px 14px", minHeight: 44, fontSize: 12.5, color: "#fff", borderColor: "rgba(255,255,255,.35)" }} onClick={() => { play("click"); setSub("map"); }}>🗺️ خريطة المعرفة</button>
+          <button className="btn gold" style={{ padding: "8px 14px", minHeight: 44, fontSize: 12.5 }} onClick={() => { play("click"); setSub("ask"); }}>💬 غرفة المعلم</button>
         </div>
       </div>
       <div className="card" style={{ display: "flex", gap: 10, alignItems: "center", padding: 11 }}>
@@ -3634,7 +3634,7 @@ function Placement({ g, theme, onDone, onBack }) {
   }
   return (
     <div style={{ animation: "drop .3s ease" }}>
-      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع</button>
+      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع</button>
       <div className="card">
         <div style={{ fontSize: 12, fontWeight: 900, color: "#C89235", marginBottom: 8 }}>🧪 تحديد المستوى • {i + 1}/{N}{q.slot ? " • " + q.slot : ""} — لا توجد إجابة "غلط"، فقط خريطة</div>
         <div dir="ltr" style={{ textAlign: "left", fontSize: 15.5, fontWeight: 600, marginBottom: 12, lineHeight: 1.7 }}>{q.q}</div>
@@ -3802,7 +3802,7 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
 
   return (
     <div style={{ animation: "drop .3s ease" }}>
-      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع للأكاديمية</button>
+      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع للأكاديمية</button>
 
       {stage === "cards" && unit.steps && <LessonSteps theme={theme} unit={unit} onComplete={() => { setStage(drills.length ? "drill" : "pass"); }} />}
 
@@ -3907,7 +3907,7 @@ function SimFlow({ g, theme, unit, onDone, onBack }) {
 
   if (phase === "rules") return (
     <div style={{ animation: "drop .3s ease" }}>
-      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع</button>
+      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع</button>
       <div className="card" style={{ background: "#17251F", color: "#fff", border: "none", textAlign: "center", padding: 22 }}>
         <div style={{ fontSize: 48 }}>{unit.icon}</div>
         <div style={{ fontWeight: 900, fontSize: 17, margin: "6px 0" }}>{unit.name}</div>
@@ -4284,7 +4284,7 @@ function AskTeacher({ g, theme, onBack, onBonus }) {
   };
   return (
     <div style={{ animation: "drop .3s ease" }}>
-      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع للأكاديمية</button>
+      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع للأكاديمية</button>
       <div className="card" style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <TeacherFace size={46} />
         <div style={{ fontSize: 13.5, lineHeight: 1.8 }}><b>اختر مهارة أدرّبك عليها.</b> أعطيك سؤالًا، وإن أخطأت أشرح لك سبب الخطأ خطوة بخطوة — وأكرر بأسئلة جديدة حتى تتقنها.</div>
@@ -4871,7 +4871,7 @@ function Journal({ g, theme, close, clearMistake, initialTab = "tl" }) {
 const SAVE_VER = 1;
 const newSave = () => ({
   v: SAVE_VER,
-  started: false, name: "ضاوي", avatar: "a1", owned: ["a1"], mode: "calm",
+  started: false, name: "ضاوي", avatar: "a1", owned: ["a1"], mode: "calm", themePref: "auto",
   chapter: 1, done: {}, seen: {},
   day: 1, slot: 0, energy: 100, dayFlags: {}, lastBattle: null,
   xp: 0, coins: 60, skills: [], items: { hint: 1, freeze: 0, potion: 0 },
@@ -4952,6 +4952,32 @@ function addMistake(n, rec, day) {
 /* الخط موحّد للعربية واللاتينية معًا — شاشات Arise تخلط النصّين في السطر نفسه.
    يُعرَّف في <head> عبر @font-face ويُخزَّن محليًا ليعمل التطبيق دون إنترنت. */
 const FONT_STACK = "'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, system-ui, sans-serif";
+
+/* لوحات الألوان. الداكنة مائلة للأخضر لا رمادية محايدة، حتى تبقى هوية Arise
+   حاضرة ليلًا. نسب التباين في الداكنة تتجاوز 4.5:1 للنص الأساسي. */
+const THEMES = {
+  light: { bg: "#F4F6F3", head: "#0F5147", card: "#FFFFFF", text: "#17251F", sub: "#5A6A62", line: "#E2E8E1" },
+  dark:  { bg: "#0D1714", head: "#0C3A33", card: "#152420", text: "#E8EFEA", sub: "#9DB0A6", line: "#243530" },
+  usa:   { bg: "#0B1626", head: "#122B4A", card: "#16233A", text: "#EAF0F8", sub: "#9FB2CC", line: "#24354F" },
+};
+const THEME_PREFS = [
+  { id: "auto", e: "🌗", n: "تلقائي (حسب جهازك)" },
+  { id: "light", e: "☀️", n: "فاتح" },
+  { id: "dark", e: "🌙", n: "داكن" },
+];
+/* يتابع تفضيل النظام حيًّا: لو بدّل المستخدم وضع جهازه تتبدّل الواجهة فورًا */
+function useDarkMode(pref) {
+  const query = () => typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
+  const [sysDark, setSysDark] = useState(query);
+  useEffect(() => {
+    if (typeof matchMedia !== "function") return;
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    const on = (e) => setSysDark(e.matches);
+    mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
+  }, []);
+  return pref === "dark" || (pref !== "light" && sysDark);
+}
 
 /* عنوان مسموع لكل شاشة: قارئ الشاشة كان يدخل صفحة بلا أي عنوان أو بنية */
 const VIEW_TITLE = {
@@ -5235,6 +5261,7 @@ function App() {
   const [toasts, setToasts] = useState([]);
   const [musicMode, setMusicMode] = useState("off");
   const [sound, setSound] = useState(true);
+  const dark = useDarkMode(g.themePref || "auto");
   const loaded = useRef(false);
 
   useEffect(() => {
@@ -5246,6 +5273,14 @@ function App() {
       } catch (e) {}
       setG(prev => { const n = JSON.parse(JSON.stringify(prev)); ensurePeriods(n); migrateSrs(n); return n; });
       loaded.current = true;
+      /* اختصارات الشاشة الرئيسية (manifest shortcuts): افتح مباشرة على المراجعة
+         أو دفتر الأخطاء بدل إسقاط الطالب في شاشة العنوان. */
+      try {
+        const go = new URLSearchParams(location.search).get("go");
+        if (go === "review") setView({ s: "acad", review: true });
+        else if (go === "mistakes") { setView({ s: "world" }); setPanel("mistakes"); }
+        if (go) history.replaceState({}, "", location.pathname);
+      } catch (e) {}
     })();
     return () => stopMusic();
   }, []);
@@ -5402,8 +5437,16 @@ function App() {
   const claimSeason = (idx) => mut(n => applyClaimSeason(n, idx, FX));
 
   const usaNow = eraOf(g.chapter) === "us" && view.s !== "title";
-  const theme = usaNow ? { bg: "#0B1626", head: "#122B4A", card: "#16233A", text: "#EAF0F8", sub: "#9FB2CC", line: "#24354F" }
-                       : { bg: "#F4F6F3", head: "#0F5147", card: "#FFFFFF", text: "#17251F", sub: "#5A6A62", line: "#E2E8E1" };
+  /* الوضع الليلي كان مربوطًا بفصول الغربة في القصة فقط: طالب يذاكر ليلًا في
+     الفصل الأول لم يكن يملك خيارًا. صار تفضيلًا صريحًا — تلقائي (يتبع النظام)
+     أو فاتح أو داكن — مع إبقاء لوحة الغربة الزرقاء كأثر سردي في فصولها. */
+  const theme = usaNow ? THEMES.usa : (dark ? THEMES.dark : THEMES.light);
+  /* شريط المتصفح/النظام يتبع الثيم، وإلا بقي أخضر فاتحًا فوق واجهة داكنة */
+  useEffect(() => {
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", usaNow ? THEMES.usa.head : dark ? THEMES.dark.head : THEMES.light.head);
+    document.documentElement.style.colorScheme = (usaNow || dark) ? "dark" : "light";
+  }, [dark, usaNow]);
 
   /* التنقّل السفلي: يظهر في شاشات التصفّح لا في الشاشات الغامرة */
   const IMMERSIVE = ["title", "battle", "dialog", "chapterCard", "ending"];
@@ -5421,7 +5464,7 @@ function App() {
         .card{box-shadow:0 1px 2px rgba(15,30,25,.05),0 5px 16px rgba(15,30,25,.06);background:${theme.card};border:1px solid ${theme.line};border-radius:16px;padding:14px;margin-bottom:10px;transition:background .5s ease}
         .btn{border:none;box-shadow:0 3px 10px rgba(15,81,71,.28);background:linear-gradient(180deg,#146455,#0F5147);color:#fff;padding:12px 20px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
         .btn.gold{background:linear-gradient(180deg,#D9A344,#C08A2C);box-shadow:0 3px 10px rgba(200,146,53,.3)}.btn.dark{background:#17251F}.btn.ghost{background:transparent;color:${theme.text};border:1.5px solid ${theme.line}}
-        .opt{display:block;width:100%;text-align:left;direction:ltr;border:1.5px solid ${theme.line};background:${usaNow ? "#1B2B45" : "#FAFBFA"};color:${theme.text};border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:15px;cursor:pointer;font-family:inherit}
+        .opt{display:block;width:100%;text-align:left;direction:ltr;border:1.5px solid ${theme.line};background:${usaNow ? "#1B2B45" : dark ? "#1B2C26" : "#FAFBFA"};color:${theme.text};border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:15px;cursor:pointer;font-family:inherit}
         .opt:disabled{opacity:.35}
         /* 44×44 هو الحد الأدنى لهدف اللمس (WCAG 2.5.5 / إرشادات آبل) — كان 36×31 */
         .hudbtn{border:none;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;padding:8px 10px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex:0 0 auto}
@@ -5523,6 +5566,7 @@ function App() {
         onDone={(res) => mut(n => applyMockDone(n, res, FX))} />}
       {panel === "more" && <MoreSheet g={g} theme={theme} spFree={spFree} close={() => setPanel(null)}
         onPanel={(p) => setPanel(p)} sound={sound} setSound={setSound} musicMode={musicMode} setMusicMode={setMusicMode}
+        themePref={g.themePref || "auto"} setThemePref={(v) => mut(n => { n.themePref = v; })}
         mode={g.mode} setMode={(m) => { mut(n => { n.mode = m; }); toast(m === "calm" ? "🧘 وضع هادئ: بدون مؤقت (إلا الزعماء)" : "⚡ وضع التحدي: مؤقت + بونص سرعة"); }} />}
       {panel && !["journal", "mistakes", "mock", "more", "road"].includes(panel) && <Panel g={g} theme={theme} panel={panel} spFree={spFree} close={() => setPanel(null)}
         buySkill={(sk) => mut(n => { n.skills.push(sk.id); if (n.skills.length >= 3) grant(n, "skills3"); })}
@@ -5648,7 +5692,7 @@ function TabBar({ active, theme, badges, onGo }) {
 }
 
 /* ---------- ⋯ ورقة «المزيد»: ما ليس وجهةً يومية ---------- */
-function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMode, setMusicMode, mode, setMode }) {
+function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMode, setMusicMode, mode, setMode, themePref, setThemePref }) {
   const Row = ({ e, n, sub, onClick, badge }) => (
     <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: "none", border: "none", borderBottom: `1px solid ${theme.line}`, padding: "14px 4px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start", minHeight: 56 }}>
       <span aria-hidden="true" style={{ fontSize: 22, width: 30, textAlign: "center" }}>{e}</span>
@@ -5679,6 +5723,25 @@ function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMod
         <Row e="📔" n="يومياتي والمقتنيات" sub="قصة رحلتك" onClick={() => onPanel("journal")} />
         <Row e="🏢" n="خريطة الطريق" sub="أين أنت من الهدف" onClick={() => onPanel("road")} />
         <div style={{ fontWeight: 900, fontSize: 12.5, color: theme.sub, margin: "16px 4px 2px" }}>الإعدادات</div>
+        <div style={{ padding: "12px 4px", borderBottom: `1px solid ${theme.line}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 9 }}>
+            <span aria-hidden="true" style={{ fontSize: 22, width: 30, textAlign: "center" }}>🌗</span>
+            <span style={{ fontWeight: 800, fontSize: 14.5 }}>مظهر التطبيق</span>
+          </div>
+          <div role="radiogroup" aria-label="مظهر التطبيق" style={{ display: "flex", gap: 6 }}>
+            {THEME_PREFS.map(t => {
+              const on = (themePref || "auto") === t.id;
+              return (
+                <button key={t.id} role="radio" aria-checked={on} onClick={() => setThemePref(t.id)}
+                  style={{ flex: 1, minHeight: 44, border: `1.5px solid ${on ? "#C89235" : theme.line}`, background: on ? "#C8923518" : "none",
+                    color: on ? "#C89235" : theme.sub, borderRadius: 11, fontFamily: "inherit", fontWeight: 800, fontSize: 12, cursor: "pointer", padding: "6px 4px" }}>
+                  <span aria-hidden="true" style={{ display: "block", fontSize: 16 }}>{t.e}</span>
+                  {t.n.split(" ")[0]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <Toggle e={mode === "calm" ? "🧘" : "⚡"} n="نمط اللعب" on={mode !== "calm"} state={mode === "calm" ? "هادئ" : "تحدٍّ"} onClick={() => setMode(mode === "calm" ? "hard" : "calm")} />
         <Toggle e={sound ? "🔊" : "🔇"} n="المؤثرات الصوتية" on={sound} state={sound ? "مفعّلة" : "موقوفة"} onClick={() => setSound(!sound)} />
         <Toggle e={musicMode === "off" ? "🎶" : musicMode === "dream" ? "🌙" : "🌈"} n="الموسيقى" on={musicMode !== "off"} state={musicMode === "off" ? "موقوفة" : musicMode === "dream" ? "هادئة" : "مشرقة"} onClick={() => setMusicMode(musicMode === "off" ? "dream" : musicMode === "dream" ? "glow" : "off")} />
@@ -5768,7 +5831,7 @@ function UniChoice({ g, theme, onPick, onRetake, back }) {
   const score = g.gatScore || 0;
   return (
     <div style={{ animation: "drop .35s ease" }}>
-      <button onClick={back} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8 }}>→ رجوع</button>
+      <button onClick={back} style={{ background: "none", border: "none", color: theme.text, fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit", marginBottom: 8, opacity: .8, minHeight: 44, padding: "0 6px" }}>→ رجوع</button>
       <div className="card" style={{ textAlign: "center" }}>
         <div style={{ fontSize: 34 }}>🗝️</div>
         <div style={{ fontWeight: 900, fontSize: 16, margin: "4px 0" }}>درجتك: <span style={{ color: "#C89235" }}>{score}</span></div>

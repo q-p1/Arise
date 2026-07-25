@@ -11,7 +11,41 @@
   "background_color": "#0F5147",
   "theme_color": "#0F5147",
   "icons": [
-    { "src": "./apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "./icon-511.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-511.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-511.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "/arise/",
+  "categories": [
+    "education",
+    "games"
+  ],
+  "shortcuts": [
+    {
+      "name": "مراجعة اليوم",
+      "short_name": "مراجعة",
+      "url": "./?go=review",
+      "description": "المفاهيم المستحقّة اليوم"
+    },
+    {
+      "name": "دفتر أخطائي",
+      "short_name": "أخطائي",
+      "url": "./?go=mistakes",
+      "description": "راجع الأسئلة التي أخطأت فيها"
+    }
   ]
 }
