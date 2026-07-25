@@ -2165,7 +2165,18 @@ const TOPIC_META = {
 };
 
 /* ── دفعة أسئلة غنية: خطوات + تلميحات + تشخيص فخوخ + طرق بديلة ── */
-function buildChallenges(secs, count, g, isBoss) {
+function buildChallenges(secs, count, g, isBoss, gens) {
+  /* 🎯 تدريب مستهدف: لو مُرِّرت قائمة مولّدات (من تشخيص أخطاء اللاعب)
+     نبني منها مباشرة — الأسئلة تصير من نفس المفاهيم التي أسقطته فعلًا. */
+  if (gens && gens.length) {
+    const pool = GENS.filter(x => gens.includes(x.id) && (x.type || "mcq") === "mcq");
+    const made = [];
+    for (let t = 0; t < count * 8 && made.length < count && pool.length; t++) {
+      const q = makeGen(GR.pick(pool), g);
+      if (q && !made.some(m => m.q === q.q)) { noteSeen(q.id); made.push({ kind: "mcq", ...q, sec: q.topic }); }
+    }
+    if (made.length >= Math.min(3, count)) return made;
+  }
   // 🧠 اختيار موزون من البنك: الأقسام الضعيفة تظهر أكثر + صعوبة تتدرج مع تقدمك
   const out = bankMCQ(secs, count, g, battleDiffs(g, isBoss)).map(q => ({ kind: "mcq", ...q, sec: q.topic }));
   while (out.length < count) {
@@ -4549,7 +4560,8 @@ const newSave = () => ({
   xp: 0, coins: 60, skills: [], items: { hint: 1, freeze: 0, potion: 0 },
   streak: 0, lastDay: "", dailyDate: "",
   ach: [], gatScore: null, uni: null, finalAcc: null, ending: null,
-  stats: { answered: 0, correct: 0, bySec: {}, battles: 0, bestCombo: 0 },
+  // bySkill/traps: التشخيص الدقيق — أي مهارة وأي مفهوم خاطئ، لا القسم العريض فقط
+  stats: { answered: 0, correct: 0, bySec: {}, bySkill: {}, traps: {}, battles: 0, bestCombo: 0 },
   daily: null, weekly: null, season: null, history: [], timeline: [], coachN: 0,
   acad: { units: {}, placed: null, simBest: null, opened: {} },
   srs: {},
@@ -4559,14 +4571,59 @@ const newSave = () => ({
   mem: { study: 0, work: 0, rest: 0, perfects: 0, lost: {}, comeback: {}, gatFirst: null, gatImproved: null, lastComeback: null },
 });
 
-/* 📕 دفتر الأخطاء: يلتقط السؤال الذي أخطأ فيه اللاعب كاملًا ليعيد مراجعته لاحقًا */
+/* 📕 دفتر الأخطاء: يلتقط السؤال الذي أخطأ فيه اللاعب كاملًا ليعيد مراجعته لاحقًا.
+   ويحمل معه «سبب الخطأ» (trap) — كل مولّد يعرف تحديدًا لماذا يُغري كل مشتّت،
+   وهذه المعلومة كانت تُحسب ثم تُرمى. الآن تُخزَّن لتشخيص المفهوم الخاطئ. */
 function mistakeRec(q, picked, kind) {
   return {
     id: sigOf(q.q), sec: q.sec, kind,
     q: q.q, options: q.options || null, a: q.a, picked,
     ex: q.ex || "", steps: q.steps || null,
+    skill: q.skill || null, genId: q.genId || null,
+    trap: (q.traps && picked != null && q.traps[picked]) || null,
   };
 }
+
+/* ═══════════════════════════════════════════════════════════
+   🔬 التشخيص: من «٦٠٪ في الهندسة» إلى «تنسى نصف المثلث»
+
+   الإحصاء القديم كان يجيب على «كم أخطأت؟» فقط. أما «لماذا؟» فكانت
+   الإجابة موجودة في المحرّك وتُهمَل. هنا نُراكم:
+     bySkill — الإتقان على مستوى المهارة لا القسم العريض
+     traps   — عدّاد لكل مفهوم خاطئ وقع فيه الطالب فعلًا
+   ═══════════════════════════════════════════════════════════ */
+const TRAPS_MAX = 40;
+function noteAttempt(n, { sec, skill, ok, t, trap, genId }) {
+  n.stats.bySkill ||= {};
+  if (skill) {
+    const s = (n.stats.bySkill[skill] ||= { a: 0, c: 0, t: 0, sec });
+    s.a++; if (ok) s.c++; s.t = (s.t || 0) + (t || 0);
+  }
+  if (ok || !trap) return;
+  n.stats.traps ||= {};
+  const key = sigOf(trap);
+  const e = (n.stats.traps[key] ||= { why: trap, sec, skill: skill || null, genId: genId || null, n: 0, last: 0 });
+  e.n++; e.last = n.day;
+  // أبقِ الأكثر تكرارًا فقط حتى لا ينمو الحفظ بلا حدّ
+  const keys = Object.keys(n.stats.traps);
+  if (keys.length > TRAPS_MAX) {
+    keys.sort((a, b) => n.stats.traps[a].n - n.stats.traps[b].n)
+      .slice(0, keys.length - TRAPS_MAX)
+      .forEach(k => { if (k !== key) delete n.stats.traps[k]; });
+  }
+}
+/* أبرز المفاهيم الخاطئة — مرتّبة بالتكرار ثم بحداثة الوقوع */
+const topTraps = (g, k = 5) => Object.entries(g.stats?.traps || {})
+  .map(([id, v]) => ({ id, ...v }))
+  .filter(v => v.n >= 2)                       // مرة واحدة قد تكون سهوًا لا مفهومًا خاطئًا
+  .sort((a, b) => (b.n - a.n) || (b.last - a.last))
+  .slice(0, k);
+/* المهارات الأضعف بعد عيّنة كافية */
+const weakSkills = (g, k = 4) => Object.entries(g.stats?.bySkill || {})
+  .map(([name, v]) => ({ name, ...v, pct: v.a ? Math.round((v.c / v.a) * 100) : 0 }))
+  .filter(v => v.a >= 4)
+  .sort((a, b) => a.pct - b.pct)
+  .slice(0, k);
 function addMistake(n, rec, day) {
   n.mistakes = (n.mistakes || []).filter(m => m.id !== rec.id);
   n.mistakes.unshift({ ...rec, ts: day });
@@ -4754,11 +4811,13 @@ function applySpendSlot(n, energyCost) {
 function applyBattleOutcome(n, res, fx = FX_NULL) {
   let tip = null;
 
-      res.answered.forEach(({ sec, ok, t, to, wrong }) => {
+      res.answered.forEach(({ sec, ok, t, to, wrong, skill, genId, trap }) => {
         n.stats.answered++; if (ok) n.stats.correct++;
         n.stats.bySec[sec] ||= { a: 0, c: 0, t: 0, to: 0 };
         const v = n.stats.bySec[sec];
         v.a++; if (ok) v.c++; v.t = (v.t || 0) + (t || 0); if (to) v.to = (v.to || 0) + 1;
+        // 🔬 سجّل المهارة والمفهوم الخاطئ تحديدًا، لا مجرد «خطأ في الهندسة»
+        noteAttempt(n, { sec, skill, ok, t, genId, trap: trap ?? wrong?.trap });
         if (wrong) addMistake(n, wrong, n.day);   // 📕 احفظ السؤال في دفتر الأخطاء
       });
       n.stats.bestCombo = Math.max(n.stats.bestCombo, res.bestCombo);
@@ -4844,8 +4903,9 @@ export const __test = {
   SRS_EF_MIN, SRS_EF_DEF, SRS_LEGACY,
   // المحتوى
   QQ, GENS, BANK, ACADEMY, AWL_WORDS, PREREQ, validateContent,
-  // الحالة
+  // الحالة والتشخيص
   newSave, addMistake, mistakeRec, lvlOf, xpForLvl, masteryOf, weightOf,
+  noteAttempt, topTraps, weakSkills, applyBattleOutcome, TRAPS_MAX,
   GR, sigOf,
 };
 
@@ -4986,8 +5046,25 @@ function App() {
       s: "battle", chId: q.chId, questId: q.qid, isBoss: !!q.isBoss,
       usa: eraOf(g.chapter) === "us",
       enemy: { ...q.enemy, name: q.name, icon: q.icon },
-      qs: buildChallenges(q.enemy.secs, count, g, !!q.isBoss),
+      qs: buildChallenges(q.enemy.secs, count, g, !!q.isBoss, q.enemy.gens),
       key: Date.now(),
+    });
+  };
+
+  /* 🎯 تدريب مبني على تشخيصك أنت: يستهدف المولّدات التي أنتجت المفاهيم
+     الخاطئة المسجّلة فعلًا، ثم أضعف مهاراتك، ثم أضعف قسم — بهذا الترتيب. */
+  const startWeakDrill = () => {
+    const gens = [...new Set(topTraps(g, 6).map(t => t.genId).filter(Boolean))];
+    const skills = weakSkills(g, 3).map(s => s.name);
+    const secs = [...new Set([...topTraps(g, 6), ...weakSkills(g, 3)].map(x => x.sec).filter(Boolean))];
+    const pool = GENS.filter(x => gens.includes(x.id) || skills.includes(x.skill));
+    if (!pool.length && !secs.length) { toast("🔬 خض بضع معارك أولًا حتى نعرف نقاط ضعفك"); return; }
+    setPanel(null);
+    play("door");
+    startBattle({
+      chId: g.chapter, qid: "weakdrill", isBoss: false,
+      name: "تدريب نقاط الضعف", icon: "🎯",
+      enemy: { hp: 4, secs: secs.length ? secs : [weakestOf(g, ALL_SECS)], time: 45, xp: 45, coins: 25, gens: pool.map(x => x.id) },
     });
   };
 
@@ -5133,7 +5210,8 @@ function App() {
         buyAvatar={(av) => mut(n => { n.coins -= av.price; n.owned.push(av.id); n.avatar = av.id; })}
         wearAvatar={(av) => mut(n => { n.avatar = av.id; })} toast={toast}
         onExport={doExport} onImport={doImport} onOpenMock={() => setPanel("mock")}
-        onSetDate={(v) => mut(n => { n.examDate = v || null; })} />}
+        onSetDate={(v) => mut(n => { n.examDate = v || null; })}
+        onDrillWeak={startWeakDrill} />}
     </div>
   );
 }
@@ -5486,7 +5564,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || over) return;
     setPicked(idx);
     const ok = idx === q.a;
-    const newLog = [...log, { sec: q.sec, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, idx, "mcq") }) }];
+    const newLog = [...log, { sec: q.sec, skill: q.skill, genId: q.genId, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, idx, "mcq") }) }];
     setLog(newLog);
     if (ok) {
       const newCombo = combo + 1;
@@ -5499,7 +5577,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
 
   const miss = (idx) => {
     setPicked(-1);
-    const newLog = [...log, { sec: q.sec, ok: false, t: TIME, to: true, ...((q.kind === "mcq" || q.kind === "num") ? { wrong: mistakeRec(q, -1, q.kind) } : {}) }];
+    const newLog = [...log, { sec: q.sec, skill: q.skill, genId: q.genId, ok: false, t: TIME, to: true, ...((q.kind === "mcq" || q.kind === "num") ? { wrong: mistakeRec(q, -1, q.kind) } : {}) }];
     setLog(newLog);
     takeHit(newLog);
   };
@@ -5509,7 +5587,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     if (picked !== null || numVal === "") return;
     const ok = parseInt(numVal, 10) === q.a;
     setPicked(ok ? "done" : "wrongnum");
-    const newLog = [...log, { sec: q.sec, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, numVal, "num") }) }];
+    const newLog = [...log, { sec: q.sec, skill: q.skill, genId: q.genId, ok, t: took(), ...(ok ? {} : { wrong: mistakeRec(q, numVal, "num") }) }];
     setLog(newLog);
     if (ok) {
       const newCombo = combo + 1;
@@ -5549,7 +5627,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
       setOrderProg(np); play("click");
       if (np.length === q.steps.length) {
         setPicked("done");
-        const newLog = [...log, { sec: q.sec, ok: true, t: took() }];
+        const newLog = [...log, { sec: q.sec, skill: q.skill, ok: true, t: took() }];
         setLog(newLog);
         const newCombo = combo + 1; setCombo(newCombo);
         dealDamage(2, 25, true, newLog, newCombo);
@@ -5561,7 +5639,7 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
       const of = orderFails + 1; setOrderFails(of);
       if (of >= 2) {
         setOrderFails(0);
-        const newLog = [...log, { sec: q.sec, ok: false, t: took() }];
+        const newLog = [...log, { sec: q.sec, skill: q.skill, ok: false, t: took() }];
         setLog(newLog);
         takeHit(newLog);
         setPicked("failorder");   // اكشف الحل الصحيح بدل تعليق اللاعب
@@ -5864,7 +5942,7 @@ function BackupBox({ theme, onExport, onImport }) {
   );
 }
 
-function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, wearAvatar, toast, onExport, onImport, onOpenMock, onSetDate }) {
+function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, wearAvatar, toast, onExport, onImport, onOpenMock, onSetDate, onDrillWeak }) {
   const priceOf = (p) => (g.dayFlags?.sale ? Math.ceil(p / 2) : p);
   return (
     <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -5940,7 +6018,7 @@ function Panel({ g, theme, panel, spFree, close, buySkill, buyItem, buyAvatar, w
           })}
         </div>}
 
-        {panel === "stats" && <StatsPanel g={g} theme={theme} />}
+        {panel === "stats" && <StatsPanel g={g} theme={theme} onDrill={onDrillWeak} />}
         {panel === "stats" && <StudyPlanCard g={g} theme={theme} onSetDate={onSetDate} />}
         {panel === "stats" && (
           <div className="card" style={{ textAlign: "center", background: "#B3402F0d", borderColor: "#B3402F33" }}>
@@ -5990,7 +6068,57 @@ function ProgressChart({ g, theme }) {
 }
 
 
-function StatsPanel({ g, theme }) {
+/* ---------- 🔬 بطاقة التشخيص ----------
+   الفرق بين «٦٠٪ في الهندسة» و«تنسى ضرب ½ في مساحة المثلث» هو الفرق بين
+   تقرير وخطة. المولّدات تعرف سبب كل خطأ؛ هذه البطاقة تعرضه للطالب. */
+function DiagnosisCard({ g, theme, onDrill }) {
+  const traps = topTraps(g, 4);
+  const skills = weakSkills(g, 3);
+  if (!traps.length && !skills.length) {
+    return (
+      <div className="card">
+        <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 6 }}>🔬 تشخيص أخطائك</div>
+        <div style={{ fontSize: 12.5, color: theme.sub, lineHeight: 1.9 }}>
+          بعد بضع معارك سيظهر هنا <b>سبب</b> كل خطأ تكرّر معك — لا نسبة فقط. مثال: «نسيت ضرب ½ في مساحة المثلث» بدل «٦٠٪ في الهندسة».
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="card" style={{ borderColor: "#B3402F44", background: "#B3402F08" }}>
+      <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 3 }}>🔬 تشخيص أخطائك</div>
+      <div style={{ fontSize: 11.5, color: theme.sub, marginBottom: 10 }}>ليست نسبًا — هذي المفاهيم التي تُسقطك فعلًا، مرتّبة بتكرارها</div>
+      {traps.map((t, i) => (
+        <div key={t.id} style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "9px 0", borderTop: i ? `1px solid ${theme.line}` : "none" }}>
+          <span style={{ background: "#B3402F", color: "#fff", borderRadius: 8, fontSize: 11, fontWeight: 900, padding: "3px 8px", whiteSpace: "nowrap", marginTop: 1 }}>×{t.n}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, lineHeight: 1.8, fontWeight: 700 }}>{t.why}</div>
+            <div style={{ fontSize: 10.5, color: theme.sub, marginTop: 2 }}>{t.skill || SEC_AR[t.sec] || t.sec}</div>
+          </div>
+        </div>
+      ))}
+      {skills.length > 0 && (
+        <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${theme.line}` }}>
+          <div style={{ fontWeight: 900, fontSize: 12.5, marginBottom: 7 }}>أضعف مهاراتك</div>
+          {skills.map(s => (
+            <div key={s.name} style={{ marginBottom: 7 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, fontWeight: 800, marginBottom: 3 }}>
+                <span>{s.name}</span>
+                <span style={{ color: s.pct >= 70 ? "#1F7A5C" : s.pct >= 50 ? "#C89235" : "#B3402F" }}>{s.pct}% ({s.c}/{s.a})</span>
+              </div>
+              <div style={{ background: theme.line, borderRadius: 99, height: 5, overflow: "hidden" }}>
+                <div style={{ width: `${s.pct}%`, height: "100%", background: s.pct >= 70 ? "#1F7A5C" : s.pct >= 50 ? "#C89235" : "#B3402F", borderRadius: 99 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {onDrill && <button className="btn" style={{ width: "100%", padding: 11, marginTop: 12, fontSize: 13.5 }} onClick={onDrill}>🎯 درّبني على نقاط ضعفي هذي</button>}
+    </div>
+  );
+}
+
+function StatsPanel({ g, theme, onDrill }) {
   const acc = g.stats.answered ? Math.round((g.stats.correct / g.stats.answered) * 100) : 0;
   const secs = Object.entries(g.stats.bySec);
   return (
@@ -6000,6 +6128,7 @@ function StatsPanel({ g, theme }) {
         <div style={{ fontSize: 13, color: theme.sub }}>الدقة الكلية • {g.stats.correct}/{g.stats.answered} إجابة صحيحة</div>
         <div style={{ fontSize: 13, marginTop: 6, fontWeight: 800 }}>⚔️ {g.stats.battles} معركة محسومة • 🔥 أفضل كومبو ×{g.stats.bestCombo} • ⚡ سلسلة {g.streak} يوم</div>
       </div>
+      <DiagnosisCard g={g} theme={theme} onDrill={onDrill} />
       <ProgressChart g={g} theme={theme} />
       <div className="card">
         <div style={{ fontWeight: 900, marginBottom: 10, fontSize: 14 }}>الدقة حسب القسم — هذي بوصلتك: العب في الأقسام الحمراء</div>
