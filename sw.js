@@ -1,6 +1,11 @@
 /* Arise — Service Worker (أوفلاين كامل) */
-const V = "arise-v9";
-const CORE = ["./", "./index.html", "./manifest.json", "./icon-511.png", "./apple-touch-icon.png", "./favicon.ico"];
+const V = "arise-v10";
+const CORE = [
+  "./", "./index.html", "./manifest.json", "./icon-511.png", "./apple-touch-icon.png", "./favicon.ico",
+  // الخطوط جزء من القشرة: بدونها يسقط التطبيق للخط الاحتياطي عند أول فتح دون إنترنت
+  "./fonts/plex-ar-arabic-400.woff2", "./fonts/plex-ar-arabic-700.woff2",
+  "./fonts/plex-ar-latin-400.woff2", "./fonts/plex-ar-latin-700.woff2",
+];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(V).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
 });

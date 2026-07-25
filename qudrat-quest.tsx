@@ -3045,18 +3045,20 @@ function Street({ g, theme, night, pos, setPos, onEnter }) {
       <div style={{ background: sky, transition: "background 1.2s ease", padding: "22px 8px 0", position: "relative" }}>
         <div style={{ position: "absolute", top: 10, left: 14, fontSize: 22 }}>{night ? "🌙" : g.slot === 0 ? "🌅" : g.slot === 1 ? "☀️" : "🌆"}</div>
         {era === "us" && <div style={{ position: "absolute", top: 10, right: 14, fontSize: 18, opacity: .8 }}>🗽</div>}
-        <div style={{ display: "flex" }}>
+        <nav aria-label="مباني الحي" style={{ display: "flex" }}>
           {locs.map((l, i) => {
             const active = i === pos;
             return (
               <button key={l.id} onClick={() => go(i, l)}
+                aria-current={active ? "location" : undefined}
+                aria-label={active ? `${l.name} — أنت هنا، اضغط للدخول` : `امشِ إلى ${l.name}`}
                 style={{ flex: 1, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: "6px 2px 14px", textAlign: "center", filter: night ? "brightness(.65)" : "none" }}>
-                <div style={{ fontSize: 42, transform: active ? "scale(1.12)" : "scale(1)", transition: "transform .3s" }}>{l.e}</div>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: night ? "#cbd5e8" : "#3A3A3A", marginTop: 2, background: "rgba(255,255,255,.55)", borderRadius: 8, display: "inline-block", padding: "1px 7px" }}>{l.name}</div>
+                <div aria-hidden="true" style={{ fontSize: 42, transform: active ? "scale(1.12)" : "scale(1)", transition: "transform .3s" }}>{l.e}</div>
+                <div aria-hidden="true" style={{ fontSize: 11.5, fontWeight: 800, color: night ? "#cbd5e8" : "#3A3A3A", marginTop: 2, background: "rgba(255,255,255,.55)", borderRadius: 8, display: "inline-block", padding: "1px 7px" }}>{l.name}</div>
               </button>
             );
           })}
-        </div>
+        </nav>
         {/* الرصيف واللاعب */}
         <div style={{ height: 46, background: night ? "#1C1C28" : "#8A8A8A", position: "relative", borderTop: `4px dashed ${night ? "#3A3A55" : "#C9C9C9"}` }}>
           <div style={{ position: "absolute", bottom: 8, left: `calc(${pos * w}% + ${w / 2}% - 16px)`, transition: "left .75s ease-in-out", fontSize: 30, transform: walking ? "translateY(-2px)" : "none" }}>
@@ -3527,8 +3529,8 @@ function LessonPlayer({ g, theme, unit, onDone, onBack, test, onOpen }) {
             if (picked !== null) { if (idx === drill.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22", fontWeight: 700 }; else st = { opacity: .5 }; }
             return <button key={idx} className="opt" style={st} onClick={() => picked === null && answer(idx === drill.a)}>{String.fromCharCode(65 + idx)}. {o}</button>;
           })}
-          {picked === "ok" && <div style={{ marginTop: 8, background: "#1F7A5C1d", borderRadius: 12, padding: "10px 13px", fontSize: 13.5, fontWeight: 800, color: "#1F7A5C" }}>✓ صحيح! {drill.ex}</div>}
-          {picked === "no" && <div style={{ marginTop: 8 }}>
+          {picked === "ok" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "#1F7A5C1d", borderRadius: 12, padding: "10px 13px", fontSize: 13.5, fontWeight: 800, color: "#1F7A5C" }}>✓ صحيح! {drill.ex}</div>}
+          {picked === "no" && <div role="status" aria-live="assertive" style={{ marginTop: 8 }}>
             <div style={{ background: "#B3402F14", border: "1.5px solid #B3402F33", borderRadius: 12, padding: "11px 13px", fontSize: 13.5, lineHeight: 1.9 }}>
               <b style={{ color: "#B3402F" }}>لا بأس — هذا سر الدرس:</b> {drill.ex}
             </div>
@@ -4092,8 +4094,8 @@ function ReviewSession({ g, theme, onFinish, onExit }) {
           if (picked !== null) { if (idx === drill.a) st = { borderColor: "#1F7A5C", background: "#1F7A5C22" }; else st = { opacity: .5 }; }
           return <button key={idx} className="opt" style={st} onClick={() => picked === null && record(idx === drill.a)}>{String.fromCharCode(65 + idx)}. {o}</button>;
         })}
-        {picked === "ok" && <div style={{ marginTop: 8, background: "#1F7A5C1d", borderRadius: 12, padding: "9px 12px", fontSize: 13, fontWeight: 800, color: "#1F7A5C" }}>✓ ثابتة! {drill.ex}</div>}
-        {picked === "no" && <div style={{ marginTop: 8, background: "#B3402F14", borderRadius: 12, padding: "9px 12px", fontSize: 13, lineHeight: 1.8 }}><b style={{ color: "#B3402F" }}>القاعدة:</b> {drill.ex} — رجعت لخطة الغد.</div>}
+        {picked === "ok" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "#1F7A5C1d", borderRadius: 12, padding: "9px 12px", fontSize: 13, fontWeight: 800, color: "#1F7A5C" }}>✓ ثابتة! {drill.ex}</div>}
+        {picked === "no" && <div role="status" aria-live="assertive" style={{ marginTop: 8, background: "#B3402F14", borderRadius: 12, padding: "9px 12px", fontSize: 13, lineHeight: 1.8 }}><b style={{ color: "#B3402F" }}>القاعدة:</b> {drill.ex} — رجعت لخطة الغد.</div>}
       </div>
     </div>
   );
@@ -4571,6 +4573,22 @@ function addMistake(n, rec, day) {
 
 
 
+/* الخط موحّد للعربية واللاتينية معًا — شاشات Arise تخلط النصّين في السطر نفسه.
+   يُعرَّف في <head> عبر @font-face ويُخزَّن محليًا ليعمل التطبيق دون إنترنت. */
+const FONT_STACK = "'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, system-ui, sans-serif";
+
+/* عنوان مسموع لكل شاشة: قارئ الشاشة كان يدخل صفحة بلا أي عنوان أو بنية */
+const VIEW_TITLE = {
+  title: "Arise — التحضير لاختبار القدرات",
+  world: "العالم — تنقّل بين المباني",
+  acad: "الأكاديمية — الدروس والمراجعة",
+  battle: "معركة أسئلة",
+  dialog: "مشهد من القصة",
+  choice: "اختيار الجامعة",
+  chapterCard: "فصل جديد",
+  ending: "نهاية الرحلة",
+};
+
 class Guard extends (typeof React !== "undefined" ? React.Component : Object) {
   constructor(p) { super(p); this.state = { err: false }; }
   static getDerivedStateFromError() { return { err: true }; }
@@ -4992,16 +5010,20 @@ function App() {
                        : { bg: "#F4F6F3", head: "#0F5147", card: "#FFFFFF", text: "#17251F", sub: "#5A6A62", line: "#E2E8E1" };
 
   return (
-    <div dir="rtl" style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'Segoe UI', Tahoma, system-ui, sans-serif", transition: "background .6s ease" }}>
+    <div dir="rtl" style={{ minHeight: "100dvh", background: theme.bg, color: theme.text, fontFamily: FONT_STACK, transition: "background .6s ease" }}>
       <style>{`
         *{box-sizing:border-box;margin:0}
-        html,body{background:${theme.bg};overscroll-behavior-y:contain}
+        /* الخط على html/body أيضًا: بدونه يومض النص بخط Times قبل أن يتولّى جذر التطبيق */
+        html,body{background:${theme.bg};overscroll-behavior-y:contain;font-family:${FONT_STACK}}
         .card{box-shadow:0 1px 2px rgba(15,30,25,.05),0 5px 16px rgba(15,30,25,.06);background:${theme.card};border:1px solid ${theme.line};border-radius:16px;padding:14px;margin-bottom:10px;transition:background .5s ease}
         .btn{border:none;box-shadow:0 3px 10px rgba(15,81,71,.28);background:linear-gradient(180deg,#146455,#0F5147);color:#fff;padding:12px 20px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
         .btn.gold{background:linear-gradient(180deg,#D9A344,#C08A2C);box-shadow:0 3px 10px rgba(200,146,53,.3)}.btn.dark{background:#17251F}.btn.ghost{background:transparent;color:${theme.text};border:1.5px solid ${theme.line}}
         .opt{display:block;width:100%;text-align:left;direction:ltr;border:1.5px solid ${theme.line};background:${usaNow ? "#1B2B45" : "#FAFBFA"};color:${theme.text};border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:15px;cursor:pointer;font-family:inherit}
         .opt:disabled{opacity:.35}
-        .hudbtn{border:none;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;padding:8px 10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+        /* 44×44 هو الحد الأدنى لهدف اللمس (WCAG 2.5.5 / إرشادات آبل) — كان 36×31 */
+        .hudbtn{border:none;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;padding:8px 10px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex:0 0 auto}
+        /* يُقرأ لقارئ الشاشة ولا يُرى — لإعلان التغييرات وعناوين الأقسام */
+        .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
         @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
         @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
         @keyframes floatUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-52px)}}
@@ -5016,20 +5038,29 @@ function App() {
         @keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-90px) rotate(260deg);opacity:0}}
         @keyframes sheen{0%{background-position:-80px 0}100%{background-position:160px 0}}
         .goldbar{background-image:linear-gradient(90deg,#F0C560,#C89235),linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%)!important;background-size:100% 100%,60px 100%;background-repeat:no-repeat,no-repeat;animation:sheen 2.6s ease-in-out infinite}
+        /* احترام تفضيل النظام: بعض المستخدمين يصابون بدوار من الحركة.
+           نُبقي التغذية الراجعة اللونية ونُلغي الاهتزاز والانزلاق فقط. */
+        @media (prefers-reduced-motion: reduce){
+          *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+        }
       `}</style>
 
-      <div style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 210, width: "min(92vw,420px)" }}>
+      {/* منطقة حيّة: المكافآت والتنبيهات كانت تظهر بصريًا فقط — الآن يسمعها
+          مستخدم قارئ الشاشة أيضًا دون أن تسرق تركيزه. */}
+      <div role="status" aria-live="polite" aria-atomic="false"
+        style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 210, width: "min(92vw,420px)" }}>
         {toasts.map(t => <div className="toast" key={t.id}>{t.msg}</div>)}
       </div>
 
       {trans && <Transition card={trans} onDone={() => setTrans(null)} />}
       {coach && <Coach tip={coach} close={() => setCoach(null)} />}
 
-      {view.s !== "title" && <HUD g={g} spFree={spFree} setPanel={setPanel} sound={sound} setSound={setSound}
+      {view.s !== "title" && <header><HUD g={g} spFree={spFree} setPanel={setPanel} sound={sound} setSound={setSound}
         musicMode={musicMode} setMusicMode={setMusicMode}
-        mode={g.mode} setMode={(m) => { mut(n => { n.mode = m; }); toast(m === "calm" ? "🧘 وضع هادئ: بدون مؤقت (إلا الزعماء)" : "⚡ وضع التحدي: مؤقت + بونص سرعة"); }} />}
+        mode={g.mode} setMode={(m) => { mut(n => { n.mode = m; }); toast(m === "calm" ? "🧘 وضع هادئ: بدون مؤقت (إلا الزعماء)" : "⚡ وضع التحدي: مؤقت + بونص سرعة"); }} /></header>}
 
-      <div style={{ padding: "10px 14px 40px", maxWidth: 620, margin: "0 auto" }}>
+      <main style={{ padding: "10px 14px 40px", maxWidth: 620, margin: "0 auto" }}>
+        <h1 className="sr-only">{VIEW_TITLE[view.s] || "Arise — التحضير لاختبار القدرات"}</h1>
         {view.s === "title" && <Title g={g} setG={setG} onStart={(name) => {
           mut(n => { n.started = true; n.name = name || n.name; ensurePeriods(n); tl(n, "start", "🎒", "بدأت الرحلة — سنة التخرج"); });
           play("win");
@@ -5067,7 +5098,7 @@ function App() {
           mut(n => { n.done["7:boss"] = false; n.ending = null; });
           setView({ s: "world" });
         }} onFree={() => setView({ s: "world" })} />}
-      </div>
+      </main>
 
       {panel === "road" && <RoadPanel g={g} theme={theme} close={() => setPanel(null)} goAcad={() => setView({ s: "acad" })} />}
       {panel === "journal" && <Journal g={g} theme={theme} close={() => setPanel(null)}
@@ -5145,17 +5176,19 @@ function HUD({ g, spFree, setPanel, sound, setSound, musicMode, setMusicMode, mo
           <span style={{ minWidth: 30 }}>{g.energy}%</span>
         </div>
       </div>
-      <div style={{ display: "flex", gap: 6, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-        <button className="hudbtn" style={{ position: "relative" }} onClick={() => setPanel("skills")}>🌳{spFree > 0 && <span style={{ position: "absolute", top: -4, left: -4, background: "#B3402F", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{spFree}</span>}</button>
-        <button className="hudbtn" onClick={() => setPanel("shop")}>🛒</button>
-        <button className="hudbtn" style={{ fontWeight: 900 }} onClick={() => setPanel("road")}>🏢</button>
-        <button className="hudbtn" onClick={() => setPanel("journal")}>📔</button>
-        <button className="hudbtn" onClick={() => setPanel("ach")}>🏅</button>
-        <button className="hudbtn" onClick={() => setPanel("stats")}>📊</button>
-        <button className="hudbtn" onClick={() => setMode(mode === "calm" ? "hard" : "calm")}>{mode === "calm" ? "🧘" : "⚡"}</button>
-        <button className="hudbtn" onClick={() => setSound(!sound)}>{sound ? "🔊" : "🔇"}</button>
-        <button className="hudbtn" onClick={() => setMusicMode(musicMode === "off" ? "dream" : musicMode === "dream" ? "glow" : "off")}>{musicMode === "off" ? "🎶✖️" : musicMode === "dream" ? "🌙" : "🌈"}</button>
-      </div>
+      {/* شريط التنقّل: كل زر يحمل اسمًا منطوقًا لقارئ الشاشة — الإيموجي وحده
+          يُقرأ "deciduous tree" ولا يعني شيئًا للطالب الكفيف. */}
+      <nav aria-label="أقسام اللعبة" style={{ display: "flex", gap: 6, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+        <button className="hudbtn" aria-label={`شجرة المهارات${spFree > 0 ? ` — ${spFree} نقطة متاحة` : ""}`} style={{ position: "relative" }} onClick={() => setPanel("skills")}><span aria-hidden="true">🌳</span>{spFree > 0 && <span aria-hidden="true" style={{ position: "absolute", top: -4, left: -4, background: "#B3402F", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{spFree}</span>}</button>
+        <button className="hudbtn" aria-label="المتجر" onClick={() => setPanel("shop")}><span aria-hidden="true">🛒</span></button>
+        <button className="hudbtn" aria-label="خريطة الطريق" style={{ fontWeight: 900 }} onClick={() => setPanel("road")}><span aria-hidden="true">🏢</span></button>
+        <button className="hudbtn" aria-label="اليوميات ودفتر الأخطاء" onClick={() => setPanel("journal")}><span aria-hidden="true">📔</span></button>
+        <button className="hudbtn" aria-label="الإنجازات" onClick={() => setPanel("ach")}><span aria-hidden="true">🏅</span></button>
+        <button className="hudbtn" aria-label="إحصائياتك وخطة المذاكرة" onClick={() => setPanel("stats")}><span aria-hidden="true">📊</span></button>
+        <button className="hudbtn" aria-pressed={mode !== "calm"} aria-label={mode === "calm" ? "الوضع الهادئ — اضغط للوضع الصعب" : "الوضع الصعب — اضغط للوضع الهادئ"} onClick={() => setMode(mode === "calm" ? "hard" : "calm")}><span aria-hidden="true">{mode === "calm" ? "🧘" : "⚡"}</span></button>
+        <button className="hudbtn" aria-pressed={sound} aria-label={sound ? "المؤثرات الصوتية مفعّلة — اضغط للإيقاف" : "المؤثرات الصوتية موقوفة — اضغط للتفعيل"} onClick={() => setSound(!sound)}><span aria-hidden="true">{sound ? "🔊" : "🔇"}</span></button>
+        <button className="hudbtn" aria-label={musicMode === "off" ? "الموسيقى موقوفة — اضغط لتشغيل مقطوعة هادئة" : musicMode === "dream" ? "موسيقى هادئة — اضغط لتبديل المقطوعة" : "موسيقى مشرقة — اضغط للإيقاف"} onClick={() => setMusicMode(musicMode === "off" ? "dream" : musicMode === "dream" ? "glow" : "off")}><span aria-hidden="true">{musicMode === "off" ? "🎶✖️" : musicMode === "dream" ? "🌙" : "🌈"}</span></button>
+      </nav>
     </div>
   );
 }
@@ -5213,16 +5246,25 @@ function Dialog({ lines, theme, onDone }) {
     else if (li + 1 < lines.length) setLi(li + 1);
     else onDone();
   };
+  /* المشهد كان div قابلًا للنقر فقط: لا يصله المفتاح ولا يعرفه قارئ الشاشة.
+     صار زرًّا حقيقيًا يعمل بالمسافة/الإدخال، والنص يُعلَن عند اكتماله فقط
+     حتى لا يُثرثر القارئ حرفًا حرفًا مع تأثير الآلة الكاتبة. */
+  const doneTyping = chars >= full.length;
   return (
-    <div onClick={tap} style={{ cursor: "pointer", paddingTop: 30, animation: "drop .3s ease" }}>
-      <div style={{ textAlign: "center", fontSize: 76, marginBottom: 14, animation: "pulse 3s infinite" }}>{line.e}</div>
-      <div className="card" style={{ padding: 18, minHeight: 130 }}>
-        <div style={{ fontWeight: 900, fontSize: 14, color: "#C89235", marginBottom: 8 }}>{line.who}</div>
-        <div style={{ fontSize: 16, lineHeight: 2 }}>{full.slice(0, chars)}<span style={{ opacity: .5 }}>▌</span></div>
-      </div>
+    <div style={{ paddingTop: 30, animation: "drop .3s ease" }}>
+      <button onClick={tap} aria-label={doneTyping ? "التالي في الحوار" : "أظهر بقية النص"}
+        style={{ display: "block", width: "100%", textAlign: "inherit", background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit", color: "inherit" }}>
+        <div aria-hidden="true" style={{ textAlign: "center", fontSize: 76, marginBottom: 14, animation: "pulse 3s infinite" }}>{line.e}</div>
+        <div className="card" style={{ padding: 18, minHeight: 130 }}>
+          <div style={{ fontWeight: 900, fontSize: 14, color: "#C89235", marginBottom: 8 }}>{line.who}</div>
+          <div aria-hidden="true" style={{ fontSize: 16, lineHeight: 2 }}>{full.slice(0, chars)}<span style={{ opacity: .5 }}>▌</span></div>
+          <div className="sr-only" aria-live="polite">{doneTyping ? `${line.who}: ${full}` : ""}</div>
+        </div>
+      </button>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, padding: "0 4px" }}>
-        <span style={{ fontSize: 12.5, color: theme.sub }}>اضغط للمتابعة • {li + 1}/{lines.length} {chars >= full.length && <span className="tpulse">▼</span>}</span>
-        <button onClick={(e) => { e.stopPropagation(); play("click"); onDone(); }} style={{ background: "none", border: "none", color: theme.sub, fontWeight: 800, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit" }}>تخطي ⏭</button>
+        <span style={{ fontSize: 12.5, color: theme.sub }}>اضغط للمتابعة • {li + 1}/{lines.length} {doneTyping && <span className="tpulse" aria-hidden="true">▼</span>}</span>
+        <button onClick={(e) => { e.stopPropagation(); play("click"); onDone(); }} aria-label="تخطّي المشهد"
+          style={{ background: "none", border: "none", color: theme.sub, fontWeight: 800, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit", minHeight: 44, padding: "0 8px" }}>تخطي ⏭</button>
       </div>
     </div>
   );
@@ -5660,8 +5702,14 @@ function StudyPlanCard({ g, theme, onSetDate }) {
       <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 6 }}>📅 خطة المذاكرة والعدّاد</div>
       {!g.examDate ? (
         <>
-          <div style={{ fontSize: 12.5, color: theme.sub, lineHeight: 1.9, marginBottom: 10 }}>حدّد تاريخ اختبارك، وسيبني لك التطبيق خطة يومية تركّز على أقسامك الأضعف مع عدّاد تنازلي محفّز.</div>
-          <input type="date" onChange={e => e.target.value && onSetDate(e.target.value)}
+          <div style={{ fontSize: 12.5, color: theme.sub, lineHeight: 1.9, marginBottom: 10 }} id="examdate-help">حدّد تاريخ اختبارك، وسيبني لك التطبيق خطة يومية تركّز على أقسامك الأضعف مع عدّاد تنازلي محفّز.</div>
+          {/* الحقل كان يعرض mm/dd/yyyy الأمريكية داخل واجهة عربية بالكامل.
+              lang="ar-SA" يجعل المتصفح يعرض ترتيب التاريخ وأسماء الأشهر بالعربية،
+              وmin=اليوم يمنع اختيار تاريخ اختبار في الماضي. */}
+          <label htmlFor="examdate" className="sr-only">تاريخ اختبار القدرات</label>
+          <input id="examdate" type="date" lang="ar-SA" aria-describedby="examdate-help"
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={e => e.target.value && onSetDate(e.target.value)}
             style={{ width: "100%", boxSizing: "border-box", padding: 11, borderRadius: 10, border: `1px solid ${theme.line}`, background: theme.bg, color: theme.text, fontSize: 14, fontFamily: "inherit" }} />
         </>
       ) : (
