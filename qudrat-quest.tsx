@@ -4256,8 +4256,10 @@ function GoalTasks({ g, theme, claimTask, claimSeason, onReview }) {
           <div style={{ fontWeight: 900, fontSize: 13.5, color: goal.boss ? "#B3402F" : theme.text }}>{goal.t}</div>
           <div style={{ fontSize: 11, color: theme.sub, marginTop: 2 }}>{goal.sub} • {goal.pct}%</div>
         </div>
-        <button onClick={() => { play("click"); setOpen(!open); }} style={{ border: "none", background: "#C8923522", color: "#C89235", borderRadius: 10, padding: "7px 11px", fontWeight: 900, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit", position: "relative" }}>
-          📋 المهمات{readyCount > 0 && <span style={{ position: "absolute", top: -6, left: -6, background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{readyCount}</span>}
+        <button onClick={() => { play("click"); setOpen(!open); }} aria-expanded={open}
+          aria-label={readyCount > 0 ? `المهمات — ${readyCount} مكافأة جاهزة` : "المهمات"}
+          style={{ border: "none", background: "#C8923522", color: "#C89235", borderRadius: 10, padding: "7px 11px", minHeight: 44, fontWeight: 900, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit", position: "relative", whiteSpace: "nowrap" }}>
+          📋 المهمات{readyCount > 0 && <span aria-hidden="true" style={{ position: "absolute", top: -6, left: -6, background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{readyCount}</span>}
         </button>
       </div>
       <div style={{ background: theme.line, borderRadius: 99, height: 7, overflow: "hidden", marginTop: 8 }}>
@@ -4465,8 +4467,8 @@ function MistakesTab({ g, theme, clearMistake }) {
   );
 }
 
-function Journal({ g, theme, close, clearMistake }) {
-  const [tab, setTab] = useState("tl");
+function Journal({ g, theme, close, clearMistake, initialTab = "tl" }) {
+  const [tab, setTab] = useState(initialTab);
   const col = COLLECT.map(c => ({ ...c, got: c.cond(g) }));
   const gotN = col.filter(c => c.got).length;
   const tline = [...(g.timeline || [])].sort((a, b) => a.day - b.day);
@@ -5009,6 +5011,13 @@ function App() {
   const theme = usaNow ? { bg: "#0B1626", head: "#122B4A", card: "#16233A", text: "#EAF0F8", sub: "#9FB2CC", line: "#24354F" }
                        : { bg: "#F4F6F3", head: "#0F5147", card: "#FFFFFF", text: "#17251F", sub: "#5A6A62", line: "#E2E8E1" };
 
+  /* التنقّل السفلي: يظهر في شاشات التصفّح لا في الشاشات الغامرة */
+  const IMMERSIVE = ["title", "battle", "dialog", "chapterCard", "ending"];
+  const showTabs = g.started && !IMMERSIVE.includes(view.s);
+  const activeTab = panel && TABS.some(t => t.id === panel) ? panel : (view.s === "acad" ? "acad" : view.s === "world" ? "world" : null);
+  /* شارات تُظهر العمل المستحق بدل أن ينتظر الطالب أن يكتشفه بنفسه */
+  const tabBadges = { mistakes: (g.mistakes || []).length, acad: dueList(g).length };
+
   return (
     <div dir="rtl" style={{ minHeight: "100dvh", background: theme.bg, color: theme.text, fontFamily: FONT_STACK, transition: "background .6s ease" }}>
       <style>{`
@@ -5055,11 +5064,19 @@ function App() {
       {trans && <Transition card={trans} onDone={() => setTrans(null)} />}
       {coach && <Coach tip={coach} close={() => setCoach(null)} />}
 
-      {view.s !== "title" && <header><HUD g={g} spFree={spFree} setPanel={setPanel} sound={sound} setSound={setSound}
-        musicMode={musicMode} setMusicMode={setMusicMode}
-        mode={g.mode} setMode={(m) => { mut(n => { n.mode = m; }); toast(m === "calm" ? "🧘 وضع هادئ: بدون مؤقت (إلا الزعماء)" : "⚡ وضع التحدي: مؤقت + بونص سرعة"); }} /></header>}
+      {view.s !== "title" && <header><HUD g={g} /></header>}
 
-      <main style={{ padding: "10px 14px 40px", maxWidth: 620, margin: "0 auto" }}>
+      {/* الشريط يختفي في الحالات الغامرة (معركة، حوار، بطاقة فصل، نهاية)
+          حتى لا يشتّت التركيز أثناء الإجابة أو يكسر المشهد. */}
+      {showTabs && <TabBar active={activeTab} theme={theme} badges={tabBadges}
+        onGo={(id) => {
+          play("click");
+          if (id === "world") { setPanel(null); setView({ s: "world" }); return; }
+          if (id === "acad") { setPanel(null); setView({ s: "acad" }); return; }
+          setPanel(p => (p === id ? null : id));
+        }} />}
+
+      <main style={{ padding: `10px 14px ${showTabs ? "calc(env(safe-area-inset-bottom,0px) + 86px)" : "40px"}`, maxWidth: 620, margin: "0 auto" }}>
         <h1 className="sr-only">{VIEW_TITLE[view.s] || "Arise — التحضير لاختبار القدرات"}</h1>
         {view.s === "title" && <Title g={g} setG={setG} onStart={(name) => {
           mut(n => { n.started = true; n.name = name || n.name; ensurePeriods(n); tl(n, "start", "🎒", "بدأت الرحلة — سنة التخرج"); });
@@ -5101,11 +5118,16 @@ function App() {
       </main>
 
       {panel === "road" && <RoadPanel g={g} theme={theme} close={() => setPanel(null)} goAcad={() => setView({ s: "acad" })} />}
-      {panel === "journal" && <Journal g={g} theme={theme} close={() => setPanel(null)}
+      {/* «أخطائي» صار وجهة مباشرة في الشريط بدل تبويب مدفون داخل اليوميات */}
+      {(panel === "journal" || panel === "mistakes") && <Journal g={g} theme={theme} close={() => setPanel(null)}
+        initialTab={panel === "mistakes" ? "mis" : "tl"}
         clearMistake={(id) => mut(n => { n.mistakes = (n.mistakes || []).filter(m => m.id !== id); })} />}
       {panel === "mock" && <MockExam g={g} theme={theme} close={() => setPanel(null)}
         onDone={(res) => mut(n => applyMockDone(n, res, FX))} />}
-      {panel && panel !== "journal" && panel !== "mock" && <Panel g={g} theme={theme} panel={panel} spFree={spFree} close={() => setPanel(null)}
+      {panel === "more" && <MoreSheet g={g} theme={theme} spFree={spFree} close={() => setPanel(null)}
+        onPanel={(p) => setPanel(p)} sound={sound} setSound={setSound} musicMode={musicMode} setMusicMode={setMusicMode}
+        mode={g.mode} setMode={(m) => { mut(n => { n.mode = m; }); toast(m === "calm" ? "🧘 وضع هادئ: بدون مؤقت (إلا الزعماء)" : "⚡ وضع التحدي: مؤقت + بونص سرعة"); }} />}
+      {panel && !["journal", "mistakes", "mock", "more", "road"].includes(panel) && <Panel g={g} theme={theme} panel={panel} spFree={spFree} close={() => setPanel(null)}
         buySkill={(sk) => mut(n => { n.skills.push(sk.id); if (n.skills.length >= 3) grant(n, "skills3"); })}
         buyItem={(it) => mut(n => { n.coins -= (n.dayFlags?.sale ? Math.ceil(it.price / 2) : it.price); n.items[it.id]++; })}
         buyAvatar={(av) => mut(n => { n.coins -= av.price; n.owned.push(av.id); n.avatar = av.id; })}
@@ -5142,7 +5164,9 @@ function World({ g, theme, night, startBattle, doAct, onTalkEv, claimTask, claim
 }
 
 /* ---------- HUD v2: لاعب + يوم + طاقة ---------- */
-function HUD({ g, spFree, setPanel, sound, setSound, musicMode, setMusicMode, mode, setMode }) {
+/* الهيدر صار حالةً خالصة: من أنت، أين أنت من اليوم، وكم طاقتك.
+   التنقّل انتقل لشريط سفلي مسمّى، والإعدادات لورقة «المزيد». */
+function HUD({ g }) {
   const lvl = lvlOf(g.xp);
   const cur = g.xp - xpForLvl(lvl), need = xpForLvl(lvl + 1) - xpForLvl(lvl);
   const t = titleOf(g.xp);
@@ -5176,19 +5200,90 @@ function HUD({ g, spFree, setPanel, sound, setSound, musicMode, setMusicMode, mo
           <span style={{ minWidth: 30 }}>{g.energy}%</span>
         </div>
       </div>
-      {/* شريط التنقّل: كل زر يحمل اسمًا منطوقًا لقارئ الشاشة — الإيموجي وحده
-          يُقرأ "deciduous tree" ولا يعني شيئًا للطالب الكفيف. */}
-      <nav aria-label="أقسام اللعبة" style={{ display: "flex", gap: 6, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-        <button className="hudbtn" aria-label={`شجرة المهارات${spFree > 0 ? ` — ${spFree} نقطة متاحة` : ""}`} style={{ position: "relative" }} onClick={() => setPanel("skills")}><span aria-hidden="true">🌳</span>{spFree > 0 && <span aria-hidden="true" style={{ position: "absolute", top: -4, left: -4, background: "#B3402F", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 900 }}>{spFree}</span>}</button>
-        <button className="hudbtn" aria-label="المتجر" onClick={() => setPanel("shop")}><span aria-hidden="true">🛒</span></button>
-        <button className="hudbtn" aria-label="خريطة الطريق" style={{ fontWeight: 900 }} onClick={() => setPanel("road")}><span aria-hidden="true">🏢</span></button>
-        <button className="hudbtn" aria-label="اليوميات ودفتر الأخطاء" onClick={() => setPanel("journal")}><span aria-hidden="true">📔</span></button>
-        <button className="hudbtn" aria-label="الإنجازات" onClick={() => setPanel("ach")}><span aria-hidden="true">🏅</span></button>
-        <button className="hudbtn" aria-label="إحصائياتك وخطة المذاكرة" onClick={() => setPanel("stats")}><span aria-hidden="true">📊</span></button>
-        <button className="hudbtn" aria-pressed={mode !== "calm"} aria-label={mode === "calm" ? "الوضع الهادئ — اضغط للوضع الصعب" : "الوضع الصعب — اضغط للوضع الهادئ"} onClick={() => setMode(mode === "calm" ? "hard" : "calm")}><span aria-hidden="true">{mode === "calm" ? "🧘" : "⚡"}</span></button>
-        <button className="hudbtn" aria-pressed={sound} aria-label={sound ? "المؤثرات الصوتية مفعّلة — اضغط للإيقاف" : "المؤثرات الصوتية موقوفة — اضغط للتفعيل"} onClick={() => setSound(!sound)}><span aria-hidden="true">{sound ? "🔊" : "🔇"}</span></button>
-        <button className="hudbtn" aria-label={musicMode === "off" ? "الموسيقى موقوفة — اضغط لتشغيل مقطوعة هادئة" : musicMode === "dream" ? "موسيقى هادئة — اضغط لتبديل المقطوعة" : "موسيقى مشرقة — اضغط للإيقاف"} onClick={() => setMusicMode(musicMode === "off" ? "dream" : musicMode === "dream" ? "glow" : "off")}><span aria-hidden="true">{musicMode === "off" ? "🎶✖️" : musicMode === "dream" ? "🌙" : "🌈"}</span></button>
-      </nav>
+    </div>
+  );
+}
+
+/* ---------- 🧭 شريط التنقّل السفلي ----------
+   كان التنقّل صفًّا من ٩ إيموجي متساوية الوزن أعلى الشاشة: بلا تسميات، وبلا
+   هرمية تفصل «أدوات مذاكرتك» عن «مفتاح الصوت». والأسوأ أن أثمن ميزتين
+   تعليميتين — دفتر الأخطاء والمحاكاة الكاملة — كانتا مدفونتين خلف نقرتين
+   داخل لوحات أخرى، وكانت الأكاديمية تتطلّب تمشية الشخصية إلى مبنى.
+
+   صار: أربع وجهات مسمّاة في متناول الإبهام + «المزيد» لما ليس يوميًّا.
+   الطالب قبل اختباره بثلاثة أيام يصل مباشرة لأخطائه وخطته. */
+const TABS = [
+  { id: "world", e: "🗺️", n: "العالم" },
+  { id: "acad", e: "🎓", n: "الأكاديمية" },
+  { id: "mistakes", e: "📕", n: "أخطائي" },
+  { id: "stats", e: "📊", n: "تقدّمي" },
+  { id: "more", e: "⋯", n: "المزيد" },
+];
+function TabBar({ active, theme, badges, onGo }) {
+  return (
+    <nav aria-label="التنقّل الرئيسي" style={{
+      position: "fixed", insetInline: 0, bottom: 0, zIndex: 40, display: "flex",
+      background: theme.card, borderTop: `1px solid ${theme.line}`,
+      paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      boxShadow: "0 -2px 14px rgba(15,30,25,.07)",
+    }}>
+      {TABS.map(t => {
+        const on = active === t.id;
+        const badge = badges[t.id];
+        return (
+          <button key={t.id} onClick={() => onGo(t.id)} aria-current={on ? "page" : undefined}
+            aria-label={badge ? `${t.n} — ${badge} بانتظارك` : t.n}
+            style={{
+              flex: 1, minHeight: 56, border: "none", background: "none", cursor: "pointer",
+              fontFamily: "inherit", padding: "7px 2px 8px", position: "relative",
+              color: on ? "#0F5147" : theme.sub, borderTop: `2.5px solid ${on ? "#C89235" : "transparent"}`,
+            }}>
+            <div aria-hidden="true" style={{ fontSize: 21, lineHeight: 1.1, transform: on ? "scale(1.06)" : "none", transition: "transform .2s" }}>{t.e}</div>
+            <div aria-hidden="true" style={{ fontSize: 10.5, fontWeight: on ? 900 : 700, marginTop: 3 }}>{t.n}</div>
+            {badge > 0 && <span aria-hidden="true" style={{ position: "absolute", top: 4, insetInlineEnd: "26%", background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 9.5, fontWeight: 900, padding: "1px 5px", minWidth: 16 }}>{badge > 99 ? "99+" : badge}</span>}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ---------- ⋯ ورقة «المزيد»: ما ليس وجهةً يومية ---------- */
+function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMode, setMusicMode, mode, setMode }) {
+  const Row = ({ e, n, sub, onClick, badge }) => (
+    <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: "none", border: "none", borderBottom: `1px solid ${theme.line}`, padding: "14px 4px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start", minHeight: 56 }}>
+      <span aria-hidden="true" style={{ fontSize: 22, width: 30, textAlign: "center" }}>{e}</span>
+      <span style={{ flex: 1 }}>
+        <span style={{ display: "block", fontWeight: 800, fontSize: 14.5 }}>{n}</span>
+        {sub && <span style={{ display: "block", fontSize: 11.5, color: theme.sub, marginTop: 2 }}>{sub}</span>}
+      </span>
+      {badge > 0 && <span style={{ background: "#B3402F", color: "#fff", borderRadius: 99, fontSize: 11, fontWeight: 900, padding: "2px 8px" }}>{badge}</span>}
+    </button>
+  );
+  const Toggle = ({ e, n, state, on, onClick }) => (
+    <button onClick={onClick} aria-pressed={on} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: "none", border: "none", borderBottom: `1px solid ${theme.line}`, padding: "14px 4px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start", minHeight: 56 }}>
+      <span aria-hidden="true" style={{ fontSize: 22, width: 30, textAlign: "center" }}>{e}</span>
+      <span style={{ flex: 1, fontWeight: 800, fontSize: 14.5 }}>{n}</span>
+      <span style={{ fontSize: 12.5, fontWeight: 800, color: on ? "#1F7A5C" : theme.sub, background: (on ? "#1F7A5C" : theme.sub) + "1a", borderRadius: 99, padding: "4px 12px" }}>{state}</span>
+    </button>
+  );
+  return (
+    <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+      <div onClick={e => e.stopPropagation()} role="dialog" aria-label="المزيد" style={{ background: theme.bg, color: theme.text, width: "min(100%,620px)", maxHeight: "84dvh", overflowY: "auto", borderRadius: "22px 22px 0 0", padding: "16px 16px calc(env(safe-area-inset-bottom,0px) + 24px)", animation: "drop .3s ease" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ fontWeight: 900, fontSize: 17 }}>⋯ المزيد</div>
+          <button onClick={close} aria-label="إغلاق" style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: theme.text, minHeight: 44, minWidth: 44 }}>✕</button>
+        </div>
+        <Row e="🌳" n="شجرة المهارات" sub={spFree > 0 ? "لديك نقاط غير مصروفة" : "قدراتك الخاصة"} badge={spFree} onClick={() => onPanel("skills")} />
+        <Row e="🛒" n="المتجر" sub={`🪙 ${g.coins}`} onClick={() => onPanel("shop")} />
+        <Row e="🏅" n="الإنجازات" sub={`${g.ach.length}/${ACHV.length}`} onClick={() => onPanel("ach")} />
+        <Row e="📔" n="يومياتي والمقتنيات" sub="قصة رحلتك" onClick={() => onPanel("journal")} />
+        <Row e="🏢" n="خريطة الطريق" sub="أين أنت من الهدف" onClick={() => onPanel("road")} />
+        <div style={{ fontWeight: 900, fontSize: 12.5, color: theme.sub, margin: "16px 4px 2px" }}>الإعدادات</div>
+        <Toggle e={mode === "calm" ? "🧘" : "⚡"} n="نمط اللعب" on={mode !== "calm"} state={mode === "calm" ? "هادئ" : "تحدٍّ"} onClick={() => setMode(mode === "calm" ? "hard" : "calm")} />
+        <Toggle e={sound ? "🔊" : "🔇"} n="المؤثرات الصوتية" on={sound} state={sound ? "مفعّلة" : "موقوفة"} onClick={() => setSound(!sound)} />
+        <Toggle e={musicMode === "off" ? "🎶" : musicMode === "dream" ? "🌙" : "🌈"} n="الموسيقى" on={musicMode !== "off"} state={musicMode === "off" ? "موقوفة" : musicMode === "dream" ? "هادئة" : "مشرقة"} onClick={() => setMusicMode(musicMode === "off" ? "dream" : musicMode === "dream" ? "glow" : "off")} />
+      </div>
     </div>
   );
 }
