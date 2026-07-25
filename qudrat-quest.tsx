@@ -5022,6 +5022,7 @@ const SAVE_VER = 1;
 const newSave = () => ({
   v: SAVE_VER,
   started: false, name: "ضاوي", avatar: "a1", owned: ["a1"], mode: "calm", themePref: "auto",
+  why: "", whyDay: null, sawOpen: false,   // ✉️ الرسالة المختومة + هل شاهد الافتتاحية
   chapter: 1, done: {}, seen: {},
   day: 1, slot: 0, energy: 100, dayFlags: {}, lastBattle: null,
   xp: 0, coins: 60, skills: [], items: { hint: 1, freeze: 0, potion: 0 },
@@ -5843,6 +5844,9 @@ function App() {
         {toasts.map(t => <div className="toast" key={t.id}>{t.msg}</div>)}
       </div>
 
+      {/* 🎬 تعرض مرة واحدة في أول تشغيل، قبل شاشة العنوان */}
+      {loaded.current && !g.sawOpen && !g.started && view.s === "title" &&
+        <ColdOpen onDone={() => mut(n => { n.sawOpen = true; })} />}
       {moment && <TheMoment trap={moment} theme={theme} onClose={() => setMoment(null)} />}
       {trans && <Transition card={trans} onDone={() => setTrans(null)} />}
       {coach && <Coach tip={coach} close={() => setCoach(null)} />}
@@ -5861,8 +5865,13 @@ function App() {
 
       <main style={{ padding: `10px 14px ${showTabs ? "calc(env(safe-area-inset-bottom,0px) + 86px)" : "40px"}`, maxWidth: 620, margin: "0 auto" }}>
         <h1 className="sr-only">{VIEW_TITLE[view.s] || "Arise — التحضير لاختبار القدرات"}</h1>
-        {view.s === "title" && <Title g={g} setG={setG} onStart={(name) => {
-          mut(n => { n.started = true; n.name = name || n.name; ensurePeriods(n); tl(n, "start", "🎒", "بدأت الرحلة — سنة التخرج"); });
+        {view.s === "title" && <Title g={g} setG={setG} onStart={(name, why, examDate) => {
+          mut(n => {
+            n.started = true; n.name = name || n.name;
+            if (why) { n.why = why; n.whyDay = n.day; }
+            if (examDate) n.examDate = examDate;
+            ensurePeriods(n); tl(n, "start", "🎒", "بدأت الرحلة — سنة التخرج");
+          });
           play("win");
           setView({ s: "chapterCard", id: 1 });
         }} onContinue={() => { play("click"); setView({ s: "world" }); }} />}
@@ -5993,6 +6002,100 @@ function HUD({ g }) {
   );
 }
 
+/* ═══════════════════════════════════════════════════════════
+   🎬 الافتتاحية الباردة — Cold Open
+
+   التطبيق كان يبدأ بشاشة عنوان وحقل اسم: نموذج تعبئة قبل أي سبب للاهتمام.
+   وأول انطباع هو ما يقرّر إن كان الطالب سيرى بقية المنتج أصلًا.
+
+   فنبدأ من النهاية: أنت في مقابلة أرامكو بعد ثلاث سنوات، وأمامك سؤال واحد.
+   تجيب، ثم يقطع المشهد ونعود لليوم الأول. الطالب يعرف الآن إلى أين يمضي
+   قبل أن نطلب منه شيئًا.
+
+   السؤال سهل عمدًا — ليس اختبارًا بل إطارًا. والإجابة الخاطئة لها ردّ أقوى
+   من الصحيحة: «قريب. خذ وقتك — عندك ثلاث سنوات.» */
+const OPEN_Q = { q: "٢، ٤، ٨، ١٦، ___", options: ["٣٢", "٢٤", "٢٠", "٦٤"], a: 0 };
+function ColdOpen({ onDone }) {
+  const [stage, setStage] = useState("scene");   // scene | asked | answered | fade
+  const [right, setRight] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setStage("asked"), 2600); return () => clearTimeout(t); }, []);
+  useEffect(() => { if (stage === "fade") { const t = setTimeout(onDone, 2400); return () => clearTimeout(t); } }, [stage]);
+
+  const answer = (i) => {
+    const ok = i === OPEN_Q.a;
+    setRight(ok); setStage("answered"); play(ok ? "correct" : "click");
+    setTimeout(() => setStage("fade"), 2300);
+  };
+
+  if (stage === "fade") return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "#07100E", color: "#fff",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: DS.space[6], textAlign: "center" }}>
+      <div style={{ animation: `fadein 1.2s ${DS.ease.out} both`, fontSize: DS.text.xl, fontWeight: 900, letterSpacing: 1, lineHeight: DS.lead.snug }}>
+        …قبل ثلاث سنوات
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "#07100E", color: "#fff",
+      display: "flex", flexDirection: "column", justifyContent: "center",
+      padding: `${DS.space[8]}px ${DS.space[5]}px`, animation: `fadein ${DS.dur.story}ms ${DS.ease.out}` }}>
+      <div style={{ maxWidth: 460, margin: "0 auto", width: "100%" }}>
+        <div className="rise" style={{ fontSize: DS.text.micro, fontWeight: 900, letterSpacing: 3, color: "#7FD8A4", marginBottom: DS.space[3] }}>
+          الظهران — مقرّ أرامكو السعودية
+        </div>
+        <div className="rise rise-1" style={{ fontSize: DS.text.xl, fontWeight: 900, lineHeight: DS.lead.snug, marginBottom: DS.space[6] }}>
+          المقابلة الأخيرة.
+        </div>
+
+        {stage === "scene" && (
+          <div className="rise rise-2" style={{ fontSize: DS.text.base, opacity: .82, lineHeight: DS.lead.body }}>
+            الغرفة هادئة. ثلاثة مهندسين أمامك.<br />أحدهم يرفع ورقة ويقول: «سؤال أخير.»
+          </div>
+        )}
+
+        {stage !== "scene" && (
+          <div className="rise" style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.14)",
+            borderRadius: DS.radius.lg, padding: DS.space[5] }}>
+            <div style={{ fontSize: DS.text.tiny, opacity: .7, marginBottom: DS.space[3] }}>أكمل النمط:</div>
+            <div dir="rtl" style={{ fontSize: DS.text.xxl, fontWeight: 900, letterSpacing: 4, marginBottom: DS.space[5] }}>{OPEN_Q.q}</div>
+            {stage === "asked" ? (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: DS.space[2] }}>
+                {OPEN_Q.options.map((o, i) => (
+                  <button key={o} onClick={() => answer(i)}
+                    style={{ minHeight: 54, borderRadius: DS.radius.md, border: "1.5px solid rgba(255,255,255,.25)",
+                      background: "transparent", color: "#fff", fontFamily: "inherit", fontSize: DS.text.lg, fontWeight: 900, cursor: "pointer" }}>
+                    {o}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="rise" style={{ fontSize: DS.text.base, lineHeight: DS.lead.body }}>
+                <div style={{ fontWeight: 900, color: right ? "#7FD8A4" : "#F0C560", marginBottom: DS.space[2] }}>
+                  {right ? "«بالضبط.»" : "«قريب.»"}
+                </div>
+                <div style={{ opacity: .85 }}>
+                  {right
+                    ? "يبتسم أحدهم ويغلق الملف. «أهلًا بك في أرامكو.»"
+                    : "يبتسم أحدهم ويغلق الملف. «خذ وقتك — عندك ثلاث سنوات.»"}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {stage === "scene" && (
+          <button onClick={() => setStage("asked")} className="rise rise-3"
+            style={{ marginTop: DS.space[8], background: "none", border: "none", color: "rgba(255,255,255,.5)",
+              fontFamily: "inherit", fontSize: DS.text.tiny, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>
+            تخطّي المشهد
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 🧭 شريط التنقّل السفلي ----------
    كان التنقّل صفًّا من ٩ إيموجي متساوية الوزن أعلى الشاشة: بلا تسميات، وبلا
    هرمية تفصل «أدوات مذاكرتك» عن «مفتاح الصوت». والأسوأ أن أثمن ميزتين
@@ -6099,21 +6202,96 @@ function MoreSheet({ g, theme, spFree, close, onPanel, sound, setSound, musicMod
   );
 }
 
+/* 📅 حقل تاريخ عربي فعلًا.
+   المحاولة السابقة وضعت lang="ar-SA" على <input type="date"> وافترضت أن هذا
+   يكفي — وهو غير صحيح: المتصفح يعرض التاريخ بلغة النظام لا بلغة العنصر، فبقي
+   الطالب السعودي يرى mm/dd/yyyy داخل واجهة عربية بالكامل.
+
+   الحل: نُبقي المُنتقي الأصلي (وهو ممتاز على الجوال — يفتح عجلة النظام)
+   لكن نجعله شفافًا فوق واجهتنا، فنتحكّم نحن في كل ما يُرى. */
+const AR_DATE = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-arab", { day: "numeric", month: "long", year: "numeric" });
+function DateField({ value, onChange, theme, id = "date", min }) {
+  const shown = value ? AR_DATE.format(new Date(value + "T00:00:00")) : null;
+  return (
+    <div style={{ position: "relative" }}>
+      <div aria-hidden="true" style={{
+        display: "flex", alignItems: "center", gap: DS.space[2], minHeight: 48,
+        padding: `0 ${DS.space[4]}px`, borderRadius: DS.radius.md,
+        border: `1.5px solid ${value ? "var(--goldFill)" : theme.line}`,
+        background: theme.card, color: value ? theme.text : theme.sub,
+        fontSize: DS.text.sm, fontWeight: value ? 800 : 600,
+      }}>
+        <span style={{ fontSize: 17 }}>🗓️</span>
+        <span>{shown || "اضغط لاختيار التاريخ"}</span>
+      </div>
+      <input id={id} type="date" value={value || ""} min={min}
+        onChange={e => onChange(e.target.value)}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+          opacity: 0, cursor: "pointer", fontFamily: "inherit" }} />
+    </div>
+  );
+}
+
+/* ✉️ الرسالة المختومة — يكتبها الطالب في اليوم الأول ولا يراها إلا مرتين:
+   حين يوشك أن يستسلم، وفي نهاية الرحلة. لا شيء نكتبه نحن يضاهي ما كتبه هو. */
+function SealedLetter({ theme, name, onDone }) {
+  const [why, setWhy] = useState("");
+  const [date, setDate] = useState("");
+  return (
+    <div style={{ animation: `riseIn ${DS.dur.slow}ms ${DS.ease.out} both`, paddingTop: DS.space[6], maxWidth: 460, margin: "0 auto" }}>
+      <div style={{ fontSize: 44, textAlign: "center" }}>✉️</div>
+      <h2 style={{ fontSize: DS.text.xl, fontWeight: 900, textAlign: "center", margin: `${DS.space[3]}px 0 ${DS.space[2]}px`, lineHeight: DS.lead.snug }}>
+        قبل ما نبدأ يا {name}
+      </h2>
+      <p style={{ fontSize: DS.text.sm, color: theme.sub, textAlign: "center", lineHeight: DS.lead.body, marginBottom: DS.space[6] }}>
+        اكتب لنفسك: ليش تبي تنجح؟<br />
+        نختمها الآن، ولا نفتحها إلا يوم تحتاجها.
+      </p>
+
+      <label htmlFor="why" className="sr-only">لماذا تريد النجاح</label>
+      <textarea id="why" value={why} onChange={e => setWhy(e.target.value)} rows={4} maxLength={280}
+        placeholder="عشان…"
+        style={{ width: "100%", boxSizing: "border-box", padding: DS.space[4], borderRadius: DS.radius.lg,
+          border: `1.5px solid ${theme.line}`, background: theme.card, color: theme.text,
+          fontSize: DS.text.base, fontFamily: "inherit", lineHeight: DS.lead.body, resize: "vertical" }} />
+
+      {/* تاريخ الاختبار كان مدفونًا داخل لوحة الإحصائيات — وهو أهم رقم في حياة
+          الطالب الآن، وكل خطة يومية تعتمد عليه. مكانه هنا. */}
+      <div style={{ marginTop: DS.space[5] }}>
+        <label htmlFor="exam0" style={{ display: "block", fontSize: DS.text.tiny, fontWeight: 800, color: theme.sub, marginBottom: DS.space[2] }}>
+          متى اختبارك؟ <span style={{ fontWeight: 600 }}>(تقدر تحدده لاحقًا)</span>
+        </label>
+        <DateField id="exam0" value={date} onChange={setDate} theme={theme} min={new Date().toISOString().slice(0, 10)} />
+      </div>
+
+      <button className="btn" style={{ width: "100%", marginTop: DS.space[6], padding: DS.space[4] }}
+        onClick={() => onDone(why.trim(), date)}>
+        {why.trim() ? "اختمها وابدأ ←" : "ابدأ الرحلة ←"}
+      </button>
+      <div style={{ fontSize: DS.text.micro, color: T.faint, textAlign: "center", marginTop: DS.space[3], lineHeight: DS.lead.snug }}>
+        تبقى على جهازك وحده — لا تُرسل لأي مكان.
+      </div>
+    </div>
+  );
+}
+
 function Title({ g, setG, onStart, onContinue }) {
   const [name, setName] = useState(g.name || "ضاوي");
   const [confirmNew, setConfirmNew] = useState(false);
+  const [step, setStep] = useState("home");        // home | letter
+  if (step === "letter") return <SealedLetter theme={T} name={name || "ضاوي"} onDone={(why, date) => onStart(name, why, date)} />;
   return (
-    <div style={{ textAlign: "center", paddingTop: 40, animation: "pop .5s ease" }}>
+    <div style={{ textAlign: "center", paddingTop: 40, animation: `pop ${DS.dur.slow}ms ${DS.ease.out}` }}>
       <div style={{ color: "var(--brand)" }}><AriseLogo size={96} /></div>
-      <h1 dir="ltr" style={{ fontSize: 34, fontWeight: 900, color: "#17251F", margin: "4px 0 2px", letterSpacing: 6 }}>ARISE</h1>
-      <div style={{ fontSize: 15.5, color: "#5A6A62", fontWeight: 700 }}>من الصفر… إلى أرامكو 🛢️</div>
-      <div style={{ fontSize: 13, color: "#8A968E", margin: "10px 0 26px", lineHeight: 1.8 }}>عالم حر • أيام تعيشها • شخصيات تتذكرك — وسلاحك عقلك</div>
+      <h1 dir="ltr" style={{ fontSize: 34, fontWeight: 900, color: T.text, margin: "4px 0 2px", letterSpacing: 6 }}>ARISE</h1>
+      <div style={{ fontSize: DS.text.base, color: T.sub, fontWeight: 700 }}>من الصفر… إلى أرامكو 🛢️</div>
+      <div style={{ fontSize: DS.text.tiny, color: T.faint, margin: "10px 0 26px", lineHeight: DS.lead.body }}>عالم حر • أيام تعيشها • شخصيات تتذكرك — وسلاحك عقلك</div>
       {g.started && !confirmNew && (
         <button className="btn gold" style={{ width: "80%", padding: 15, fontSize: 17, marginBottom: 12 }} onClick={onContinue}>▶️ متابعة — اليوم {g.day}</button>
       )}
       {!confirmNew ? (
         <button className={g.started ? "btn ghost" : "btn"} style={{ width: "80%", padding: g.started ? 12 : 15, fontSize: g.started ? 14 : 17 }}
-          onClick={() => (g.started ? setConfirmNew(true) : onStart(name))}>🆕 قصة جديدة</button>
+          onClick={() => (g.started ? setConfirmNew(true) : setStep("letter"))}>🆕 قصة جديدة</button>
       ) : (
         <div className="card" style={{ width: "88%", margin: "0 auto" }}>
           <div style={{ fontSize: 14, marginBottom: 10, fontWeight: 700 }}>بداية جديدة تمسح تقدمك الحالي كاملًا. متأكد؟</div>
@@ -6125,9 +6303,9 @@ function Title({ g, setG, onStart, onContinue }) {
       )}
       {!g.started && (
         <div style={{ marginTop: 18 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: "#5A6A62", marginBottom: 6 }}>اسم البطل:</div>
-          <input value={name} onChange={e => setName(e.target.value)} maxLength={14}
-            style={{ padding: "10px 14px", borderRadius: 12, border: "1.5px solid #D6DED6", fontSize: 15, fontFamily: "inherit", textAlign: "center", width: 200 }} />
+          <label htmlFor="heroName" style={{ display: "block", fontSize: 13, fontWeight: 800, color: T.sub, marginBottom: 6 }}>اسم البطل:</label>
+          <input id="heroName" value={name} onChange={e => setName(e.target.value)} maxLength={14}
+            style={{ padding: "10px 14px", borderRadius: DS.radius.md, border: `1.5px solid ${T.line}`, background: T.card, color: T.text, fontSize: 15, fontFamily: "inherit", textAlign: "center", width: 200 }} />
         </div>
       )}
     </div>
@@ -6594,6 +6772,15 @@ function Ending({ g, theme, onReplay, onFree }) {
       <div style={{ fontSize: 74 }}>{E.e}</div>
       <div style={{ fontSize: 24, fontWeight: 900, color: E.c, margin: "8px 0" }}>{E.t}</div>
       <div className="card" style={{ textAlign: "right", fontSize: 15, lineHeight: 2.1, padding: 18 }}>{E.d}</div>
+      {/* ✉️ ما كتبه لنفسه في اليوم الأول — يُفتح هنا وقد صار حقيقة */}
+      {g.why && (
+        <div className="card" style={{ textAlign: "right", borderColor: "var(--goldFill)", background: T.goldSoft }}>
+          <div style={{ fontSize: DS.text.micro, fontWeight: 900, color: T.gold, letterSpacing: 1, marginBottom: DS.space[2] }}>
+            ✉️ كتبتها لنفسك يوم {g.whyDay ?? 1} — وفتحناها اليوم
+          </div>
+          <div style={{ fontSize: DS.text.base, lineHeight: DS.lead.body, fontWeight: 700 }}>«{g.why}»</div>
+        </div>
+      )}
       <div className="card" style={{ textAlign: "right" }}>
         <div style={{ fontWeight: 900, marginBottom: 8 }}>📜 سجل الرحلة</div>
         <div style={{ fontSize: 13.5, lineHeight: 2.2 }}>
@@ -6628,10 +6815,7 @@ function StudyPlanCard({ g, theme, onSetDate }) {
               lang="ar-SA" يجعل المتصفح يعرض ترتيب التاريخ وأسماء الأشهر بالعربية،
               وmin=اليوم يمنع اختيار تاريخ اختبار في الماضي. */}
           <label htmlFor="examdate" className="sr-only">تاريخ اختبار القدرات</label>
-          <input id="examdate" type="date" lang="ar-SA" aria-describedby="examdate-help"
-            min={new Date().toISOString().slice(0, 10)}
-            onChange={e => e.target.value && onSetDate(e.target.value)}
-            style={{ width: "100%", boxSizing: "border-box", padding: 11, borderRadius: 10, border: `1px solid ${theme.line}`, background: theme.bg, color: theme.text, fontSize: 14, fontFamily: "inherit" }} />
+          <DateField id="examdate" value="" onChange={(v) => v && onSetDate(v)} theme={theme} min={new Date().toISOString().slice(0, 10)} />
         </>
       ) : (
         <>
