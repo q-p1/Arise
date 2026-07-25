@@ -3303,6 +3303,51 @@ function Transition({ card, onDone }) {
   );
 }
 
+/* ---------- ☀️ «ماذا أفعل الآن؟» ----------
+   كان النصف السفلي من شاشة العالم فراغًا خالصًا، بينما التطبيق يحسب أصلًا
+   المراجعات المستحقّة وأضعف الأقسام والمفاهيم الخاطئة — ثم لا يعرضها إلا
+   لمن يفتّش عنها في لوحات داخلية. هنا تتحوّل تلك الحسابات إلى أفعال بضغطة.
+   لا تظهر البطاقة إلا حين يوجد فعل حقيقي، فلا تصير زينة دائمة. */
+function TodayPanel({ g, theme, onReview, onMistakes, onDrill, onPlan }) {
+  const due = dueList(g).length;
+  const mis = (g.mistakes || []).length;
+  const diagnosed = topTraps(g, 1).length > 0;
+  const exam = g.examDate ? new Date(g.examDate + "T00:00:00") : null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const daysLeft = exam ? Math.max(0, Math.round((exam - today) / 86400000)) : null;
+
+  const rows = [];
+  if (due > 0) rows.push({ e: "🧠", n: `راجع ${due} ${due === 1 ? "مفهومًا مستحقًّا" : "مفاهيم مستحقّة"}`, s: "موعدها اليوم — قبل أن تتبخّر", go: onReview, hot: true });
+  if (diagnosed) rows.push({ e: "🎯", n: "درّبني على نقاط ضعفي", s: "أسئلة من نفس المفاهيم التي أسقطتك", go: onDrill });
+  if (mis > 0) rows.push({ e: "📕", n: `راجع ${mis} من أخطائك`, s: "الخطأ الذي تفهمه لا يتكرّر", go: onMistakes });
+  if (!exam) rows.push({ e: "📅", n: "حدّد تاريخ اختبارك", s: "لأبني لك خطة يومية وعدّادًا", go: onPlan });
+
+  if (!rows.length) return null;
+  return (
+    <div className="card">
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <div style={{ fontWeight: 900, fontSize: 14 }}>☀️ ماذا أفعل الآن؟</div>
+        {daysLeft != null && <div style={{ fontSize: 11.5, fontWeight: 900, color: daysLeft <= 7 ? "#B3402F" : theme.sub }}>باقٍ {daysLeft} يوم على اختبارك</div>}
+      </div>
+      {rows.map((r, i) => (
+        <button key={r.n} onClick={r.go} style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 11, minHeight: 56,
+          background: r.hot ? "#C8923514" : "none", border: "none",
+          borderTop: i ? `1px solid ${theme.line}` : "none", borderRadius: r.hot ? 12 : 0,
+          padding: "11px 8px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start",
+        }}>
+          <span aria-hidden="true" style={{ fontSize: 21, width: 28, textAlign: "center" }}>{r.e}</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontWeight: 800, fontSize: 13.5 }}>{r.n}</span>
+            <span style={{ display: "block", fontSize: 11.5, color: theme.sub, marginTop: 2 }}>{r.s}</span>
+          </span>
+          <span aria-hidden="true" style={{ color: theme.sub, fontSize: 17 }}>‹</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ---------- 🚶 الشارع — تجوال حر ---------- */
 function Street({ g, theme, night, pos, setPos, onEnter }) {
   const era = eraOf(g.chapter);
@@ -3347,8 +3392,10 @@ function Street({ g, theme, night, pos, setPos, onEnter }) {
           </div>
         </div>
       </div>
+      {/* التعليمة القديمة كانت تصف تفاعلًا لا وجود له: go() يمشي ويدخل بضغطة
+          واحدة منذ البداية. النص الخاطئ يعلّم الطالب تردّدًا لا يحتاجه. */}
       <div style={{ background: theme.card, padding: "8px 12px", fontSize: 12, color: theme.sub, textAlign: "center", fontWeight: 700 }}>
-        {night ? "🌙 الليل هبط — ارجع البيت ونم لتبدأ يومًا جديدًا" : "اضغط مبنى للمشي إليه، واضغطه مرة ثانية للدخول"}
+        {night ? "🌙 الليل هبط — ارجع البيت ونم لتبدأ يومًا جديدًا" : "اضغط أي مبنى لتدخله"}
       </div>
     </div>
   );
@@ -5434,6 +5481,9 @@ function App() {
         {view.s === "world" && <World g={g} theme={theme} night={night} startBattle={startBattle} doAct={doAct}
           onTalkEv={() => mut(n => questEv(n, "talk"))}
           onReview={() => { play("click"); setView({ s: "acad", review: true }); }}
+          onMistakes={() => { play("click"); setPanel("mistakes"); }}
+          onDrill={startWeakDrill}
+          onPlan={() => { play("click"); setPanel("stats"); }}
           claimTask={claimTask} claimSeason={claimSeason} toast={toast} />}
 
         {view.s === "chapterCard" && <div style={{ minHeight: 200 }} />}
@@ -5487,7 +5537,7 @@ function App() {
 }
 
 /* ---------- العالم: شارع + داخل مبنى ---------- */
-function World({ g, theme, night, startBattle, doAct, onTalkEv, claimTask, claimSeason, onReview, toast }) {
+function World({ g, theme, night, startBattle, doAct, onTalkEv, claimTask, claimSeason, onReview, onMistakes, onDrill, onPlan, toast }) {
   const [inside, setInside] = useState(null);
   const [pos, setPos] = useState(0);
   const [talk, setTalk] = useState(null);
@@ -5499,6 +5549,7 @@ function World({ g, theme, night, startBattle, doAct, onTalkEv, claimTask, claim
     <div>
       {!inside && <GoalTasks g={g} theme={theme} claimTask={claimTask} claimSeason={claimSeason} onReview={onReview} />}
       {!inside && <Street g={g} theme={theme} night={night} pos={pos} setPos={setPos} onEnter={(loc) => setInside(loc)} />}
+      {!inside && <TodayPanel g={g} theme={theme} onReview={onReview} onMistakes={onMistakes} onDrill={onDrill} onPlan={onPlan} />}
       {!inside && night && (
         <div className="card" style={{ textAlign: "center", fontWeight: 800, fontSize: 13.5 }}>
           🌙 استهلكت يومك كله. ادخل {era === "us" ? "السكن" : "البيت"} ونَم لتبدأ اليوم {g.day + 1}.
