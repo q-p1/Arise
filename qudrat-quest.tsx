@@ -3303,48 +3303,183 @@ function Transition({ card, onDone }) {
   );
 }
 
+/* ═══════════════════════════════════════════════════════════
+   🫀 شاشة العالم — إعادة تصميم كاملة
+
+   كانت الشاشة تكدّس ثلاثة أسطح تجيب على سؤال واحد: هدف القصة، وشريط مبانٍ
+   زخرفي، وقائمة «ماذا أفعل الآن؟». ثلاثة أفعال أساسية تعني صفر فعل أساسي.
+   والشريط — قلب التطبيق المفترض — لا يحمل أي معلومة: لا تقدّمًا، ولا ما في
+   داخل كل مكان، ولا إلى أين تمضي.
+
+   البديل: ثلاث مناطق بتسلسل صارم.
+     ١. القراءة  — جملة لا يستطيع كتابتها إلا Arise، لأنها من بيانات هذا
+                   الطالب وحده. وإن لم نعرفه بعد، نقولها بصراحة.
+     ٢. الصعود   — الفصول السبعة كعمود واحد: ما فُتح، وأين أنت، وما ينتظر.
+     ٣. اليوم    — فعل أساسي واحد. لا أربعة.
+   ═══════════════════════════════════════════════════════════ */
+
+/* القراءة: تُختار بالأولوية، والأولوية هي «ما الذي يهم هذا الطالب الآن». */
+function readOf(g) {
+  const trap = topTraps(g, 1)[0];
+  const due = dueList(g).length;
+  const weak = weakSkills(g, 1)[0];
+  const skills = Object.entries(g.stats?.bySkill || {})
+    .map(([n, v]) => ({ n, pct: v.a ? Math.round((v.c / v.a) * 100) : 0, a: v.a }))
+    .filter(s => s.a >= 5).sort((a, b) => b.pct - a.pct);
+  const strong = skills[0];
+
+  if (!g.stats.answered) return {
+    tone: "cold",
+    line: "لسه ما أعرفك.",
+    sub: "خض معركة واحدة، وأبدأ أفهم كيف يشتغل عقلك — وين تقوى ووين تنزلق.",
+  };
+  if (trap && trap.n >= 3) return {
+    tone: "trap",
+    line: "فخّ يلاحقك.",
+    sub: `«${trap.why}» — أوقعك ${trap.n} ${trap.n === 2 ? "مرتين" : "مرات"}. اليوم نكسره.`,
+  };
+  if (due > 0) return {
+    tone: "due",
+    line: `${due} ${due === 1 ? "مفهوم" : "مفاهيم"} على حافة النسيان.`,
+    sub: "راجعها اليوم وتثبت شهورًا. اتركها وتبدأ من الصفر.",
+  };
+  if (weak && weak.pct < 60) return {
+    tone: "weak",
+    line: `${weak.name} — ${weak.pct}٪.`,
+    sub: strong ? `أقوى ما عندك ${strong.n} بـ${strong.pct}٪. الفرق بينهما هو درجتك.` : "هنا يضيع أكثر وقتك. ابدأ منه.",
+  };
+  if (strong) return {
+    tone: "strong",
+    line: `${strong.n} صارت ${strong.pct}٪.`,
+    sub: "ما وصلت لها صدفة. واصل قبل ما تبرد.",
+  };
+  return { tone: "ok", line: "كل شي تحت السيطرة.", sub: "خض معركة تكسب فيها تقدّمًا جديدًا." };
+}
+
+const READ_ACCENT = { cold: "var(--ink2)", trap: "var(--bad)", due: "var(--warn)", weak: "var(--warn)", strong: "var(--ok)", ok: "var(--ok)" };
+
+function TheRead({ g, theme }) {
+  const r = readOf(g);
+  const exam = g.examDate ? new Date(g.examDate + "T00:00:00") : null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const days = exam ? Math.max(0, Math.round((exam - today) / 86400000)) : null;
+  return (
+    <section aria-label="حالتك اليوم" style={{ padding: `${DS.space[5]}px ${DS.space[1]}px ${DS.space[4]}px` }}>
+      {days != null && (
+        <div className="rise" style={{ display: "flex", alignItems: "baseline", gap: DS.space[2], marginBottom: DS.space[4] }}>
+          <span style={{ fontSize: DS.text.display, fontWeight: 900, lineHeight: 1, color: days <= 7 ? T.bad : T.text, letterSpacing: -1 }}>{days}</span>
+          <span style={{ fontSize: DS.text.tiny, fontWeight: 800, color: theme.sub }}>
+            {days === 0 ? "اليوم اختبارك" : days === 1 ? "يوم على اختبارك" : "يومًا على اختبارك"}
+          </span>
+        </div>
+      )}
+      <div className="rise rise-1" style={{ display: "flex", gap: DS.space[3] }}>
+        <span aria-hidden="true" style={{ width: 3, borderRadius: 2, background: READ_ACCENT[r.tone], flex: "0 0 auto" }} />
+        <div>
+          <div style={{ fontSize: DS.text.lg, fontWeight: 900, lineHeight: DS.lead.snug, marginBottom: DS.space[1] }}>{r.line}</div>
+          <div style={{ fontSize: DS.text.sm, color: theme.sub, lineHeight: DS.lead.body }}>{r.sub}</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* الصعود: الفصول السبعة في شريط واحد. المقطوع صلب، والحاضر ينبض، والقادم باهت. */
+function Ascent({ g, theme }) {
+  const cur = g.chapter;
+  return (
+    <section aria-label={`رحلتك — الفصل ${cur} من ${CH.length}`} className="rise rise-2"
+      style={{ padding: `0 ${DS.space[1]}px ${DS.space[5]}px` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+        {CH.map((c, i) => {
+          const done = c.id < cur, here = c.id === cur;
+          return (
+            <React.Fragment key={c.id}>
+              {i > 0 && <span aria-hidden="true" style={{ flex: 1, height: 2, borderRadius: 2,
+                background: c.id <= cur ? "var(--goldFill)" : theme.line,
+                opacity: c.id <= cur ? 1 : .7 }} />}
+              <span aria-hidden="true" title={c.title} style={{
+                flex: "0 0 auto", width: here ? 15 : 9, height: here ? 15 : 9, borderRadius: "50%",
+                background: done ? "var(--goldFill)" : here ? "var(--goldFill)" : theme.line,
+                boxShadow: here ? "0 0 0 5px var(--goldSoft)" : "none",
+                animation: here ? `haloBreathe 3s ${DS.ease.inOut} infinite` : "none",
+              }} />
+            </React.Fragment>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: DS.space[3] }}>
+        <span style={{ fontSize: DS.text.tiny, fontWeight: 900 }}>{CH.find(c => c.id === cur)?.title.replace(/^الفصل [^:]+: /, "")}</span>
+        <span style={{ fontSize: DS.text.micro, color: theme.sub, fontWeight: 800 }}>الفصل {cur} من {CH.length}</span>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- ☀️ «ماذا أفعل الآن؟» ----------
    كان النصف السفلي من شاشة العالم فراغًا خالصًا، بينما التطبيق يحسب أصلًا
    المراجعات المستحقّة وأضعف الأقسام والمفاهيم الخاطئة — ثم لا يعرضها إلا
    لمن يفتّش عنها في لوحات داخلية. هنا تتحوّل تلك الحسابات إلى أفعال بضغطة.
    لا تظهر البطاقة إلا حين يوجد فعل حقيقي، فلا تصير زينة دائمة. */
-function TodayPanel({ g, theme, onReview, onMistakes, onDrill, onPlan }) {
+/* ٣. اليوم — فعل أساسي واحد.
+   القائمة القديمة كانت تعرض أربعة صفوف متساوية الوزن، فتترك الطالب يقرّر
+   الأولوية بنفسه — وهو بالضبط العبء الذي يفترض أن يرفعه التطبيق عنه.
+   الآن: فعل واحد كبير تختاره البيانات، وما تبقّى شرائح هادئة. */
+function todayAction(g, h) {
   const due = dueList(g).length;
+  const trap = topTraps(g, 1)[0];
   const mis = (g.mistakes || []).length;
-  const diagnosed = topTraps(g, 1).length > 0;
-  const exam = g.examDate ? new Date(g.examDate + "T00:00:00") : null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const daysLeft = exam ? Math.max(0, Math.round((exam - today) / 86400000)) : null;
+  if (due > 0) return { k: "review", label: `راجع ${due} ${due === 1 ? "مفهومًا" : "مفاهيم"}`,
+    why: "موعدها اليوم. المراجعة في موعدها تثبّت شهورًا، وتأخيرها يعيدك للصفر.", go: h.onReview };
+  if (trap && trap.n >= 3) return { k: "drill", label: "اكسر الفخّ الذي يلاحقك",
+    why: `أسئلة من نفس المفهوم الذي أوقعك ${trap.n} مرات.`, go: h.onDrill };
+  if (!g.stats.answered) return { k: "first", label: "خض معركتك الأولى",
+    why: "منها أبدأ أفهم عقلك، وأبني لك خطة تخصّك أنت.", go: h.onFirst };
+  if (mis >= 3) return { k: "mistakes", label: `راجع ${mis} من أخطائك`,
+    why: "الخطأ الذي تفهم سببه لا يتكرّر.", go: h.onMistakes };
+  if (trap) return { k: "drill", label: "درّبني على نقاط ضعفي",
+    why: "أسئلة مبنيّة على أخطائك أنت، لا على منهج عام.", go: h.onDrill };
+  return { k: "battle", label: "واصل رحلتك", why: "خض معركة وارفع تقدّمك في الفصل.", go: h.onFirst };
+}
 
-  const rows = [];
-  if (due > 0) rows.push({ e: "🧠", n: `راجع ${due} ${due === 1 ? "مفهومًا مستحقًّا" : "مفاهيم مستحقّة"}`, s: "موعدها اليوم — قبل أن تتبخّر", go: onReview, hot: true });
-  if (diagnosed) rows.push({ e: "🎯", n: "درّبني على نقاط ضعفي", s: "أسئلة من نفس المفاهيم التي أسقطتك", go: onDrill });
-  if (mis > 0) rows.push({ e: "📕", n: `راجع ${mis} من أخطائك`, s: "الخطأ الذي تفهمه لا يتكرّر", go: onMistakes });
-  if (!exam) rows.push({ e: "📅", n: "حدّد تاريخ اختبارك", s: "لأبني لك خطة يومية وعدّادًا", go: onPlan });
+function TodayPanel({ g, theme, onReview, onMistakes, onDrill, onPlan, onFirst }) {
+  const act = todayAction(g, { onReview, onMistakes, onDrill, onFirst });
+  const mis = (g.mistakes || []).length;
+  const chips = [
+    act.k !== "mistakes" && mis > 0 && { n: `أخطائي ${mis}`, go: onMistakes },
+    act.k !== "drill" && topTraps(g, 1).length > 0 && { n: "تدريب نقاط الضعف", go: onDrill },
+    !g.examDate && { n: "حدّد تاريخ اختبارك", go: onPlan },
+  ].filter(Boolean);
 
-  if (!rows.length) return null;
   return (
-    <div className="card">
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <div style={{ fontWeight: 900, fontSize: 14 }}>☀️ ماذا أفعل الآن؟</div>
-        {daysLeft != null && <div style={{ fontSize: 11.5, fontWeight: 900, color: daysLeft <= 7 ? "var(--bad)" : theme.sub }}>باقٍ {daysLeft} يوم على اختبارك</div>}
-      </div>
-      {rows.map((r, i) => (
-        <button key={r.n} onClick={r.go} style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 11, minHeight: 56,
-          background: r.hot ? "var(--goldSoft)" : "none", border: "none",
-          borderTop: i ? `1px solid ${theme.line}` : "none", borderRadius: r.hot ? 12 : 0,
-          padding: "11px 8px", cursor: "pointer", fontFamily: "inherit", color: theme.text, textAlign: "start",
-        }}>
-          <span aria-hidden="true" style={{ fontSize: 21, width: 28, textAlign: "center" }}>{r.e}</span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontWeight: 800, fontSize: 13.5 }}>{r.n}</span>
-            <span style={{ display: "block", fontSize: 11.5, color: theme.sub, marginTop: 2 }}>{r.s}</span>
+    <section aria-label="فعل اليوم" className="rise rise-3" style={{ padding: `0 ${DS.space[1]}px` }}>
+      <button onClick={act.go} style={{
+        width: "100%", textAlign: "start", cursor: "pointer", fontFamily: "inherit",
+        background: T.btn, color: T.onBtn, border: "none", borderRadius: DS.radius.lg,
+        padding: `${DS.space[5]}px ${DS.space[5]}px`, boxShadow: T.e2, minHeight: 88,
+        transition: `transform ${DS.dur.instant}ms ${DS.ease.out}, box-shadow ${DS.dur.quick}ms ${DS.ease.out}`,
+      }}>
+        <span style={{ display: "flex", alignItems: "center", gap: DS.space[3] }}>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: DS.text.lg, fontWeight: 900, lineHeight: DS.lead.tight, marginBottom: DS.space[2] }}>{act.label}</span>
+            <span style={{ display: "block", fontSize: DS.text.tiny, opacity: .82, lineHeight: DS.lead.snug }}>{act.why}</span>
           </span>
-          <span aria-hidden="true" style={{ color: theme.sub, fontSize: 17 }}>‹</span>
-        </button>
-      ))}
-    </div>
+          <span aria-hidden="true" style={{ fontSize: 24, opacity: .7 }}>‹</span>
+        </span>
+      </button>
+
+      {chips.length > 0 && (
+        <div style={{ display: "flex", gap: DS.space[2], flexWrap: "wrap", marginTop: DS.space[3] }}>
+          {chips.map(c => (
+            <button key={c.n} onClick={c.go} style={{
+              minHeight: 44, padding: `0 ${DS.space[4]}px`, borderRadius: DS.radius.full,
+              border: `1.5px solid ${theme.line}`, background: "transparent", color: theme.sub,
+              fontFamily: "inherit", fontSize: DS.text.tiny, fontWeight: 800, cursor: "pointer",
+            }}>{c.n}</button>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -3366,14 +3501,26 @@ function Street({ g, theme, night, pos, setPos, onEnter, dim }) {
     setTimeout(() => { setWalking(false); play("door"); onEnter(loc); }, 750);
   };
 
+  const goal = nextGoal(g);
   return (
-    <div style={{ borderRadius: 18, overflow: "hidden", border: `1px solid ${theme.line}`, marginBottom: 12 }}>
+    <div style={{ borderRadius: DS.radius.lg, overflow: "hidden", border: `1px solid ${theme.line}`,
+      marginBottom: DS.space[3], background: theme.card, boxShadow: T.e1 }}>
+      {/* عنوان المكان: الشريط كان يعرض مبانيَ بلا سبب لدخولها. الآن يقول لماذا. */}
+      <div style={{ padding: `${DS.space[4]}px ${DS.space[4]}px ${DS.space[3]}px` }}>
+        <div style={{ fontSize: DS.text.micro, fontWeight: 900, color: T.gold, letterSpacing: 1, marginBottom: DS.space[1] }}>
+          {night ? "الليل" : "مهمّتك هنا"}
+        </div>
+        <div style={{ fontSize: DS.text.sm, fontWeight: 900, lineHeight: DS.lead.snug }}>
+          {night ? `ادخل ${era === "us" ? "السكن" : "البيت"} ونَم لتبدأ اليوم ${g.day + 1}` : goal.t.replace(/^[^\s]+\s/, "")}
+        </div>
+        {!night && goal.sub && <div style={{ fontSize: DS.text.micro, color: theme.sub, marginTop: DS.space[1] }}>{goal.sub}</div>}
+      </div>
       {/* المشهد نافذة على عالم اللعبة، وسماؤه تتبع وقت اللعبة لا ثيم الواجهة.
           لكن مستطيلًا كريميًّا ساطعًا داخل واجهة ليلية يقسو على العين، فنخفض
           سطوعه قليلًا في الثيم الداكن: تبقى الحكاية ويرتاح التكوين. */}
       <div style={{ background: sky, transition: `background 1.2s ${DS.ease.inOut}, filter ${DS.dur.slow}ms ${DS.ease.inOut}`,
         padding: "22px 8px 0", position: "relative",
-        filter: dim ? "brightness(.74) saturate(.88)" : "none" }}>
+        filter: dim ? "brightness(.74) saturate(.82)" : "saturate(.72)" }}>
         <div style={{ position: "absolute", top: 10, left: 14, fontSize: 22 }}>{night ? "🌙" : g.slot === 0 ? "🌅" : g.slot === 1 ? "☀️" : "🌆"}</div>
         {era === "us" && <div style={{ position: "absolute", top: 10, right: 14, fontSize: 18, opacity: .8 }}>🗽</div>}
         <nav aria-label="مباني الحي" style={{ display: "flex" }}>
@@ -4726,13 +4873,23 @@ function GoalTasks({ g, theme, claimTask, claimSeason, onReview }) {
   const readyCount = (d ? d.ids.filter(id => { const def = DAILY_POOL.find(p => p.id === id); return def && !d.claimed[id] && (d.prog[id] || 0) >= def.goal; }).length : 0)
     + (w ? w.ids.filter(id => { const def = WEEKLY_POOL.find(p => p.id === id); return def && !w.claimed[id] && (w.prog[id] || 0) >= def.goal; }).length : 0)
     + (s ? SEASON.tiers.filter((t, i) => s.pts >= t.p && !s.claimed.includes(i)).length : 0);
+  /* صار سطح مكافآت فقط: الهدف انتقل إلى عنوان المكان، والتقدّم إلى شريط الصعود.
+     وحين لا توجد مكافأة جاهزة يهبط إلى سطر هادئ بدل بطاقة تزاحم الفعل الأساسي —
+     الوصول محفوظ، والضجيج مرفوع. */
+  if (!open && readyCount === 0) return (
+    <button onClick={() => { play("click"); setOpen(true); }}
+      style={{ width: "100%", minHeight: 44, background: "none", border: "none", cursor: "pointer",
+        fontFamily: "inherit", color: theme.sub, fontSize: DS.text.tiny, fontWeight: 800,
+        padding: DS.space[2], marginTop: DS.space[2] }}>
+      📋 المهمات اليومية والأسبوعية
+    </button>
+  );
   return (
-    <div className="card" style={{ padding: 12, border: goal.gold ? "2px solid #C89235" : `1px solid ${theme.line}` }}>
-      {/* الهدف التالي */}
+    <div className="card" style={{ padding: 12, border: readyCount > 0 ? "2px solid var(--goldFill)" : `1px solid ${theme.line}` }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 900, fontSize: 13.5, color: goal.boss ? "var(--bad)" : theme.text }}>{goal.t}</div>
-          <div style={{ fontSize: 11, color: theme.sub, marginTop: 2 }}>{goal.sub} • {goal.pct}%</div>
+          <div style={{ fontWeight: 900, fontSize: DS.text.sm }}>{readyCount > 0 ? "🎁 مكافآت جاهزة" : "📋 مهماتك"}</div>
+          <div style={{ fontSize: DS.text.micro, color: theme.sub, marginTop: 2 }}>{readyCount > 0 ? `${readyCount} بانتظار الاستلام` : "يومية وأسبوعية"}</div>
         </div>
         <button onClick={() => { play("click"); setOpen(!open); }} aria-expanded={open}
           aria-label={readyCount > 0 ? `المهمات — ${readyCount} مكافأة جاهزة` : "المهمات"}
@@ -5940,15 +6097,21 @@ function World({ g, theme, night, dim, startBattle, doAct, onTalkEv, claimTask, 
   const [inside, setInside] = useState(null);
   const [pos, setPos] = useState(0);
   const [talk, setTalk] = useState(null);
+  const streetRef = useRef(null);   // «خض معركتك الأولى» تسوق الطالب إلى الأماكن
   const canAct = !night;
   const era = eraOf(g.chapter);
   useEffect(() => { setInside(null); setPos(0); setTalk(null); }, [g.chapter]);
   if (talk) return <Dialog lines={talk} theme={theme} onDone={() => setTalk(null)} />;
   return (
     <div>
+      {/* التسلسل مقصود: من أنت الآن ← أين أنت من الرحلة ← ما تفعله الآن ←
+          أين تذهب. الترتيب نفسه هو التصميم. */}
+      {!inside && <TheRead g={g} theme={theme} />}
+      {!inside && <Ascent g={g} theme={theme} />}
+      {!inside && <TodayPanel g={g} theme={theme} onReview={onReview} onMistakes={onMistakes}
+        onDrill={onDrill} onPlan={onPlan} onFirst={() => streetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })} />}
+      {!inside && <div ref={streetRef}><Street g={g} theme={theme} night={night} dim={dim} pos={pos} setPos={setPos} onEnter={(loc) => setInside(loc)} /></div>}
       {!inside && <GoalTasks g={g} theme={theme} claimTask={claimTask} claimSeason={claimSeason} onReview={onReview} />}
-      {!inside && <Street g={g} theme={theme} night={night} dim={dim} pos={pos} setPos={setPos} onEnter={(loc) => setInside(loc)} />}
-      {!inside && <TodayPanel g={g} theme={theme} onReview={onReview} onMistakes={onMistakes} onDrill={onDrill} onPlan={onPlan} />}
       {!inside && night && (
         <div className="card" style={{ textAlign: "center", fontWeight: 800, fontSize: 13.5 }}>
           🌙 استهلكت يومك كله. ادخل {era === "us" ? "السكن" : "البيت"} ونَم لتبدأ اليوم {g.day + 1}.
