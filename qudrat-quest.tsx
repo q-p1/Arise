@@ -3539,9 +3539,9 @@ function Street({ g, theme, night, pos, setPos, onEnter, dim }) {
                 aria-label={active ? `${l.name} — أنت هنا، اضغط للدخول` : `امشِ إلى ${l.name}`}
                 style={{ flex: 1, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: "6px 2px 14px", textAlign: "center", filter: night ? "brightness(.65)" : "none" }}>
                 <div aria-hidden="true" style={{ display: "flex", justifyContent: "center",
-                  transform: active ? "translateY(-3px)" : "none",
-                  transition: `transform ${DS.dur.base}ms ${DS.ease.spring}` }}>
-                  <Ic n={l.ic} s={38} w={active ? 2.1 : 1.8} c={night ? "#DCE6F5" : "#2A3A33"} />
+                  transform: active ? "translateY(-4px) scale(1.06)" : "none",
+                  transition: `transform ${DS.dur.slow}ms ${DS.ease.spring}` }}>
+                  <PlaceArt n={l.ic} size={62} dim={night} />
                 </div>
                 <div aria-hidden="true" style={{ fontSize: DS.text.micro, fontWeight: 900,
                   color: night ? "#DCE6F5" : "#2A3A33", marginTop: DS.space[2],
@@ -3551,9 +3551,21 @@ function Street({ g, theme, night, pos, setPos, onEnter, dim }) {
           })}
         </nav>
         {/* الرصيف واللاعب */}
-        <div style={{ height: 46, background: night ? "#1C1C28" : "#8A8A8A", position: "relative", borderTop: `4px dashed ${night ? "#3A3A55" : "#C9C9C9"}` }}>
-          <div style={{ position: "absolute", bottom: 8, left: `calc(${pos * w}% + ${w / 2}% - 16px)`, transition: "left .75s ease-in-out", fontSize: 30, transform: walking ? "translateY(-2px)" : "none" }}>
-            <span style={{ display: "inline-block", animation: walking ? "walkbob .3s infinite alternate" : "none" }}>{av.e}</span>
+        <div style={{ height: 52, position: "relative",
+          background: night
+            ? "linear-gradient(180deg,#2A2E3C 0%,#20232E 100%)"
+            : "linear-gradient(180deg,#E7D4AE 0%,#D8C094 100%)" }}>
+          {/* رصيف: خطّ فاتح أعلى الطريق يفصل المشهد عن الأرض بلطف */}
+          <div aria-hidden="true" style={{ position: "absolute", insetInline: 0, top: 0, height: 5,
+            background: night ? "#3A3F52" : NAJDI.lit, opacity: night ? 1 : .9 }} />
+          {/* فواصل البلاط — إيقاع هادئ يوحي بالمسافة لا شريط متقطّع صناعي */}
+          <div aria-hidden="true" style={{ position: "absolute", insetInline: 0, top: 5, bottom: 0,
+            backgroundImage: `repeating-linear-gradient(90deg, ${night ? "rgba(255,255,255,.05)" : "rgba(138,84,38,.14)"} 0 1px, transparent 1px 34px)` }} />
+          <div style={{ position: "absolute", bottom: 6, left: `calc(${pos * w}% + ${w / 2}% - 17px)`,
+            transition: `left .75s ${DS.ease.inOut}` }}>
+            <span style={{ display: "inline-block", animation: walking ? "walkbob .3s infinite alternate" : "none" }}>
+              <Walker size={34} dim={night} />
+            </span>
           </div>
         </div>
       </div>
@@ -4344,6 +4356,133 @@ function AriseLogo({ size = 90, color = "currentColor" }) {
      • currentColor فقط — فترث الرموز وتنقلب مع الثيم تلقائيًا. هذا ما
        يجعلها نظامًا لا ستّ أيقونات متفرّقة.
    ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   🏘️ رسوم Arise — «الحيّ النجدي»
+
+   اعتراف على النفس: حين استبدلت الإيموجي بأيقونات خطّية رفيعة، حللت مشكلة
+   «هذا ليس لنا» وصنعت مشكلة «هذا ليس حيًّا». والخطّ الرفيع الأحادي هو الحركة
+   الافتراضية لكل نظام تصميم مؤسسي في السنوات الأخيرة — أي أنني استبدلت
+   عموميةً بعمومية. والإيموجي على الأقل كان فيه لون ودفء.
+
+   المعيار الصحيح: البديل يجب أن يكون **أجمل** مما استبدله، لا «أخصّ بنا» فقط.
+
+   من أين يأتي الدفء؟ من مصدر ضوء واحد، ومن ثلاث درجات لكل جسم (مضيء/أساس/
+   ظِل)، ومن لون حقيقي لا لون واحد موروث، ومن هندسة فيها انحراف يسير يشي بيد
+   رسمت لا ببرجل.
+
+   ومن أين يأتي الانتماء؟ من مكان الطالب نفسه: العمارة النجدية — الطين
+   المُغرة، والشُرفات المثلّثة التي هي توقيعها الذي لا يُخطئ، والأبواب
+   الخضراء، وضوء الرمل الدافئ. لا أحد في التعليم يبدو هكذا، وهي حارَته هو.
+   ═══════════════════════════════════════════════════════════ */
+const NAJDI = {
+  lit:   "#F2CE93",   // الوجه المواجه للضوء
+  base:  "#DCA65E",   // الطين المُغرة
+  shade: "#B27536",   // الوجه الظليل
+  deep:  "#8A5426",   // أعمق ظلّ وخطوط الفواصل
+  door:  "#1F7A5C",   // الأخضر النجدي على الأبواب والنوافذ
+  doorD: "#125540",
+  glow:  "#FFD98A",   // ضوء نافذة مسائي
+  palm:  "#3F7A46",
+  sky:   "#FBE9C8",
+};
+/* شُرفات مثلّثة: توقيع العمارة النجدية، ووحدة الشكل الأساسية في Arise كلّها */
+function crenels(x, y, w, n = 5, h = 7) {
+  const step = w / n;
+  let d = `M${x} ${y}`;
+  for (let i = 0; i < n; i++) d += ` L${(x + step * i + step / 2).toFixed(1)} ${y - h} L${(x + step * (i + 1)).toFixed(1)} ${y}`;
+  return d + " Z";
+}
+/* شريط الشُرفات — فاصل بصري يخصّ Arise وحده، يُستعمل كحدّ علوي للمشاهد */
+function CrenelBand({ height = 9, color = NAJDI.base, n = 22 }) {
+  return (
+    <svg viewBox={`0 0 220 ${height}`} preserveAspectRatio="none" aria-hidden="true"
+      style={{ display: "block", width: "100%", height }}>
+      <path d={crenels(0, height, 220, n, height)} fill={color} />
+    </svg>
+  );
+}
+
+/* رسوم المباني: كل مبنًى ثلاث درجات + تفصيل حيّ (ضوء نافذة، نخلة، مظلّة).
+   الضوء ثابت من أعلى اليمين في كل الرسوم — وهو ما يجعلها تبدو من يد واحدة. */
+const PLACE_ART = {
+  home: (
+    <>
+      <path d="M14 34h36v28H14z" fill={NAJDI.base} />
+      <path d="M32 34h18v28H32z" fill={NAJDI.shade} />
+      <path d={crenels(14, 34, 36, 5, 6)} fill={NAJDI.lit} />
+      <rect x="27" y="44" width="10" height="18" rx="1.5" fill={NAJDI.door} />
+      <rect x="18" y="42" width="7" height="7" rx="1" fill={NAJDI.glow} />
+      <rect x="39" y="42" width="7" height="7" rx="1" fill={NAJDI.doorD} />
+      <path d="M55 62V46" stroke={NAJDI.deep} strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M55 46c-4-3-7-2-8 1 3 1 6 1 8-1Zm0 0c4-3 7-2 8 1-3 1-6 1-8-1Zm0-2c-1-4 1-7 4-7 1 3 0 6-4 7Z" fill={NAJDI.palm} />
+    </>
+  ),
+  library: (
+    <>
+      <path d="M10 36h44v26H10z" fill={NAJDI.base} />
+      <path d="M34 36h20v26H34z" fill={NAJDI.shade} />
+      <path d={crenels(10, 36, 44, 6, 6)} fill={NAJDI.lit} />
+      <rect x="16" y="44" width="13" height="6" rx="1" fill="#C0453A" />
+      <rect x="16" y="51" width="13" height="6" rx="1" fill={NAJDI.door} />
+      <rect x="37" y="44" width="13" height="6" rx="1" fill="#2E6DA6" />
+      <rect x="37" y="51" width="13" height="6" rx="1" fill={NAJDI.glow} />
+      <path d="M32 30v6" stroke={NAJDI.deep} strokeWidth="2" strokeLinecap="round" />
+      <path d="M32 30l9 2.6-9 2.6z" fill={NAJDI.door} />
+    </>
+  ),
+  school: (
+    <>
+      <path d="M8 38h48v24H8z" fill={NAJDI.base} />
+      <path d="M32 38h24v24H32z" fill={NAJDI.shade} />
+      <path d={crenels(8, 38, 48, 7, 6)} fill={NAJDI.lit} />
+      <path d="M17 62V48a5 5 0 0 1 10 0v14z" fill={NAJDI.door} />
+      <path d="M37 48h10v9H37z" fill={NAJDI.glow} />
+      <path d="M42 48v9M37 52.5h10" stroke={NAJDI.deep} strokeWidth="1.4" />
+      <path d="M32 26v12" stroke={NAJDI.deep} strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M32 26l11 3.2-11 3.2z" fill="#C0453A" />
+    </>
+  ),
+  shop: (
+    <>
+      <path d="M14 40h36v22H14z" fill={NAJDI.base} />
+      <path d="M34 40h16v22H34z" fill={NAJDI.shade} />
+      <path d="M10 40h44l-4-10H14z" fill={NAJDI.lit} />
+      <path d="M18 30l-2 10M26 30l-1 10M34 30v10M42 30l1 10" stroke="#C0453A" strokeWidth="3" />
+      <rect x="20" y="47" width="24" height="11" rx="1.5" fill={NAJDI.glow} />
+      <path d="M24 58v-11M32 58v-11M40 58v-11" stroke={NAJDI.deep} strokeWidth="1.2" opacity=".5" />
+    </>
+  ),
+};
+/* الطالب: رُسم بنفس اليد ومصدر الضوء — ثوب فاتح، غترة، ظِلّ على الجهة المقابلة
+   للضوء. الإيموجي هنا كان يكسر العالم لأنه من يد أخرى. */
+function Walker({ size = 34, dim = false }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true"
+      style={{ display: "block", filter: dim ? "brightness(.85)" : "none" }}>
+      <ellipse cx="20" cy="37" rx="8" ry="1.8" fill={NAJDI.deep} opacity=".2" />
+      <path d="M13 36V24h14v12z" fill="#F6F1E6" />
+      <path d="M20 36V24h7v12z" fill="#E2D9C6" />
+      <path d="M13 24c0-4 3-6 7-6s7 2 7 6z" fill="#F6F1E6" />
+      <circle cx="20" cy="13.5" r="6" fill="#E8B98C" />
+      <path d="M20 7.5c4 0 6.6 2.6 6.6 6 0 1.4-.4 2.6-1 3.4l1.6 5.6-3-1.6-1 2-1-2-1 2-1-2-3 1.6 1.6-5.6c-.6-.8-1-2-1-3.4 0-3.4 2.6-6 6-6Z" fill="#C0453A" opacity=".92" />
+      <path d="M14.6 9.4c1.4-1.2 3.3-1.9 5.4-1.9s4 .7 5.4 1.9c-1.2 1-3.2 1.6-5.4 1.6s-4.2-.6-5.4-1.6Z" fill="#8E2F27" />
+    </svg>
+  );
+}
+
+function PlaceArt({ n, size = 64, dim = false }) {
+  const art = PLACE_ART[n] || PLACE_ART.home;
+  return (
+    <svg width={size} height={size * 0.92} viewBox="8 24 48 40" aria-hidden="true"
+      style={{ display: "block", filter: dim ? "brightness(.82) saturate(.9)" : "none",
+        transition: `filter ${DS.dur.slow}ms ${DS.ease.inOut}` }}>
+      {art}
+      {/* ظلّ أرضي ناعم يثبّت المبنى على الأرض بدل أن يطفو */}
+      <ellipse cx="32" cy="63" rx="22" ry="2.4" fill={NAJDI.deep} opacity=".22" />
+    </svg>
+  );
+}
+
 const AR_ICONS = {
   /* التنقّل */
   world: "M3 18c3.2 0 4-2.4 6.6-2.4S13 18 16 18M4 13.5 9 8.5l3.2 3.2L20 4M20 4h-4.6M20 4v4.6",
@@ -6418,10 +6557,16 @@ function TabBar({ active, theme, badges, onGo }) {
                  والخط الذهبي فوقه يكفي للدلالة على التبويب النشط. */
               color: on ? T.text : T.sub, borderTop: `2.5px solid ${on ? "var(--gold)" : "transparent"}`,
             }}>
+            {/* التبويب النشط يجلس داخل قرص مضيء بلون الرمل — الخطّ الرفيع وحده
+                كان باردًا بجوار عالمٍ مشمس فوقه. الدفء هنا من اللون لا من الحركة. */}
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 1 }}>
-              <Ic n={t.ic} s={23} w={on ? 2.15 : 1.75}
-                style={{ transition: `stroke-width ${DS.dur.quick}ms ${DS.ease.out}, transform ${DS.dur.base}ms ${DS.ease.spring}`,
-                  transform: on ? "translateY(-1px)" : "none" }} />
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center",
+                width: 38, height: 30, borderRadius: DS.radius.full,
+                background: on ? "var(--goldSoft)" : "transparent",
+                transition: `background ${DS.dur.base}ms ${DS.ease.out}, transform ${DS.dur.base}ms ${DS.ease.spring}`,
+                transform: on ? "translateY(-1px)" : "none" }}>
+                <Ic n={t.ic} s={22} w={on ? 2.3 : 1.85} c={on ? "var(--gold)" : "currentColor"} />
+              </span>
             </div>
             <div aria-hidden="true" style={{ fontSize: 10.5, fontWeight: on ? 900 : 700, marginTop: 3 }}>{t.n}</div>
             {badge > 0 && <span aria-hidden="true" style={{ position: "absolute", top: 4, insetInlineEnd: "26%", background: "var(--badFill)", color: "var(--onBad)", borderRadius: 99, fontSize: 9.5, fontWeight: 900, padding: "1px 5px", minWidth: 16 }}>{badge > 99 ? "99+" : badge}</span>}
