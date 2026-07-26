@@ -4363,9 +4363,62 @@ const AR_ICONS = {
   bookmark: "M6.4 3.6h11.2v16.8L12 16.4l-5.6 4Z",
   target: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 16.4a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8ZM12 12h.01",
   day: "M4.4 6.6h15.2v13.8H4.4ZM4.4 10.4h15.2M8.6 4.2v4.2M15.4 4.2v4.2",
+  /* شاشة المعركة — أطول زمن نظر في التطبيق */
+  heart: "M12 20.2C6.9 16.9 3.4 13.9 3.4 10.2A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 8.6 2.6c0 3.7-3.5 6.7-8.6 10Z",
+  hint: "M9.4 19.6h5.2M10.2 22h3.6M12 2.6a6.2 6.2 0 0 1 3.6 11.2c-.7.5-1.1 1.2-1.1 2H9.5c0-.8-.4-1.5-1.1-2A6.2 6.2 0 0 1 12 2.6Z",
+  freeze: "M12 2.6v18.8M4 7.3l16 9.4M20 7.3 4 16.7M12 6.4 9.6 4M12 6.4 14.4 4M12 17.6 9.6 20M12 17.6l2.4 2.4",
+  potion: "M9.6 3h4.8M10.4 3v4.8L6.2 16.4A3 3 0 0 0 8.9 21h6.2a3 3 0 0 0 2.7-4.6L13.6 7.8V3M7.4 14.6h9.2",
+  blade: "M14.6 3.4h6v6L11.4 18.6l-6-6ZM5.4 18.6 3 21M8.4 15.6l-2 2",
+  link: "M10 14a3.6 3.6 0 0 0 5.4.4l2.6-2.6a3.8 3.8 0 0 0-5.4-5.4l-1.5 1.5M14 10a3.6 3.6 0 0 0-5.4-.4L6 12.2a3.8 3.8 0 0 0 5.4 5.4l1.5-1.5",
+  order: "M4.4 6.6h3.2v3.2H4.4ZM4.4 14.2h3.2v3.2H4.4ZM10.6 8.2h9M10.6 15.8h9",
+  calm: "M12 10.4a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6ZM4 20.2c1.8-2.6 4.4-3.4 8-3.4s6.2.8 8 3.4M6.4 13.2c1.6 1.4 3.4 2.1 5.6 2.1s4-.7 5.6-2.1",
+  trophy: "M7.4 4h9.2v4.6a4.6 4.6 0 0 1-9.2 0ZM7.4 5.6H4.6v1.6a3 3 0 0 0 2.8 3M16.6 5.6h2.8v1.6a3 3 0 0 1-2.8 3M12 13.2V17M8.6 20.4h6.8L14.6 17H9.4Z",
   sun: "M12 16.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4ZM12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6 17 17M7 7 5.4 5.4",
   moon: "M20.4 14.6A8.8 8.8 0 0 1 9.4 3.6a8.8 8.8 0 1 0 11 11Z",
 };
+/* ═══════════════════════════════════════════════════════════
+   ⬡ خاتَم الخصم — Adversary Sigil
+
+   بطل شاشة المعركة كان إيموجي عملاقًا: أكبر عنصر على الشاشة، ومن رسم آبل.
+   ورسم عشرين خصمًا يدويًا مشروع رسم لا يُنجَز هنا.
+
+   الحل أفضل من الاثنين: خاتَم يُولَّد من اسم الخصم نفسه. مضلّع خارجي وأضلاع
+   داخلية تُشتقّ من بصمة الاسم، فيبقى شكل كل خصم ثابتًا له وحده، ويولد
+   البستياري كله من لغة الخطّ نفسها بلا أصول جديدة.
+
+   وهو الأصدق سرديًا أيضًا: خصوم Arise ليست وحوشًا — هي عقبات مجرّدة.
+   الاسم والوصف يحملان الحكاية، والخاتَم يحمل الهيبة.
+   ═══════════════════════════════════════════════════════════ */
+function AdversarySigil({ name = "", size = 78, hurt = false, boss = false }) {
+  let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+  const rnd = (n) => { h = (h * 1103515245 + 12345) & 0x7fffffff; return h % n; };
+  const sides = 5 + (Math.abs(h) % 3);              // ٥–٧ أضلاع
+  const R = 34, C = 50;
+  const pt = (i, r) => {
+    const a = (Math.PI * 2 * i) / sides - Math.PI / 2;
+    return [C + r * Math.cos(a), C + r * Math.sin(a)];
+  };
+  const outer = Array.from({ length: sides }, (_, i) => pt(i, R).map(v => v.toFixed(1)).join(",")).join(" ");
+  const inner = Array.from({ length: sides }, (_, i) => pt(i, R * 0.52).map(v => v.toFixed(1)).join(",")).join(" ");
+  const spokes = Array.from({ length: sides }, (_, i) => {
+    if (rnd(10) < 4) return null;
+    const [x1, y1] = pt(i, R * 0.52), [x2, y2] = pt(i, R);
+    return `M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}`;
+  }).filter(Boolean).join(" ");
+  const col = hurt ? "var(--onBad)" : boss ? "var(--gold)" : "currentColor";
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" fill="none"
+      stroke={col} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+      style={{ display: "block", transition: `stroke ${DS.dur.instant}ms linear, transform ${DS.dur.base}ms ${DS.ease.spring}`,
+        transform: hurt ? "scale(.93) rotate(-3deg)" : "none" }}>
+      <polygon points={outer} opacity={boss ? 1 : .85} />
+      <polygon points={inner} opacity=".45" />
+      {spokes && <path d={spokes} opacity=".65" />}
+      <circle cx={C} cy={C} r={boss ? 7 : 5} fill={col} stroke="none" opacity=".9" />
+    </svg>
+  );
+}
+
 /* غلاف واحد يفرض القواعد: لا أيقونة تخرج عن السُمك أو النهايات أو الشبكة */
 function Ic({ n, s = 22, c = "currentColor", w = 1.9, style = {} }) {
   const d = AR_ICONS[n];
@@ -6853,36 +6906,65 @@ function Battle({ view, g, theme, spendItem, onEnd }) {
     );
   }
 
-  const kindChip = { mcq: "🎯 اختر الضربة", num: "🔢 اكتب الجواب واضرب", match: "🔗 وصّل الأزواج — كل وصلة ضربة", order: "🧩 رتّب خطوات الحل — ترتيب كامل = ضربة حاسمة" }[q.kind];
+  const KIND = { mcq: ["target", "اختر الضربة"], num: ["blade", "اكتب الجواب واضرب"],
+    match: ["link", "وصّل الأزواج — كل وصلة ضربة"], order: ["order", "رتّب خطوات الحل"] }[q.kind] || ["target", ""];
 
   return (
     <div style={{ animation: "drop .3s ease" }}>
       {/* العدو */}
       <div className="card" style={{ textAlign: "center", background: "#17251F", color: "#fff", border: "none", position: "relative", animation: fx.hitEnemy ? "shake .4s ease" : "none" }}>
         {fx.dmgText && fx.hitEnemy && <div style={{ position: "absolute", top: 6, left: "50%", transform: "translateX(-50%)", color: "#F0C560", fontWeight: 900, fontSize: 20, animation: "floatUp .8s ease forwards" }}>{fx.dmgText}</div>}
-        <div style={{ fontSize: 54, filter: fx.hitEnemy ? "brightness(2)" : "none", animation: "pulse 2.5s infinite" }}>{enemy.icon}</div>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <AdversarySigil name={enemy.name || ""} size={78} hurt={!!fx.hitEnemy} boss={!!isBoss} />
+        </div>
         <div style={{ fontWeight: 900, fontSize: 15, margin: "4px 0 8px" }}>{enemy.name}</div>
         <div style={{ background: "rgba(255,255,255,.15)", borderRadius: 99, height: 12, overflow: "hidden", maxWidth: 260, margin: "0 auto" }}>
           <div style={{ width: `${(enemyHp / enemy.hp) * 100}%`, height: "100%", background: "linear-gradient(90deg,#E85D4A,#B3402F)", transition: "width .5s ease", borderRadius: 99 }} />
         </div>
-        <div style={{ fontSize: 12, marginTop: 4, opacity: .9, fontWeight: 800 }}><Ico n="skull" s={14} /> {enemyHp}/{enemy.hp}</div>
+        <div style={{ fontSize: DS.text.micro, marginTop: DS.space[1], opacity: .82, fontWeight: 800, letterSpacing: 1 }}>{enemyHp} / {enemy.hp}</div>
       </div>
 
       {/* اللاعب */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px", marginBottom: 8, animation: fx.hitMe ? "shake .4s ease" : "none" }}>
-        <div style={{ display: "flex", gap: 3 }}>{Array.from({ length: maxHearts }).map((_, i) => <Ico key={i} n="heart" s={19} c={i < hearts ? "#E0453A" : theme.line} style={{ filter: i < hearts ? "drop-shadow(0 1px 1px rgba(0,0,0,.25))" : "none", transition: "fill .3s" }} />)}</div>
-        <div style={{ fontWeight: 900, fontSize: 13, color: combo >= 2 ? "var(--gold)" : theme.sub }}>{combo >= 2 ? `🔥 كومبو ×${Math.min(combo, 4)}` : tired ? "🥱 مرهق: −1 قلب" : calm ? "🧘 خذ راحتك" : `جولة ${qi + 1}`}</div>
+        {/* القلوب: القلب المفقود لا يختفي — يبقى مرسومًا فارغًا.
+            الفراغ يقول «خسرتَه» بينما الاختفاء يقول «لم يكن موجودًا». */}
+        <div style={{ display: "flex", gap: 5 }} role="img" aria-label={`${hearts} من ${maxHearts} قلوب`}>
+          {Array.from({ length: maxHearts }).map((_, i) => {
+            const alive = i < hearts;
+            return <span key={i} style={{
+              display: "block", transition: `opacity ${DS.dur.base}ms ${DS.ease.out}, transform ${DS.dur.base}ms ${DS.ease.spring}`,
+              opacity: alive ? 1 : .28, transform: alive ? "none" : "scale(.86)" }}>
+              <Ic n="heart" s={19} w={alive ? 2.3 : 1.7} c={alive ? "var(--badFill)" : "currentColor"} />
+            </span>;
+          })}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 900, fontSize: DS.text.tiny, color: combo >= 2 ? T.gold : theme.sub }}>
+          {combo >= 2 ? <><Ic n="flame" s={15} w={2.1} /> كومبو ×{Math.min(combo, 4)}</>
+            : tired ? <><Ic n="heart" s={14} w={2.1} /> مرهق: −1 قلب</>
+            : calm ? <><Ic n="calm" s={15} w={2} /> خذ راحتك</>
+            : `جولة ${qi + 1}`}
+        </div>
         <div style={{ display: "flex", gap: 6 }}>
           <button className="hudbtn" onClick={useHint} disabled={q.kind !== "mcq" || picked !== null || removed.length > 0 || (!freeHint && g.items.hint <= 0)}
-            style={{ opacity: q.kind === "mcq" && (freeHint || g.items.hint > 0) && !removed.length ? 1 : .35 }}>💡{freeHint ? "★" : g.items.hint}</button>
-          <button className="hudbtn" onClick={useFreeze} disabled={calm || frozen || g.items.freeze <= 0} style={{ opacity: !calm && g.items.freeze > 0 && !frozen ? 1 : .35 }}>🧊{g.items.freeze}</button>
-          <button className="hudbtn" onClick={usePotion} disabled={hearts >= maxHearts || g.items.potion <= 0} style={{ opacity: g.items.potion > 0 && hearts < maxHearts ? 1 : .35 }}>🧪{g.items.potion}</button>
+            aria-label={`تلميح — ${freeHint ? "مجاني" : g.items.hint}`}
+            style={{ gap: 4, opacity: q.kind === "mcq" && (freeHint || g.items.hint > 0) && !removed.length ? 1 : .35 }}>
+            <Ic n="hint" s={17} w={2} /><span style={{ fontSize: DS.text.micro }}>{freeHint ? "★" : g.items.hint}</span></button>
+          <button className="hudbtn" onClick={useFreeze} disabled={calm || frozen || g.items.freeze <= 0}
+            aria-label={`تجميد الوقت — ${g.items.freeze}`}
+            style={{ gap: 4, opacity: !calm && g.items.freeze > 0 && !frozen ? 1 : .35 }}>
+            <Ic n="freeze" s={17} w={2} /><span style={{ fontSize: DS.text.micro }}>{g.items.freeze}</span></button>
+          <button className="hudbtn" onClick={usePotion} disabled={hearts >= maxHearts || g.items.potion <= 0}
+            aria-label={`جرعة شفاء — ${g.items.potion}`}
+            style={{ gap: 4, opacity: g.items.potion > 0 && hearts < maxHearts ? 1 : .35 }}>
+            <Ic n="potion" s={17} w={2} /><span style={{ fontSize: DS.text.micro }}>{g.items.potion}</span></button>
         </div>
       </div>
 
       <div className="card" style={{ position: "relative" }}>
         {fx.xpText && fx.hitEnemy && <div style={{ position: "absolute", top: 8, left: 14, color: "var(--gold)", fontWeight: 900, fontSize: 15, animation: "floatUp .9s ease forwards", direction: "ltr" }}>{fx.xpText} XP</div>}
-        <div style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", marginBottom: 8 }}>{kindChip}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: DS.text.micro, fontWeight: 900, color: T.gold, marginBottom: DS.space[3], letterSpacing: .4 }}>
+          <Ic n={KIND[0]} s={15} w={2.1} /> {KIND[1]}
+        </div>
 
         {/* المؤقت — يختفي كليًا في الوضع الهادئ */}
         {!calm && (
